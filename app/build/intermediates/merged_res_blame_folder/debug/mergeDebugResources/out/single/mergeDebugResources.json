@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "net.wetheGoverned.app-debug-61:/xml_backup_rules.xml.flat",
+        "source": "net.wetheGoverned.app-main-63:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "net.wetheGoverned.app-debug-61:/xml_data_extraction_rules.xml.flat",
+        "source": "net.wetheGoverned.app-main-63:/xml/data_extraction_rules.xml"
+    }
+]

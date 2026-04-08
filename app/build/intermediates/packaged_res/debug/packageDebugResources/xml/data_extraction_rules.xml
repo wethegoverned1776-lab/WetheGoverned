@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    data_extraction_rules.xml  (Android 12+)
+    Placed at: app/src/main/res/xml/data_extraction_rules.xml
+
+    Governs both cloud backup and device-to-device transfer.
+    Private keys and session data must never leave the originating device.
+-->
+<data-extraction-rules>
+
+    <cloud-backup>
+        <!-- Never back up private key or session data to cloud -->
+        <exclude domain="sharedpref" path="wtg_session.xml" />
+        <exclude domain="sharedpref" path="." />
+        <!-- Room DB excluded — too large and stale data is useless; relay re-syncs -->
+        <exclude domain="database" path="." />
+    </cloud-backup>
+
+    <device-transfer>
+        <!--
+            Device-to-device transfer: also exclude key material.
+            Users must re-import their nsec on the new device.
+            This is intentional: the Nostr private key should never
+            be copied across devices automatically.
+        -->
+        <exclude domain="sharedpref" path="wtg_session.xml" />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="database"   path="." />
+    </device-transfer>
+
+</data-extraction-rules>

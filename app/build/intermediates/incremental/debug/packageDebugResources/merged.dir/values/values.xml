@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">WeTheGoverned</string>
+    <string name="cd_back_button">Go back</string>
+    <string name="cd_poll_option_selected">Selected option: %1$s</string>
+    <string name="cd_resident_avatar">%1$s\'s avatar</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="error_no_network">No network connection. Changes will be saved and retried when connectivity is restored.</string>
+    <string name="error_not_logged_in">You must be logged in to perform this action.</string>
+    <string name="metrics_discrepancy">⚠ Discrepancy between official and resident data</string>
+    <string name="metrics_report_fab">Report Metric</string>
+    <string name="metrics_submit">Submit Report</string>
+    <string name="metrics_title">District Metrics</string>
+    <string name="nav_candidates">Candidates</string>
+    <string name="nav_metrics">Metrics</string>
+    <string name="nav_polls">Polls</string>
+    <string name="nav_scorecard">Scorecard</string>
+    <string name="onboarding_detect_location">Detect from Location</string>
+    <string name="onboarding_generate_key">Generate New Key</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_import_key">Import Existing Key</string>
+    <string name="onboarding_send_verification">Send Verification Link</string>
+    <string name="onboarding_skip">Skip for now</string>
+    <string name="onboarding_welcome_body">A decentralized platform for true representation. Participate in district polls, track your representative\'s performance, and hold candidates accountable — all powered by Nostr.</string>
+    <string name="onboarding_welcome_title">WeTheGoverned</string>
+    <string name="poll_cast_vote">Cast Vote</string>
+    <string name="poll_closed_badge">Closed</string>
+    <string name="poll_live_badge">LIVE</string>
+    <string name="poll_submitting">Submitting…</string>
+    <string name="poll_tier_gate_body">Verify your district address in your profile to participate in polls.</string>
+    <string name="poll_tier_gate_title">Tier 2 verification required to vote</string>
+    <string name="poll_votes_count">%1$d votes</string>
+    <string name="scorecard_category_breakdown">Category Breakdown</string>
+    <string name="scorecard_official_label">Official</string>
+    <string name="scorecard_overall">Overall Score</string>
+    <string name="scorecard_resident_label">Resident</string>
+    <string name="scorecard_title">Representative Scorecard</string>
+    <string name="tier_1">Tier 1 – Email Verified</string>
+    <string name="tier_2">Tier 2 – Address Verified</string>
+    <string name="tier_3">Tier 3 – Identity Verified</string>
+    <string name="tier_unverified">Unverified</string>
+    <string name="tier_upgrade_cta">Increase Your Impact</string>
+    <style name="Theme.WeTheGoverned" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:colorPrimary">@color/purple_500</item>
+        <item name="android:colorPrimaryDark">@color/purple_700</item>
+        <item name="android:colorAccent">@color/teal_200</item>
+    </style>
+</resources>

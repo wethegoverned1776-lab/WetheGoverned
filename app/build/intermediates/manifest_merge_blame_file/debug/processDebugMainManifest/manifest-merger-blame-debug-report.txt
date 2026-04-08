@@ -1,0 +1,149 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="net.wetheGoverned"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:4:5-67
+11-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:4:22-64
+12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+12-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:5:5-79
+12-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:5:22-76
+13    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+13-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:6:5-81
+13-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:6:22-78
+14
+15    <permission
+15-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+16        android:name="net.wetheGoverned.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+16-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+17        android:protectionLevel="signature" />
+17-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+18
+19    <uses-permission android:name="net.wetheGoverned.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+19-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+19-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+20
+21    <application
+21-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:8:5-24:19
+22        android:name="net.wetheGoverned.WeTheGovernedApplication"
+22-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:9:9-49
+23        android:allowBackup="false"
+23-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:10:9-36
+24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+24-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+25        android:debuggable="true"
+26        android:extractNativeLibs="false"
+27        android:label="WeTheGoverned"
+27-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:11:9-38
+28        android:testOnly="true"
+29        android:theme="@style/Theme.WeTheGoverned" >
+29-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:12:9-51
+30        <activity
+30-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:14:9-22:20
+31            android:name="net.wetheGoverned.MainActivity"
+31-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:15:13-41
+32            android:exported="true"
+32-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:16:13-36
+33            android:theme="@style/Theme.WeTheGoverned" >
+33-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:17:13-55
+34            <intent-filter>
+34-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:18:13-21:29
+35                <action android:name="android.intent.action.MAIN" />
+35-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:19:17-69
+35-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:19:25-66
+36
+37                <category android:name="android.intent.category.LAUNCHER" />
+37-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:20:17-77
+37-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:20:27-74
+38            </intent-filter>
+39        </activity>
+40        <activity
+40-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rodne\.gradle\caches\9.0.0\transforms\812bca16c38d1bd39e7206505e32b7ab\transformed\jetified-ui-tooling-release\AndroidManifest.xml:23:9-25:39
+41            android:name="androidx.compose.ui.tooling.PreviewActivity"
+41-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rodne\.gradle\caches\9.0.0\transforms\812bca16c38d1bd39e7206505e32b7ab\transformed\jetified-ui-tooling-release\AndroidManifest.xml:24:13-71
+42            android:exported="true" />
+42-->[androidx.compose.ui:ui-tooling-android:1.6.8] C:\Users\rodne\.gradle\caches\9.0.0\transforms\812bca16c38d1bd39e7206505e32b7ab\transformed\jetified-ui-tooling-release\AndroidManifest.xml:25:13-36
+43
+44        <provider
+44-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rodne\.gradle\caches\9.0.0\transforms\dd3ca282a86a4b8d8cff245dfb022960\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:24:9-32:20
+45            android:name="androidx.startup.InitializationProvider"
+45-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rodne\.gradle\caches\9.0.0\transforms\dd3ca282a86a4b8d8cff245dfb022960\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:25:13-67
+46            android:authorities="net.wetheGoverned.androidx-startup"
+46-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rodne\.gradle\caches\9.0.0\transforms\dd3ca282a86a4b8d8cff245dfb022960\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:26:13-68
+47            android:exported="false" >
+47-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rodne\.gradle\caches\9.0.0\transforms\dd3ca282a86a4b8d8cff245dfb022960\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:27:13-37
+48            <meta-data
+48-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rodne\.gradle\caches\9.0.0\transforms\dd3ca282a86a4b8d8cff245dfb022960\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:29:13-31:52
+49                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+49-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rodne\.gradle\caches\9.0.0\transforms\dd3ca282a86a4b8d8cff245dfb022960\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:30:17-75
+50                android:value="androidx.startup" />
+50-->[androidx.emoji2:emoji2:1.3.0] C:\Users\rodne\.gradle\caches\9.0.0\transforms\dd3ca282a86a4b8d8cff245dfb022960\transformed\jetified-emoji2-1.3.0\AndroidManifest.xml:31:17-49
+51            <meta-data
+51-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\rodne\.gradle\caches\9.0.0\transforms\bef8256372d83d0eeb4cfe13c9bff92e\transformed\jetified-lifecycle-process-2.8.3\AndroidManifest.xml:29:13-31:52
+52                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+52-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\rodne\.gradle\caches\9.0.0\transforms\bef8256372d83d0eeb4cfe13c9bff92e\transformed\jetified-lifecycle-process-2.8.3\AndroidManifest.xml:30:17-78
+53                android:value="androidx.startup" />
+53-->[androidx.lifecycle:lifecycle-process:2.8.3] C:\Users\rodne\.gradle\caches\9.0.0\transforms\bef8256372d83d0eeb4cfe13c9bff92e\transformed\jetified-lifecycle-process-2.8.3\AndroidManifest.xml:31:17-49
+54            <meta-data
+54-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+55                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+55-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+56                android:value="androidx.startup" />
+56-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+57        </provider>
+58
+59        <service
+59-->[androidx.room:room-runtime:2.6.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\28d51a604d1badd17e3554e4b5eae39b\transformed\room-runtime-2.6.1\AndroidManifest.xml:24:9-28:63
+60            android:name="androidx.room.MultiInstanceInvalidationService"
+60-->[androidx.room:room-runtime:2.6.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\28d51a604d1badd17e3554e4b5eae39b\transformed\room-runtime-2.6.1\AndroidManifest.xml:25:13-74
+61            android:directBootAware="true"
+61-->[androidx.room:room-runtime:2.6.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\28d51a604d1badd17e3554e4b5eae39b\transformed\room-runtime-2.6.1\AndroidManifest.xml:26:13-43
+62            android:exported="false" />
+62-->[androidx.room:room-runtime:2.6.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\28d51a604d1badd17e3554e4b5eae39b\transformed\room-runtime-2.6.1\AndroidManifest.xml:27:13-37
+63
+64        <receiver
+64-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+65            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+65-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+66            android:directBootAware="false"
+66-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+67            android:enabled="true"
+67-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+68            android:exported="true"
+68-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+69            android:permission="android.permission.DUMP" >
+69-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+70            <intent-filter>
+70-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+71                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+71-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+71-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+72            </intent-filter>
+73            <intent-filter>
+73-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+74                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+74-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+74-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+75            </intent-filter>
+76            <intent-filter>
+76-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+77                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+77-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+77-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+78            </intent-filter>
+79            <intent-filter>
+79-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+80                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+80-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+80-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\5792d47c62af8ea32ce7f5d58cf88fbb\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+81            </intent-filter>
+82        </receiver>
+83    </application>
+84
+85</manifest>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    backup_rules.xml  (Android 11 and below)
+    Placed at: app/src/main/res/xml/backup_rules.xml
+
+    CRITICAL: The encrypted session prefs (wtg_session) must NOT be backed up.
+    Backing up encrypted prefs can expose the keystore-wrapped keys on a new
+    device where the original Android Keystore entry does not exist, causing
+    decryption failures and potential private key leakage.
+
+    We exclude ALL app prefs from backup for safety; users re-onboard on a new
+    device and re-import their nsec key.
+-->
+<full-backup-content>
+    <!-- Exclude encrypted session prefs (contains private key reference) -->
+    <exclude domain="sharedpref" path="wtg_session.xml" />
+    <!-- Exclude all encrypted prefs as a belt-and-suspenders measure -->
+    <exclude domain="sharedpref" path="." />
+    <!-- Exclude Room databases (large; better re-synced from relay) -->
+    <exclude domain="database" path="wetheGoverned.db" />
+    <exclude domain="database" path="wetheGoverned.db-shm" />
+    <exclude domain="database" path="wetheGoverned.db-wal" />
+</full-backup-content>
