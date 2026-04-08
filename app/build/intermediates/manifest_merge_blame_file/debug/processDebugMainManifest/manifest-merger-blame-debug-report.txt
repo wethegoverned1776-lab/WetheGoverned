@@ -9,14 +9,14 @@
 9        android:targetSdkVersion="35" />
 10
 11    <uses-permission android:name="android.permission.INTERNET" />
-11-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:4:5-67
-11-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:4:22-64
+11-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:5:5-67
+11-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:5:22-64
 12    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-12-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:5:5-79
-12-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:5:22-76
+12-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:6:5-79
+12-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:6:22-76
 13    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-13-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:6:5-81
-13-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:6:22-78
+13-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:7:5-81
+13-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:7:22-78
 14
 15    <permission
 15-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
@@ -30,37 +30,37 @@
 19-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
 20
 21    <application
-21-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:8:5-24:19
+21-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:9:5-25:19
 22        android:name="net.wetheGoverned.WeTheGovernedApplication"
-22-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:9:9-49
+22-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:10:9-49
 23        android:allowBackup="false"
-23-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:10:9-36
+23-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:11:9-36
 24        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 24-->[androidx.core:core:1.13.1] C:\Users\rodne\.gradle\caches\9.0.0\transforms\431fcbbc8a9e1f082c7e578382bb8e25\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
 25        android:debuggable="true"
 26        android:extractNativeLibs="false"
 27        android:label="WeTheGoverned"
-27-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:11:9-38
+27-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:12:9-38
 28        android:testOnly="true"
-29        android:theme="@style/Theme.WeTheGoverned" >
-29-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:12:9-51
+29        android:theme="@style/Theme.WeTheGoverned.Splash" >
+29-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:13:9-58
 30        <activity
-30-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:14:9-22:20
+30-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:15:9-23:20
 31            android:name="net.wetheGoverned.MainActivity"
-31-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:15:13-41
+31-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:16:13-41
 32            android:exported="true"
-32-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:16:13-36
-33            android:theme="@style/Theme.WeTheGoverned" >
-33-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:17:13-55
+32-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:17:13-36
+33            android:theme="@style/Theme.WeTheGoverned.Splash" >
+33-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:18:13-62
 34            <intent-filter>
-34-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:18:13-21:29
+34-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:19:13-22:29
 35                <action android:name="android.intent.action.MAIN" />
-35-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:19:17-69
-35-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:19:25-66
+35-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:20:17-69
+35-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:20:25-66
 36
 37                <category android:name="android.intent.category.LAUNCHER" />
-37-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:20:17-77
-37-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:20:27-74
+37-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:21:17-77
+37-->C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\app\src\main\AndroidManifest.xml:21:27-74
 38            </intent-filter>
 39        </activity>
 40        <activity

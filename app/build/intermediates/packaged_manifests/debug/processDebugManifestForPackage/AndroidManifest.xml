@@ -26,11 +26,11 @@
         android:extractNativeLibs="false"
         android:label="WeTheGoverned"
         android:testOnly="true"
-        android:theme="@style/Theme.WeTheGoverned" >
+        android:theme="@style/Theme.WeTheGoverned.Splash" >
         <activity
             android:name="net.wetheGoverned.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.WeTheGoverned" >
+            android:theme="@style/Theme.WeTheGoverned.Splash" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

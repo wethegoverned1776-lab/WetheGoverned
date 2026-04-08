@@ -438,42 +438,42 @@ public final class DaggerWeTheGovernedApplication_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String net_wetheGoverned_ui_district_MetricsViewModel = "net.wetheGoverned.ui.district.MetricsViewModel";
-
-      static String net_wetheGoverned_ui_PollDetailViewModel = "net.wetheGoverned.ui.PollDetailViewModel";
-
-      static String net_wetheGoverned_ui_profile_ResidentProfileViewModel = "net.wetheGoverned.ui.profile.ResidentProfileViewModel";
-
-      static String net_wetheGoverned_ui_HomeViewModel = "net.wetheGoverned.ui.HomeViewModel";
+      static String net_wetheGoverned_ui_verification_TierVerificationViewModel = "net.wetheGoverned.ui.verification.TierVerificationViewModel";
 
       static String net_wetheGoverned_ui_ScorecardViewModel = "net.wetheGoverned.ui.ScorecardViewModel";
 
+      static String net_wetheGoverned_ui_HomeViewModel = "net.wetheGoverned.ui.HomeViewModel";
+
+      static String net_wetheGoverned_ui_profile_ResidentProfileViewModel = "net.wetheGoverned.ui.profile.ResidentProfileViewModel";
+
+      static String net_wetheGoverned_ui_PollDetailViewModel = "net.wetheGoverned.ui.PollDetailViewModel";
+
       static String net_wetheGoverned_ui_ManifestoViewModel = "net.wetheGoverned.ui.ManifestoViewModel";
 
-      static String net_wetheGoverned_ui_verification_TierVerificationViewModel = "net.wetheGoverned.ui.verification.TierVerificationViewModel";
+      static String net_wetheGoverned_ui_district_MetricsViewModel = "net.wetheGoverned.ui.district.MetricsViewModel";
 
       static String net_wetheGoverned_ui_onboarding_OnboardingViewModel = "net.wetheGoverned.ui.onboarding.OnboardingViewModel";
 
       @KeepFieldType
-      MetricsViewModel net_wetheGoverned_ui_district_MetricsViewModel2;
-
-      @KeepFieldType
-      PollDetailViewModel net_wetheGoverned_ui_PollDetailViewModel2;
-
-      @KeepFieldType
-      ResidentProfileViewModel net_wetheGoverned_ui_profile_ResidentProfileViewModel2;
-
-      @KeepFieldType
-      HomeViewModel net_wetheGoverned_ui_HomeViewModel2;
+      TierVerificationViewModel net_wetheGoverned_ui_verification_TierVerificationViewModel2;
 
       @KeepFieldType
       ScorecardViewModel net_wetheGoverned_ui_ScorecardViewModel2;
 
       @KeepFieldType
+      HomeViewModel net_wetheGoverned_ui_HomeViewModel2;
+
+      @KeepFieldType
+      ResidentProfileViewModel net_wetheGoverned_ui_profile_ResidentProfileViewModel2;
+
+      @KeepFieldType
+      PollDetailViewModel net_wetheGoverned_ui_PollDetailViewModel2;
+
+      @KeepFieldType
       ManifestoViewModel net_wetheGoverned_ui_ManifestoViewModel2;
 
       @KeepFieldType
-      TierVerificationViewModel net_wetheGoverned_ui_verification_TierVerificationViewModel2;
+      MetricsViewModel net_wetheGoverned_ui_district_MetricsViewModel2;
 
       @KeepFieldType
       OnboardingViewModel net_wetheGoverned_ui_onboarding_OnboardingViewModel2;
@@ -542,17 +542,17 @@ public final class DaggerWeTheGovernedApplication_HiltComponents_SingletonC {
 
       static String net_wetheGoverned_ui_district_MetricsViewModel = "net.wetheGoverned.ui.district.MetricsViewModel";
 
+      static String net_wetheGoverned_ui_verification_TierVerificationViewModel = "net.wetheGoverned.ui.verification.TierVerificationViewModel";
+
+      static String net_wetheGoverned_ui_ScorecardViewModel = "net.wetheGoverned.ui.ScorecardViewModel";
+
+      static String net_wetheGoverned_ui_HomeViewModel = "net.wetheGoverned.ui.HomeViewModel";
+
       static String net_wetheGoverned_ui_onboarding_OnboardingViewModel = "net.wetheGoverned.ui.onboarding.OnboardingViewModel";
 
       static String net_wetheGoverned_ui_PollDetailViewModel = "net.wetheGoverned.ui.PollDetailViewModel";
 
-      static String net_wetheGoverned_ui_HomeViewModel = "net.wetheGoverned.ui.HomeViewModel";
-
       static String net_wetheGoverned_ui_profile_ResidentProfileViewModel = "net.wetheGoverned.ui.profile.ResidentProfileViewModel";
-
-      static String net_wetheGoverned_ui_verification_TierVerificationViewModel = "net.wetheGoverned.ui.verification.TierVerificationViewModel";
-
-      static String net_wetheGoverned_ui_ScorecardViewModel = "net.wetheGoverned.ui.ScorecardViewModel";
 
       @KeepFieldType
       ManifestoViewModel net_wetheGoverned_ui_ManifestoViewModel2;
@@ -561,22 +561,22 @@ public final class DaggerWeTheGovernedApplication_HiltComponents_SingletonC {
       MetricsViewModel net_wetheGoverned_ui_district_MetricsViewModel2;
 
       @KeepFieldType
+      TierVerificationViewModel net_wetheGoverned_ui_verification_TierVerificationViewModel2;
+
+      @KeepFieldType
+      ScorecardViewModel net_wetheGoverned_ui_ScorecardViewModel2;
+
+      @KeepFieldType
+      HomeViewModel net_wetheGoverned_ui_HomeViewModel2;
+
+      @KeepFieldType
       OnboardingViewModel net_wetheGoverned_ui_onboarding_OnboardingViewModel2;
 
       @KeepFieldType
       PollDetailViewModel net_wetheGoverned_ui_PollDetailViewModel2;
 
       @KeepFieldType
-      HomeViewModel net_wetheGoverned_ui_HomeViewModel2;
-
-      @KeepFieldType
       ResidentProfileViewModel net_wetheGoverned_ui_profile_ResidentProfileViewModel2;
-
-      @KeepFieldType
-      TierVerificationViewModel net_wetheGoverned_ui_verification_TierVerificationViewModel2;
-
-      @KeepFieldType
-      ScorecardViewModel net_wetheGoverned_ui_ScorecardViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {

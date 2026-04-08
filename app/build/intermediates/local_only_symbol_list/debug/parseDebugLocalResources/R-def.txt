@@ -4,9 +4,11 @@ color black
 color purple_200
 color purple_500
 color purple_700
+color splash_background_dark
 color teal_200
 color teal_700
 color white
+drawable splash_background
 string app_name
 string cd_back_button
 string cd_poll_option_selected
@@ -48,5 +50,6 @@ string tier_3
 string tier_unverified
 string tier_upgrade_cta
 style Theme.WeTheGoverned
+style Theme.WeTheGoverned.Splash
 xml backup_rules
 xml data_extraction_rules

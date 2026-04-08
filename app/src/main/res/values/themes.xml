@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.WeTheGoverned" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:colorPrimary">@color/purple_500</item>
-        <item name="android:colorPrimaryDark">@color/purple_700</item>
-        <item name="android:colorAccent">@color/teal_200</item>
+
+    <!-- Minimal theme to avoid system splash interference -->
+    <style name="Theme.WeTheGoverned.Splash" parent="android:Theme.NoTitleBar.Fullscreen">
+        <item name="android:windowBackground">@drawable/splash_background</item>
     </style>
+
+    <!-- Main App Theme -->
+    <style name="Theme.WeTheGoverned" parent="android:Theme.NoTitleBar">
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
 </resources>

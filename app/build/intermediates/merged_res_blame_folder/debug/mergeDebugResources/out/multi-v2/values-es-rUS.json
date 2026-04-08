@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "net.wetheGoverned.app-mergeDebugResources-59:/values-es-rUS/values-es-rUS.xml",
+            "outputFile": "net.wetheGoverned.app-mergeDebugResources-60:/values-es-rUS/values-es-rUS.xml",
             "map": [
                 {
                     "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\7f57b52e16fa32d6109f6c471bc80aa6\\transformed\\jetified-material3-release\\res\\values-es-rUS\\values-es-rUS.xml",

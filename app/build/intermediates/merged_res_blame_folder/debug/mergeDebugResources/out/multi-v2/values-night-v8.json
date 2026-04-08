@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "net.wetheGoverned.app-mergeDebugResources-60:/values-night-v8/values-night-v8.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\59ef9531969458da77625c50c350b8e0\\transformed\\jetified-core-splashscreen-1.2.0\\res\\values-night-v8\\values-night-v8.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "4",
+                        "endColumns": "12",
+                        "endOffsets": "195"
+                    }
+                }
+            ]
+        }
+    ]
+}
