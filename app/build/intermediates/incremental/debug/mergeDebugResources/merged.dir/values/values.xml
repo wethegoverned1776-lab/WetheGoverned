@@ -307,11 +307,15 @@
         <item name="android:windowBackground">@drawable/compat_splash_screen</item>
         <item name="splashScreenIconSize">@dimen/splashscreen_icon_size_with_background</item>
     </style>
-    <style name="Theme.WeTheGoverned" parent="android:Theme.NoTitleBar">
+    <style name="Theme.WeTheGoverned" parent="android:Theme.NoTitleBar.Fullscreen">
         <item name="android:windowBackground">@color/white</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
-    <style name="Theme.WeTheGoverned.Splash" parent="android:Theme.NoTitleBar.Fullscreen">
+    <style name="Theme.WeTheGoverned.Launching" parent="android:Theme.NoTitleBar.Fullscreen">
         <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
     <style name="Widget.Compat.NotificationActionContainer" parent=""/>
     <style name="Widget.Compat.NotificationActionText" parent=""/>

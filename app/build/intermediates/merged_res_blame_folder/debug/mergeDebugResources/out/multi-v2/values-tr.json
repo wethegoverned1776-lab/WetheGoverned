@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\7f57b52e16fa32d6109f6c471bc80aa6\\transformed\\jetified-material3-release\\res\\values-tr\\values-tr.xml",
+                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\ed92891b98045b5ea3a9f36bea88b9b0\\transformed\\material3-release\\res\\values-tr\\values-tr.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -38,7 +38,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\093eaee340dd285cd252f1095847a858\\transformed\\jetified-foundation-release\\res\\values-tr\\values-tr.xml",
+                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\dc701b9797bed14524bfd39076381330\\transformed\\foundation-release\\res\\values-tr\\values-tr.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -55,7 +55,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\0a204e1ff46269c5ca471691a874fc06\\transformed\\jetified-ui-release\\res\\values-tr\\values-tr.xml",
+                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\696854d7eb40cdd4c44a20b21eced6c9\\transformed\\ui-release\\res\\values-tr\\values-tr.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

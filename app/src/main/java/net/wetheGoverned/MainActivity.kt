@@ -16,6 +16,10 @@ import net.wetheGoverned.ui.SnackbarController
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Swap to the real app theme immediately, before setContent.
+        // This prevents the windowBackground splash from bleeding into the activity.
+        setTheme(R.style.Theme_WeTheGoverned)
+
         super.onCreate(savedInstanceState)
 
         setContent {

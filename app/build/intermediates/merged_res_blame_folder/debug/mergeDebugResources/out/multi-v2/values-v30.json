@@ -4,7 +4,7 @@
             "outputFile": "net.wetheGoverned.app-mergeDebugResources-60:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\59ef9531969458da77625c50c350b8e0\\transformed\\jetified-core-splashscreen-1.2.0\\res\\values-v30\\values-v30.xml",
+                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\2a6cfd65e2d158a4ed8b62d24728ff85\\transformed\\core-splashscreen-1.2.0\\res\\values-v30\\values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

@@ -16,6 +16,7 @@ object CivicRoutes {
     const val MANIFESTO    = "manifesto/{manifestoId}"
     const val METRICS      = "metrics"
     const val PROFILE      = "profile/{pubKey}"
+    const val CREATE_POLL  = "poll/create"
 
     fun pollDetail(pollId: String)     = "poll/$pollId"
     fun manifesto(manifestoId: String) = "manifesto/$manifestoId"
@@ -40,6 +41,7 @@ fun WeTheGovernedNavHost(
                 onNavigateToScorecard  = { navController.navigate(CivicRoutes.SCORECARD) },
                 onNavigateToManifestos = { navController.navigate(CivicRoutes.MANIFESTOS) },
                 onNavigateToMetrics    = { navController.navigate(CivicRoutes.METRICS) },
+                onCreatePoll           = { navController.navigate(CivicRoutes.CREATE_POLL) }   // ← Added
             )
         }
 
@@ -61,12 +63,10 @@ fun WeTheGovernedNavHost(
             )
         }
 
-        // Manifestos List - using the exact function name and parameters you showed
         composable(CivicRoutes.MANIFESTOS) {
             ManifestoListScreen(
                 onBack = { navController.popBackStack() },
                 onManifestoClick = { id -> navController.navigate(CivicRoutes.manifesto(id)) }
-                // viewModel will be provided by hiltViewModel() inside the screen
             )
         }
 
@@ -93,6 +93,18 @@ fun WeTheGovernedNavHost(
                 pubKey = pubKey,
                 onBack = { navController.popBackStack() },
                 onUpgradeTier = { /* TODO: navigate to tier verification */ }
+            )
+        }
+
+        // Create Poll Screen
+        composable(CivicRoutes.CREATE_POLL) {
+            CreatePollScreen(
+                onBack = { navController.popBackStack() },
+                onCreate = { pollId ->
+                    navController.navigate(CivicRoutes.pollDetail(pollId)) {
+                        popUpTo(CivicRoutes.CREATE_POLL) { inclusive = true }
+                    }
+                }
             )
         }
     }

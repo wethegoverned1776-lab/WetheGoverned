@@ -107,6 +107,7 @@ drawable ic_call_answer_video_low
 drawable ic_call_decline
 drawable ic_call_decline_low
 drawable icon_background
+drawable launch_background
 drawable notification_action_background
 drawable notification_bg
 drawable notification_bg_low
@@ -369,7 +370,7 @@ style Theme_SplashScreen
 style Theme_SplashScreen_Common
 style Theme_SplashScreen_IconBackground
 style Theme_WeTheGoverned
-style Theme_WeTheGoverned_Splash
+style Theme_WeTheGoverned_Launching
 style Widget_Compat_NotificationActionContainer
 style Widget_Compat_NotificationActionText
 styleable ActivityNavigator android_name action data dataPattern targetPackage

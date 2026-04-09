@@ -10,5 +10,9 @@
     {
         "merged": "net.wetheGoverned.app-debug-62:/drawable_splash_background.png.flat",
         "source": "net.wetheGoverned.app-main-64:/drawable/splash_background.png"
+    },
+    {
+        "merged": "net.wetheGoverned.app-debug-62:/drawable_launch_background.xml.flat",
+        "source": "net.wetheGoverned.app-main-64:/drawable/launch_background.xml"
     }
 ]
