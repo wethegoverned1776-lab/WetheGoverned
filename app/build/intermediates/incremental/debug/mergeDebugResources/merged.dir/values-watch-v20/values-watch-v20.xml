@@ -8,4 +8,13 @@
     <dimen name="splashscreen_icon_size_no_background">90dp</dimen>
     <dimen name="splashscreen_icon_size_with_background">72dp</dimen>
     <integer name="default_icon_animation_duration">10000</integer>
+    <style name="Base.Theme.AppCompat.Dialog" parent="Base.V7.Theme.AppCompat.Dialog">
+        <item name="android:windowIsFloating">false</item>
+    </style>
+    <style name="Base.Theme.AppCompat.Light.Dialog" parent="Base.V7.Theme.AppCompat.Light.Dialog">
+        <item name="android:windowIsFloating">false</item>
+    </style>
+    <style name="Base.ThemeOverlay.AppCompat.Dialog" parent="Base.V7.ThemeOverlay.AppCompat.Dialog">
+        <item name="android:windowIsFloating">false</item>
+    </style>
 </resources>

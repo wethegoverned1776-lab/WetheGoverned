@@ -35,8 +35,6 @@ public final class PendingEventDao_Impl implements PendingEventDao {
 
   private final SharedSQLiteStatement __preparedStmtOfDequeue;
 
-  private final SharedSQLiteStatement __preparedStmtOfIncrementRetry;
-
   public PendingEventDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
     this.__insertionAdapterOfPendingCivicEventEntity = new EntityInsertionAdapter<PendingCivicEventEntity>(__db) {
@@ -62,14 +60,6 @@ public final class PendingEventDao_Impl implements PendingEventDao {
       @NonNull
       public String createQuery() {
         final String _query = "DELETE FROM pending_civic_events WHERE eventId = ?";
-        return _query;
-      }
-    };
-    this.__preparedStmtOfIncrementRetry = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE pending_civic_events SET retryCount = retryCount + 1 WHERE eventId = ?";
         return _query;
       }
     };
@@ -114,31 +104,6 @@ public final class PendingEventDao_Impl implements PendingEventDao {
           }
         } finally {
           __preparedStmtOfDequeue.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
-  public Object incrementRetry(final String eventId, final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfIncrementRetry.acquire();
-        int _argIndex = 1;
-        _stmt.bindString(_argIndex, eventId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfIncrementRetry.release(_stmt);
         }
       }
     }, $completion);

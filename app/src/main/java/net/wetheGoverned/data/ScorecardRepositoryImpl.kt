@@ -73,7 +73,7 @@ class ScorecardRepositoryImpl @Inject constructor(
 
         metricDao.upsertMetric(optimisticEntity)
 
-        runCatching {
+        val result = runCatching {
             civicPublisher.signPublishImportCivicEvent(
                 kind = CivicEventKind.METRIC_REPORT,
                 tags = listOf(
@@ -86,9 +86,13 @@ class ScorecardRepositoryImpl @Inject constructor(
                 pubKey = reporterPubKey,
             )
             optimisticEntity.toDomain()
-        }.onFailure {
+        }
+        
+        if (result.isFailure) {
             metricDao.evictStaleMetrics(districtId, before = now + 1)
         }
+        
+        result
     }
 
     private suspend fun buildDomain(

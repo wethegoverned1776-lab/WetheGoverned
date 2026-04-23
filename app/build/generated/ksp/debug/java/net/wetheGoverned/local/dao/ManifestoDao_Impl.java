@@ -8,7 +8,6 @@ import androidx.room.CoroutinesRoom;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
-import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
@@ -38,8 +37,6 @@ public final class ManifestoDao_Impl implements ManifestoDao {
   private final EntityInsertionAdapter<CandidateManifestoEntity> __insertionAdapterOfCandidateManifestoEntity;
 
   private final EntityInsertionAdapter<ManifestoQuestionEntity> __insertionAdapterOfManifestoQuestionEntity;
-
-  private final SharedSQLiteStatement __preparedStmtOfRecordAnswer;
 
   public ManifestoDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
@@ -89,14 +86,6 @@ public final class ManifestoDao_Impl implements ManifestoDao {
         }
       }
     };
-    this.__preparedStmtOfRecordAnswer = new SharedSQLiteStatement(__db) {
-      @Override
-      @NonNull
-      public String createQuery() {
-        final String _query = "UPDATE manifesto_questions SET answer = ?, answeredAt = ? WHERE id = ?";
-        return _query;
-      }
-    };
   }
 
   @Override
@@ -138,42 +127,8 @@ public final class ManifestoDao_Impl implements ManifestoDao {
   }
 
   @Override
-  public Object recordAnswer(final String questionId, final String answer, final long answeredAt,
-      final Continuation<? super Unit> $completion) {
-    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
-      @Override
-      @NonNull
-      public Unit call() throws Exception {
-        final SupportSQLiteStatement _stmt = __preparedStmtOfRecordAnswer.acquire();
-        int _argIndex = 1;
-        _stmt.bindString(_argIndex, answer);
-        _argIndex = 2;
-        _stmt.bindLong(_argIndex, answeredAt);
-        _argIndex = 3;
-        _stmt.bindString(_argIndex, questionId);
-        try {
-          __db.beginTransaction();
-          try {
-            _stmt.executeUpdateDelete();
-            __db.setTransactionSuccessful();
-            return Unit.INSTANCE;
-          } finally {
-            __db.endTransaction();
-          }
-        } finally {
-          __preparedStmtOfRecordAnswer.release(_stmt);
-        }
-      }
-    }, $completion);
-  }
-
-  @Override
   public Flow<List<CandidateManifestoEntity>> observeManifestos(final String districtId) {
-    final String _sql = "\n"
-            + "        SELECT * FROM candidate_manifestos\n"
-            + "        WHERE districtId = ?\n"
-            + "        ORDER BY publishedAt DESC\n"
-            + "    ";
+    final String _sql = "SELECT * FROM candidate_manifestos WHERE districtId = ? ORDER BY publishedAt DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindString(_argIndex, districtId);

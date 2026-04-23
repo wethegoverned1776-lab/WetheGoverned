@@ -1,15 +1,18 @@
 <resources>
-    <!--  System launch theme: shows splash_background ONLY during cold start
-             before MainActivity is ready. Android 12+ uses this briefly.  -->
-    <style name="Theme.WeTheGoverned.Launching" parent="android:Theme.NoTitleBar.Fullscreen">
-        <item name="android:windowBackground">@drawable/splash_background</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
-    </style>
-    <!--  Main App Theme: NO splash background. Used once app is running.  -->
-    <style name="Theme.WeTheGoverned" parent="android:Theme.NoTitleBar.Fullscreen">
+    <!-- Base application theme. -->
+    <style name="Theme.WeTheGoverned" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/white</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- Post-splash theme for the main activity -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- The background of the splash screen icon -->
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <!-- The icon to be displayed. If not specified, the app icon is used -->
+        <!-- <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_icon</item> -->
+        <!-- Theme to be applied after the splash screen -->
+        <item name="postSplashScreenTheme">@style/Theme.WeTheGoverned</item>
     </style>
 </resources>

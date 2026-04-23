@@ -1,6 +1,7 @@
 R_DEF: Internal format may change without notice
 local
 color black
+color ic_launcher_background
 color purple_200
 color purple_500
 color purple_700
@@ -8,8 +9,12 @@ color splash_background_dark
 color teal_200
 color teal_700
 color white
+drawable ic_launcher_background
 drawable launch_background
 drawable splash_background
+mipmap ic_launcher
+mipmap ic_launcher_foreground
+mipmap ic_launcher_round
 string app_name
 string cd_back_button
 string cd_poll_option_selected
@@ -50,7 +55,7 @@ string tier_2
 string tier_3
 string tier_unverified
 string tier_upgrade_cta
+style Theme.App.Starting
 style Theme.WeTheGoverned
-style Theme.WeTheGoverned.Launching
 xml backup_rules
 xml data_extraction_rules

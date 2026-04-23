@@ -8,6 +8,7 @@ import javax.annotation.processing.Generated;
 import javax.inject.Provider;
 import net.wetheGoverned.repository.PollRepository;
 import net.wetheGoverned.repository.ResidentRepository;
+import net.wetheGoverned.session.SessionManager;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -28,24 +29,29 @@ public final class PollDetailViewModel_Factory implements Factory<PollDetailView
 
   private final Provider<ResidentRepository> residentRepositoryProvider;
 
+  private final Provider<SessionManager> sessionManagerProvider;
+
   public PollDetailViewModel_Factory(Provider<PollRepository> pollRepositoryProvider,
-      Provider<ResidentRepository> residentRepositoryProvider) {
+      Provider<ResidentRepository> residentRepositoryProvider,
+      Provider<SessionManager> sessionManagerProvider) {
     this.pollRepositoryProvider = pollRepositoryProvider;
     this.residentRepositoryProvider = residentRepositoryProvider;
+    this.sessionManagerProvider = sessionManagerProvider;
   }
 
   @Override
   public PollDetailViewModel get() {
-    return newInstance(pollRepositoryProvider.get(), residentRepositoryProvider.get());
+    return newInstance(pollRepositoryProvider.get(), residentRepositoryProvider.get(), sessionManagerProvider.get());
   }
 
   public static PollDetailViewModel_Factory create(Provider<PollRepository> pollRepositoryProvider,
-      Provider<ResidentRepository> residentRepositoryProvider) {
-    return new PollDetailViewModel_Factory(pollRepositoryProvider, residentRepositoryProvider);
+      Provider<ResidentRepository> residentRepositoryProvider,
+      Provider<SessionManager> sessionManagerProvider) {
+    return new PollDetailViewModel_Factory(pollRepositoryProvider, residentRepositoryProvider, sessionManagerProvider);
   }
 
   public static PollDetailViewModel newInstance(PollRepository pollRepository,
-      ResidentRepository residentRepository) {
-    return new PollDetailViewModel(pollRepository, residentRepository);
+      ResidentRepository residentRepository, SessionManager sessionManager) {
+    return new PollDetailViewModel(pollRepository, residentRepository, sessionManager);
   }
 }

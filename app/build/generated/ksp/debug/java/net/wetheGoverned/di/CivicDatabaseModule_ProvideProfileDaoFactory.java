@@ -7,7 +7,7 @@ import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
-import net.wetheGoverned.local.CivicDatabase;
+import net.wetheGoverned.data.CivicDatabase;
 import net.wetheGoverned.local.dao.ResidentProfileDao;
 
 @ScopeMetadata("javax.inject.Singleton")

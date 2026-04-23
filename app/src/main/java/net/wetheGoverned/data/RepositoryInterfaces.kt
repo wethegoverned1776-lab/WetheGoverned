@@ -3,129 +3,65 @@ package net.wetheGoverned.repository
 import kotlinx.coroutines.flow.Flow
 import net.wetheGoverned.model.*
 
-// ─────────────────────────────────────────────────────────────────────────────
-// These interfaces replace Primal's FeedRepository, ProfileRepository, etc.
-// Concrete implementations live in the :data module, exactly as in Primal.
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Replaces FeedRepository.
- * Provides district‑scoped polls instead of a social feed.
- */
 interface PollRepository {
-    /** Live stream of active polls for a district, newest first. */
-    fun observeDistrictPolls(districtId: String): Flow<List<DistrictPoll>>
-
-    /** Fetch a single poll by id (remote + cache). */
-    suspend fun getPoll(pollId: String): Result<DistrictPoll>
-
-    /** Create a new poll (requires Tier 2+ resident). */
+    fun observeDistrictPolls(districtId: String): Flow<List<CivicPoll>>
+    suspend fun getPoll(pollId: String): Result<CivicPoll>
     suspend fun createPoll(
         districtId: String,
         question: String,
         options: List<String>,
         closesAt: Long?,
-    ): Result<DistrictPoll>
-
-    /**
-     * Submit a vote.
-     * Internally publishes a signed CivicEvent of kind POLL_VOTE to the relay.
-     * Performs optimistic local update identical to Primal's likeEvent pattern.
-     */
-    suspend fun vote(
-        pollId: String,
-        optionId: String,
-        voterPubKey: String,
-    ): Result<Unit>
+        scope: PollScope,
+        localId: String? = null
+    ): Result<CivicPoll>
+    suspend fun vote(pollId: String, optionId: String, voterPubKey: String): Result<Unit>
+    suspend fun voteImportance(pollId: String, delta: Int, voterPubKey: String): Result<Unit>
+    fun observePollPosts(pollId: String): Flow<List<PollPost>>
+    fun observeOptionPosts(pollId: String, optionId: String): Flow<List<PollPost>>
+    fun observeThreadedPosts(parentPostId: String): Flow<List<PollPost>>
+    suspend fun createPost(pollId: String, optionId: String, authorName: String, content: String, headline: String? = null, parentPostId: String? = null): Result<PollPost>
+    suspend fun voteOnPost(postId: String, delta: Int): Result<Unit>
+    suspend fun getPost(postId: String): Result<PollPost>
 }
 
-/**
- * Replaces Primal's ProfileRepository.
- * Manages verified resident profiles.
- */
 interface ResidentRepository {
     fun observeProfile(pubKey: String): Flow<ResidentProfile?>
-
+    fun observeProfileByFingerprint(fingerprint: String): Flow<ResidentProfile?>
     suspend fun getProfile(pubKey: String): Result<ResidentProfile>
-
-    /** Upgrade a resident's verification tier after backend check. */
-    suspend fun upgradeTier(
+    suspend fun upgradeTier(pubKey: String, newTier: VerificationTier, proofToken: String): Result<ResidentProfile>
+    suspend fun upgradeTierWithFingerprint(pubKey: String, newTier: VerificationTier, proofToken: String, fingerprint: String): Result<ResidentProfile>
+    
+    suspend fun upgradeTierFull(
         pubKey: String,
         newTier: VerificationTier,
-        proofToken: String,
-    ): Result<ResidentProfile>
+        firstName: String,
+        lastName: String,
+        fingerprint: String,
+        verifiedBy: String? = null // Made optional
+    ): Result<Unit>
 
-    suspend fun updateProfile(
-        pubKey: String,
-        displayName: String,
-        bio: String?,
-        avatarUrl: String?,
-    ): Result<ResidentProfile>
+    suspend fun updateProfile(pubKey: String, displayName: String, bio: String?, avatarUrl: String?): Result<ResidentProfile>
+    suspend fun getResidentCountAtAddress(fingerprint: String): Int 
+    suspend fun getVouchCount(notaryPubKey: String): Int
 }
 
-/**
- * New – no Primal equivalent.
- * Representative scorecards sourced from official data + resident reports.
- */
 interface ScorecardRepository {
     fun observeScorecard(districtId: String): Flow<RepresentativeScorecard?>
-
     suspend fun getScorecard(districtId: String): Result<RepresentativeScorecard>
-
-    /**
-     * Submit a resident metric report.
-     * Publishes a signed CivicEvent of kind METRIC_REPORT.
-     * Requires Tier 3.
-     */
-    suspend fun submitMetricReport(
-        districtId: String,
-        category: String,
-        name: String,
-        value: String,
-        unit: String,
-        reporterPubKey: String,
-    ): Result<DistrictMetric>
+    suspend fun submitMetricReport(districtId: String, category: String, name: String, value: String, unit: String, reporterPubKey: String): Result<DistrictMetric>
 }
 
-/**
- * Replaces Primal's long‑form article / reads repository.
- * Manages candidate manifestos and resident Q&A threads.
- */
 interface ManifestoRepository {
     fun observeManifestos(districtId: String): Flow<List<CandidateManifesto>>
-
     suspend fun getManifesto(manifestoId: String): Result<CandidateManifesto>
-
-    suspend fun publishManifesto(
-        districtId: String,
-        title: String,
-        body: String,
-        candidatePubKey: String,
-    ): Result<CandidateManifesto>
-
-    suspend fun askQuestion(
-        manifestoId: String,
-        questionText: String,
-        askerPubKey: String,
-    ): Result<ManifestoQuestion>
-
-    suspend fun answerQuestion(
-        manifestoId: String,
-        questionId: String,
-        answerText: String,
-        candidatePubKey: String,
-    ): Result<ManifestoQuestion>
+    suspend fun publishManifesto(districtId: String, title: String, body: String, candidatePubKey: String): Result<CandidateManifesto>
+    suspend fun askQuestion(manifestoId: String, questionText: String, askerPubKey: String): Result<ManifestoQuestion>
+    suspend fun answerQuestion(manifestoId: String, questionId: String, answerText: String, candidatePubKey: String): Result<ManifestoQuestion>
 }
 
-/**
- * District data – geography, representative info, metric feed.
- */
 interface DistrictRepository {
     fun observeDistrict(districtId: String): Flow<District?>
-
     suspend fun getDistrict(districtId: String): Result<District>
-
     fun observeMetrics(districtId: String): Flow<List<DistrictMetric>>
-
     suspend fun refreshMetrics(districtId: String): Result<List<DistrictMetric>>
 }

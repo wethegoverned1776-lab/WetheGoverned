@@ -6,12 +6,10 @@ import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
-import net.wetheGoverned.core.CivicPublisher;
-import net.wetheGoverned.core.DispatcherProvider;
 import net.wetheGoverned.local.dao.PollDao;
-import net.wetheGoverned.remote.api.CivicApi;
+import net.wetheGoverned.local.dao.PollPostDao;
 
-@ScopeMetadata
+@ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
 @DaggerGenerated
 @Generated(
@@ -28,34 +26,25 @@ import net.wetheGoverned.remote.api.CivicApi;
 public final class PollRepositoryImpl_Factory implements Factory<PollRepositoryImpl> {
   private final Provider<PollDao> pollDaoProvider;
 
-  private final Provider<CivicApi> civicApiProvider;
-
-  private final Provider<CivicPublisher> civicPublisherProvider;
-
-  private final Provider<DispatcherProvider> dispatchersProvider;
+  private final Provider<PollPostDao> pollPostDaoProvider;
 
   public PollRepositoryImpl_Factory(Provider<PollDao> pollDaoProvider,
-      Provider<CivicApi> civicApiProvider, Provider<CivicPublisher> civicPublisherProvider,
-      Provider<DispatcherProvider> dispatchersProvider) {
+      Provider<PollPostDao> pollPostDaoProvider) {
     this.pollDaoProvider = pollDaoProvider;
-    this.civicApiProvider = civicApiProvider;
-    this.civicPublisherProvider = civicPublisherProvider;
-    this.dispatchersProvider = dispatchersProvider;
+    this.pollPostDaoProvider = pollPostDaoProvider;
   }
 
   @Override
   public PollRepositoryImpl get() {
-    return newInstance(pollDaoProvider.get(), civicApiProvider.get(), civicPublisherProvider.get(), dispatchersProvider.get());
+    return newInstance(pollDaoProvider.get(), pollPostDaoProvider.get());
   }
 
   public static PollRepositoryImpl_Factory create(Provider<PollDao> pollDaoProvider,
-      Provider<CivicApi> civicApiProvider, Provider<CivicPublisher> civicPublisherProvider,
-      Provider<DispatcherProvider> dispatchersProvider) {
-    return new PollRepositoryImpl_Factory(pollDaoProvider, civicApiProvider, civicPublisherProvider, dispatchersProvider);
+      Provider<PollPostDao> pollPostDaoProvider) {
+    return new PollRepositoryImpl_Factory(pollDaoProvider, pollPostDaoProvider);
   }
 
-  public static PollRepositoryImpl newInstance(PollDao pollDao, CivicApi civicApi,
-      CivicPublisher civicPublisher, DispatcherProvider dispatchers) {
-    return new PollRepositoryImpl(pollDao, civicApi, civicPublisher, dispatchers);
+  public static PollRepositoryImpl newInstance(PollDao pollDao, PollPostDao pollPostDao) {
+    return new PollRepositoryImpl(pollDao, pollPostDao);
   }
 }

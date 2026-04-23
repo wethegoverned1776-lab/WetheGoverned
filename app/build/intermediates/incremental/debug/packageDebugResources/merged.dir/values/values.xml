@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <color name="ic_launcher_background">#0000AC</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
@@ -48,14 +49,17 @@
     <string name="tier_3">Tier 3 – Identity Verified</string>
     <string name="tier_unverified">Unverified</string>
     <string name="tier_upgrade_cta">Increase Your Impact</string>
-    <style name="Theme.WeTheGoverned" parent="android:Theme.NoTitleBar.Fullscreen">
-        <item name="android:windowBackground">@color/white</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        
+        <item name="windowSplashScreenBackground">@color/white</item>
+        
+        
+        
+        <item name="postSplashScreenTheme">@style/Theme.WeTheGoverned</item>
     </style>
-    <style name="Theme.WeTheGoverned.Launching" parent="android:Theme.NoTitleBar.Fullscreen">
-        <item name="android:windowBackground">@drawable/splash_background</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowFullscreen">true</item>
+    <style name="Theme.WeTheGoverned" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

@@ -10,7 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import net.wetheGoverned.BuildConfig
 import net.wetheGoverned.core.*
-import net.wetheGoverned.local.CivicDatabase
+import net.wetheGoverned.data.CivicDatabase
 import net.wetheGoverned.local.dao.*
 import net.wetheGoverned.remote.api.CivicApi
 import net.wetheGoverned.remote.backend.WtgBackendApi
@@ -18,16 +18,13 @@ import net.wetheGoverned.remote.impl.CivicApiImpl
 import net.wetheGoverned.repository.*
 import net.wetheGoverned.session.SessionManager
 import net.wetheGoverned.session.PendingEventQueue
+import net.wetheGoverned.zk.ZkProver
+import net.wetheGoverned.zk.NativeZkProver
 import javax.inject.Singleton
-
-// ─────────────────────────────────────────────────────────────────────────────
-// CivicModule – Final production wiring. Zero stubs. Zero TODOs.
-// ─────────────────────────────────────────────────────────────────────────────
 
 @Module
 @InstallIn(SingletonComponent::class)
 object CivicDatabaseModule {
-
     @Provides @Singleton
     fun provideDatabase(@ApplicationContext context: Context): CivicDatabase =
         Room.databaseBuilder(context, CivicDatabase::class.java, CivicDatabase.DATABASE_NAME)
@@ -37,6 +34,7 @@ object CivicDatabaseModule {
     @Provides @Singleton fun provideDistrictDao(db: CivicDatabase)  = db.districtDao()
     @Provides @Singleton fun provideProfileDao(db: CivicDatabase)   = db.residentProfileDao()
     @Provides @Singleton fun providePollDao(db: CivicDatabase)      = db.pollDao()
+    @Provides @Singleton fun providePollPostDao(db: CivicDatabase)  = db.pollPostDao()
     @Provides @Singleton fun provideScorecardDao(db: CivicDatabase) = db.scorecardDao()
     @Provides @Singleton fun provideManifestoDao(db: CivicDatabase) = db.manifestoDao()
     @Provides @Singleton fun provideMetricDao(db: CivicDatabase)    = db.metricDao()
@@ -48,14 +46,19 @@ object CivicDatabaseModule {
 object CivicNetworkModule {
 
     @Provides @Singleton
-    fun provideRelayUrl(): String = BuildConfig.RELAY_URL
+    fun provideRelayUrls(): List<String> = listOf(
+        BuildConfig.RELAY_URL,
+        "wss://relay.damus.io",
+        "wss://nos.lol",
+        "wss://relay.primal.net"
+    )
 
     @Provides @Singleton
-    fun provideCivicApi(relayUrl: String): CivicApi = CivicApiImpl(
+    fun provideCivicApi(relayUrls: List<String>): CivicApi = CivicApiImpl(
         congressApiKey    = BuildConfig.CONGRESS_API_KEY,
         openStatesApiKey  = BuildConfig.OPENSTATES_API_KEY,
         googleCivicApiKey = BuildConfig.GOOGLE_CIVIC_API_KEY,
-        relayUrl          = relayUrl,
+        relayUrls         = relayUrls,
     )
 
     @Provides @Singleton
@@ -63,40 +66,29 @@ object CivicNetworkModule {
 
     @Provides @Singleton
     fun provideWsCivicPublisher(
-        relayUrl: String,
+        relayUrls: List<String>,
         sessionManager: SessionManager,
         dispatchers: DispatcherProvider,
         pendingQueue: PendingEventQueue,
+        zkProver: ZkProver,
     ): WsCivicPublisherWithQueue = WsCivicPublisherWithQueue(
-        relayUrl       = relayUrl,
+        relayUrls      = relayUrls,
         sessionManager = sessionManager,
         dispatchers    = dispatchers,
         pendingQueue   = pendingQueue,
+        zkProver       = zkProver,
     )
 }
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class CivicRepositoryModule {
-
-    @Binds @Singleton
-    abstract fun bindPollRepository(impl: PollRepositoryImpl): PollRepository
-
-    @Binds @Singleton
-    abstract fun bindScorecardRepository(impl: ScorecardRepositoryImpl): ScorecardRepository
-
-    @Binds @Singleton
-    abstract fun bindManifestoRepository(impl: ManifestoRepositoryImpl): ManifestoRepository
-
-    @Binds @Singleton
-    abstract fun bindResidentRepository(impl: ResidentRepositoryImpl): ResidentRepository
-
-    @Binds @Singleton
-    abstract fun bindDistrictRepository(impl: DistrictRepositoryImpl): DistrictRepository
-
-    @Binds @Singleton
-    abstract fun bindCivicPublisher(impl: WsCivicPublisherWithQueue): CivicPublisher
-
-    @Binds @Singleton
-    abstract fun bindDispatcherProvider(impl: DefaultDispatcherProvider): DispatcherProvider
+interface CivicRepositoryBindingModule {
+    @Binds @Singleton fun bindPollRepository(impl: PollRepositoryImpl): PollRepository
+    @Binds @Singleton fun bindScorecardRepository(impl: ScorecardRepositoryImpl): ScorecardRepository
+    @Binds @Singleton fun bindManifestoRepository(impl: ManifestoRepositoryImpl): ManifestoRepository
+    @Binds @Singleton fun bindResidentRepository(impl: ResidentRepositoryImpl): ResidentRepository
+    @Binds @Singleton fun bindDistrictRepository(impl: DistrictRepositoryImpl): DistrictRepository
+    @Binds @Singleton fun bindCivicPublisher(impl: WsCivicPublisherWithQueue): CivicPublisher
+    @Binds @Singleton fun bindDispatcherProvider(impl: DefaultDispatcherProvider): DispatcherProvider
+    @Binds @Singleton fun bindZkProver(impl: NativeZkProver): ZkProver
 }

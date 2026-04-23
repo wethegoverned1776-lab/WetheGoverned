@@ -4,10 +4,12 @@ import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
+import java.util.List;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
 import net.wetheGoverned.session.PendingEventQueue;
 import net.wetheGoverned.session.SessionManager;
+import net.wetheGoverned.zk.ZkProver;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -24,7 +26,7 @@ import net.wetheGoverned.session.SessionManager;
     "cast"
 })
 public final class WsCivicPublisherWithQueue_Factory implements Factory<WsCivicPublisherWithQueue> {
-  private final Provider<String> relayUrlProvider;
+  private final Provider<List<String>> relayUrlsProvider;
 
   private final Provider<SessionManager> sessionManagerProvider;
 
@@ -32,31 +34,34 @@ public final class WsCivicPublisherWithQueue_Factory implements Factory<WsCivicP
 
   private final Provider<PendingEventQueue> pendingQueueProvider;
 
-  public WsCivicPublisherWithQueue_Factory(Provider<String> relayUrlProvider,
+  private final Provider<ZkProver> zkProverProvider;
+
+  public WsCivicPublisherWithQueue_Factory(Provider<List<String>> relayUrlsProvider,
       Provider<SessionManager> sessionManagerProvider,
       Provider<DispatcherProvider> dispatchersProvider,
-      Provider<PendingEventQueue> pendingQueueProvider) {
-    this.relayUrlProvider = relayUrlProvider;
+      Provider<PendingEventQueue> pendingQueueProvider, Provider<ZkProver> zkProverProvider) {
+    this.relayUrlsProvider = relayUrlsProvider;
     this.sessionManagerProvider = sessionManagerProvider;
     this.dispatchersProvider = dispatchersProvider;
     this.pendingQueueProvider = pendingQueueProvider;
+    this.zkProverProvider = zkProverProvider;
   }
 
   @Override
   public WsCivicPublisherWithQueue get() {
-    return newInstance(relayUrlProvider.get(), sessionManagerProvider.get(), dispatchersProvider.get(), pendingQueueProvider.get());
+    return newInstance(relayUrlsProvider.get(), sessionManagerProvider.get(), dispatchersProvider.get(), pendingQueueProvider.get(), zkProverProvider.get());
   }
 
-  public static WsCivicPublisherWithQueue_Factory create(Provider<String> relayUrlProvider,
+  public static WsCivicPublisherWithQueue_Factory create(Provider<List<String>> relayUrlsProvider,
       Provider<SessionManager> sessionManagerProvider,
       Provider<DispatcherProvider> dispatchersProvider,
-      Provider<PendingEventQueue> pendingQueueProvider) {
-    return new WsCivicPublisherWithQueue_Factory(relayUrlProvider, sessionManagerProvider, dispatchersProvider, pendingQueueProvider);
+      Provider<PendingEventQueue> pendingQueueProvider, Provider<ZkProver> zkProverProvider) {
+    return new WsCivicPublisherWithQueue_Factory(relayUrlsProvider, sessionManagerProvider, dispatchersProvider, pendingQueueProvider, zkProverProvider);
   }
 
-  public static WsCivicPublisherWithQueue newInstance(String relayUrl,
-      SessionManager sessionManager, DispatcherProvider dispatchers,
-      PendingEventQueue pendingQueue) {
-    return new WsCivicPublisherWithQueue(relayUrl, sessionManager, dispatchers, pendingQueue);
+  public static WsCivicPublisherWithQueue newInstance(List<String> relayUrls,
+      SessionManager sessionManager, DispatcherProvider dispatchers, PendingEventQueue pendingQueue,
+      ZkProver zkProver) {
+    return new WsCivicPublisherWithQueue(relayUrls, sessionManager, dispatchers, pendingQueue, zkProver);
   }
 }

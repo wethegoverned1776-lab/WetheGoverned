@@ -22,12 +22,22 @@ class SessionManager @Inject constructor() {
     fun login(
         pubKeyHex: String,
         privateKeyHex: String,
-        districtId: String,
+        districtId: String?, // Changed to nullable
+        localId: String? = null,
         tier: VerificationTier,
         displayName: String
     ) {
         currentPubKey = pubKeyHex
-        currentSession = UserSession(pubKeyHex, districtId, tier)
+        currentSession = UserSession(pubKeyHex, displayName, districtId, localId, tier)
+    }
+
+    fun logout() {
+        currentPubKey = null
+        currentSession = null
+    }
+
+    fun setDistrict(districtId: String) {
+        currentSession = currentSession?.copy(districtId = districtId)
     }
 
     fun upgradeTier(newTier: VerificationTier) {
@@ -41,7 +51,9 @@ class SessionManager @Inject constructor() {
 
 data class UserSession(
     val pubKey: String,
-    val districtId: String,
+    val displayName: String,
+    val districtId: String?, // Changed to nullable
+    val localId: String? = null,
     val tier: VerificationTier = VerificationTier.UNVERIFIED
 )
 

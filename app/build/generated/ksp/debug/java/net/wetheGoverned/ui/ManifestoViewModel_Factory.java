@@ -7,7 +7,8 @@ import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
 import net.wetheGoverned.repository.ManifestoRepository;
-import net.wetheGoverned.repository.ResidentRepository;
+import net.wetheGoverned.repository.PollRepository;
+import net.wetheGoverned.session.SessionManager;
 
 @ScopeMetadata
 @QualifierMetadata
@@ -26,27 +27,32 @@ import net.wetheGoverned.repository.ResidentRepository;
 public final class ManifestoViewModel_Factory implements Factory<ManifestoViewModel> {
   private final Provider<ManifestoRepository> manifestoRepositoryProvider;
 
-  private final Provider<ResidentRepository> residentRepositoryProvider;
+  private final Provider<PollRepository> pollRepositoryProvider;
+
+  private final Provider<SessionManager> sessionManagerProvider;
 
   public ManifestoViewModel_Factory(Provider<ManifestoRepository> manifestoRepositoryProvider,
-      Provider<ResidentRepository> residentRepositoryProvider) {
+      Provider<PollRepository> pollRepositoryProvider,
+      Provider<SessionManager> sessionManagerProvider) {
     this.manifestoRepositoryProvider = manifestoRepositoryProvider;
-    this.residentRepositoryProvider = residentRepositoryProvider;
+    this.pollRepositoryProvider = pollRepositoryProvider;
+    this.sessionManagerProvider = sessionManagerProvider;
   }
 
   @Override
   public ManifestoViewModel get() {
-    return newInstance(manifestoRepositoryProvider.get(), residentRepositoryProvider.get());
+    return newInstance(manifestoRepositoryProvider.get(), pollRepositoryProvider.get(), sessionManagerProvider.get());
   }
 
   public static ManifestoViewModel_Factory create(
       Provider<ManifestoRepository> manifestoRepositoryProvider,
-      Provider<ResidentRepository> residentRepositoryProvider) {
-    return new ManifestoViewModel_Factory(manifestoRepositoryProvider, residentRepositoryProvider);
+      Provider<PollRepository> pollRepositoryProvider,
+      Provider<SessionManager> sessionManagerProvider) {
+    return new ManifestoViewModel_Factory(manifestoRepositoryProvider, pollRepositoryProvider, sessionManagerProvider);
   }
 
   public static ManifestoViewModel newInstance(ManifestoRepository manifestoRepository,
-      ResidentRepository residentRepository) {
-    return new ManifestoViewModel(manifestoRepository, residentRepository);
+      PollRepository pollRepository, SessionManager sessionManager) {
+    return new ManifestoViewModel(manifestoRepository, pollRepository, sessionManager);
   }
 }

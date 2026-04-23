@@ -38,6 +38,16 @@ android {
         compose = true
         buildConfig = true
     }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/io.netty.versions.properties"
+            excludes += "/META-INF/DISCLAIMER"
+            // Exclude duplicate JNA/Web3j files if they appear
+            excludes += "META-INF/native-image/**"
+        }
+    }
 }
 
 dependencies {
@@ -55,6 +65,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
+    // Material Components for XML themes
+    implementation("com.google.android.material:material:1.12.0")
+
     // Core Android
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
@@ -62,19 +75,31 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.core:core-splashscreen:1.2.0")
+    
     // Database (Room)
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
 
-    // Networking (Ktor)
+    // Networking (Ktor Client & Server for P2P)
     val ktorVersion = "2.3.11"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    
+    // Ktor Server for P2P Hosting
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-server-websockets:$ktorVersion")
+
+    // Web3 & ZK Dependencies
+    implementation("org.web3j:core:4.11.0") // Blockchain interaction
+    // Note: ZK proof generation typically requires a native JNI library 
+    // such as rapid-snark or arkworks-android-jni which would be added here.
 
     // Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")

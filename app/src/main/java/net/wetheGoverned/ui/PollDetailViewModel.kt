@@ -5,18 +5,20 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import net.wetheGoverned.model.DistrictPoll
-import net.wetheGoverned.model.VerificationTier
+import net.wetheGoverned.model.*
 import net.wetheGoverned.repository.PollRepository
 import net.wetheGoverned.repository.ResidentRepository
+import net.wetheGoverned.session.SessionManager
 import javax.inject.Inject
 
 data class PollDetailUiState(
-    val poll: DistrictPoll? = null,
+    val poll: CivicPoll? = null,
+    val discussions: List<PollPost> = emptyList(),
     val isLoading: Boolean = true,
     val isSubmitting: Boolean = false,
     val pendingSelection: String? = null,
-    val canVote: Boolean = false,
+    val canVote: Boolean = true, 
+    val isReadOnly: Boolean = false,
     val error: String? = null,
 )
 
@@ -24,35 +26,43 @@ data class PollDetailUiState(
 class PollDetailViewModel @Inject constructor(
     private val pollRepository: PollRepository,
     private val residentRepository: ResidentRepository,
+    private val sessionManager: SessionManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PollDetailUiState())
     val uiState: StateFlow<PollDetailUiState> = _uiState.asStateFlow()
 
     fun load(pollId: String) {
-        pollRepository
-            .observeDistrictPolls(districtId = "us-fl-06")
-            .map { polls -> polls.firstOrNull { it.id == pollId } }
-            .onEach { poll ->
-                _uiState.update { it.copy(poll = poll, isLoading = poll == null) }
-            }
-            .launchIn(viewModelScope)
-
         viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            
+            // 1. Fetch Poll
             pollRepository.getPoll(pollId)
+                .onSuccess { poll ->
+                    val isOther = sessionManager.currentSession?.districtId != poll.districtId
+                    _uiState.update { it.copy(poll = poll, isReadOnly = isOther) }
+                    
+                    // 2. Observe Discussions
+                    pollRepository.observePollPosts(pollId)
+                        .onEach { posts ->
+                            _uiState.update { it.copy(discussions = posts, isLoading = false) }
+                        }
+                        .launchIn(viewModelScope)
+                }
                 .onFailure { e ->
                     _uiState.update { it.copy(isLoading = false, error = e.message) }
                 }
-        }
 
-        viewModelScope.launch {
-            val pubKey = currentUserPubKey() ?: return@launch
-            residentRepository.getProfile(pubKey)
-                .onSuccess { profile ->
-                    _uiState.update {
-                        it.copy(canVote = profile.tier >= VerificationTier.TIER_2)
+            // 3. Check Voting Eligibility
+            val pubKey = currentUserPubKey()
+            if (pubKey != null) {
+                residentRepository.getProfile(pubKey)
+                    .onSuccess { profile ->
+                        _uiState.update {
+                            it.copy(canVote = profile.tier >= VerificationTier.TIER_2)
+                        }
                     }
-                }
+            }
         }
     }
 
@@ -61,6 +71,7 @@ class PollDetailViewModel @Inject constructor(
     }
 
     fun onSubmitVote() {
+        if (_uiState.value.isReadOnly) return
         val poll = _uiState.value.poll ?: return
         val option = _uiState.value.pendingSelection ?: return
         val pubKey = currentUserPubKey() ?: return
@@ -81,7 +92,7 @@ class PollDetailViewModel @Inject constructor(
 
     fun dismissError() = _uiState.update { it.copy(error = null) }
 
-    private fun currentUserPubKey(): String? = null // TODO: inject session manager
+    private fun currentUserPubKey(): String? = sessionManager.currentPubKey
 }
 
 private operator fun VerificationTier.compareTo(other: VerificationTier): Int =

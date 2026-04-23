@@ -146,11 +146,7 @@ public final class MetricDao_Impl implements MetricDao {
 
   @Override
   public Flow<List<DistrictMetricEntity>> observeMetrics(final String districtId) {
-    final String _sql = "\n"
-            + "        SELECT * FROM district_metrics\n"
-            + "        WHERE districtId = ?\n"
-            + "        ORDER BY reportedAt DESC\n"
-            + "    ";
+    final String _sql = "SELECT * FROM district_metrics WHERE districtId = ? ORDER BY reportedAt DESC";
     final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
     int _argIndex = 1;
     _statement.bindString(_argIndex, districtId);

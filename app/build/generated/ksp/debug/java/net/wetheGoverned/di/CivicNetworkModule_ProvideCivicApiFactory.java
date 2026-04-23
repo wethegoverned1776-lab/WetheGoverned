@@ -5,6 +5,7 @@ import dagger.internal.Factory;
 import dagger.internal.Preconditions;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
+import java.util.List;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
 import net.wetheGoverned.remote.api.CivicApi;
@@ -24,23 +25,23 @@ import net.wetheGoverned.remote.api.CivicApi;
     "cast"
 })
 public final class CivicNetworkModule_ProvideCivicApiFactory implements Factory<CivicApi> {
-  private final Provider<String> relayUrlProvider;
+  private final Provider<List<String>> relayUrlsProvider;
 
-  public CivicNetworkModule_ProvideCivicApiFactory(Provider<String> relayUrlProvider) {
-    this.relayUrlProvider = relayUrlProvider;
+  public CivicNetworkModule_ProvideCivicApiFactory(Provider<List<String>> relayUrlsProvider) {
+    this.relayUrlsProvider = relayUrlsProvider;
   }
 
   @Override
   public CivicApi get() {
-    return provideCivicApi(relayUrlProvider.get());
+    return provideCivicApi(relayUrlsProvider.get());
   }
 
   public static CivicNetworkModule_ProvideCivicApiFactory create(
-      Provider<String> relayUrlProvider) {
-    return new CivicNetworkModule_ProvideCivicApiFactory(relayUrlProvider);
+      Provider<List<String>> relayUrlsProvider) {
+    return new CivicNetworkModule_ProvideCivicApiFactory(relayUrlsProvider);
   }
 
-  public static CivicApi provideCivicApi(String relayUrl) {
-    return Preconditions.checkNotNullFromProvides(CivicNetworkModule.INSTANCE.provideCivicApi(relayUrl));
+  public static CivicApi provideCivicApi(List<String> relayUrls) {
+    return Preconditions.checkNotNullFromProvides(CivicNetworkModule.INSTANCE.provideCivicApi(relayUrls));
   }
 }
