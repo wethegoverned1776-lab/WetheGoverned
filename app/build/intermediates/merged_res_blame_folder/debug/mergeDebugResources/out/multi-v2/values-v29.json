@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "net.wetheGoverned.app-mergeDebugResources-70:/values-v29/values-v29.xml",
+            "outputFile": "net.wetheGoverned.app-mergeDebugResources-75:/values-v29/values-v29.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\b3f4f77a987bf8d69b7d899053f3173a\\transformed\\core-splashscreen-1.2.0\\res\\values-v29\\values-v29.xml",
+                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\5b7a3540c7a3eeddfe0db3da2ef1109f\\transformed\\core-splashscreen-1.2.0\\res\\values-v29\\values-v29.xml",
                     "from": {
                         "startLines": "2,8",
                         "startColumns": "4,4",

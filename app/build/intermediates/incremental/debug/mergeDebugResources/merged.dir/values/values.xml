@@ -1750,6 +1750,7 @@
     <item name="fragment_container_view_tag" type="id"/>
     <item name="ghost_view" type="id"/>
     <item name="ghost_view_holder" type="id"/>
+    <item name="hide_graphics_layer_in_inspector_tag" type="id"/>
     <item name="hide_in_inspector_tag" type="id"/>
     <item name="home" type="id"/>
     <item name="inspection_slot_table_set" type="id"/>
@@ -2145,8 +2146,6 @@
     <string name="nav_scorecard">Scorecard</string>
     <string name="navigation_menu">"Navigation menu"</string>
     <string name="not_selected">Not selected</string>
-    <string name="off">Off</string>
-    <string name="on">On</string>
     <string name="onboarding_detect_location">Detect from Location</string>
     <string name="onboarding_generate_key">Generate New Key</string>
     <string name="onboarding_get_started">Get Started</string>
@@ -2183,6 +2182,9 @@
     <string name="selected">Selected</string>
     <string description="Title of the side sheet&apos;s accessibility pane that is spoken by TalkBack when the side sheet appears on screen. [CHAR_LIMIT=NONE]" name="side_sheet_accessibility_pane_title">Side Sheet</string>
     <string name="side_sheet_behavior" translatable="false">com.google.android.material.sidesheet.SideSheetBehavior</string>
+    <string name="state_empty">Empty</string>
+    <string name="state_off">Off</string>
+    <string name="state_on">On</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="switch_role">Switch</string>
     <string name="tab">Tab</string>

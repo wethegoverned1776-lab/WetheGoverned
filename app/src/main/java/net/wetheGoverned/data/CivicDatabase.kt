@@ -12,14 +12,17 @@ import net.wetheGoverned.local.entity.*
         ResidentProfileEntity::class,
         DistrictPollEntity::class,
         PollPostEntity::class,
+        CivicVoteEntity::class,
         RepresentativeScorecardEntity::class,
         ScorecardCategoryEntity::class,
         CandidateManifestoEntity::class,
         ManifestoQuestionEntity::class,
         DistrictMetricEntity::class,
         PendingCivicEventEntity::class,
+        AccountEntity::class,
+        CommunityPostEntity::class,
     ],
-    version = 4, // Incremented to version 4 for addressFingerprint addition
+    version = 8, // Incremented to version 8 for Community Hub update
     exportSchema = false
 )
 @TypeConverters(CivicConverters::class)
@@ -29,10 +32,13 @@ abstract class CivicDatabase : RoomDatabase() {
     abstract fun residentProfileDao(): ResidentProfileDao
     abstract fun pollDao(): PollDao
     abstract fun pollPostDao(): PollPostDao
+    abstract fun voteDao(): VoteDao
     abstract fun scorecardDao(): ScorecardDao
     abstract fun manifestoDao(): ManifestoDao
     abstract fun metricDao(): MetricDao
     abstract fun pendingEventDao(): PendingEventDao
+    abstract fun accountDao(): AccountDao
+    abstract fun communityPostDao(): CommunityPostDao
 
     companion object {
         const val DATABASE_NAME = "wetheGoverned.db"

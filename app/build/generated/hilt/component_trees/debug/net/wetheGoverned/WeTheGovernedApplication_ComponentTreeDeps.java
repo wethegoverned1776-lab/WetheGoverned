@@ -38,25 +38,12 @@ import hilt_aggregated_deps._dagger_hilt_android_internal_modules_ApplicationCon
 import hilt_aggregated_deps._dagger_hilt_android_internal_modules_HiltWrapper_ActivityModule;
 import hilt_aggregated_deps._net_wetheGoverned_MainActivity_GeneratedInjector;
 import hilt_aggregated_deps._net_wetheGoverned_WeTheGovernedApplication_GeneratedInjector;
+import hilt_aggregated_deps._net_wetheGoverned_data_P2PService_GeneratedInjector;
 import hilt_aggregated_deps._net_wetheGoverned_di_CivicDatabaseModule;
 import hilt_aggregated_deps._net_wetheGoverned_di_CivicNetworkModule;
-import hilt_aggregated_deps._net_wetheGoverned_di_CivicRepositoryModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_HomeViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_HomeViewModel_HiltModules_KeyModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_ManifestoViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_ManifestoViewModel_HiltModules_KeyModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_PollDetailViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_PollDetailViewModel_HiltModules_KeyModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_ScorecardViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_ScorecardViewModel_HiltModules_KeyModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_district_MetricsViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_district_MetricsViewModel_HiltModules_KeyModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_onboarding_OnboardingViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_onboarding_OnboardingViewModel_HiltModules_KeyModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_profile_ResidentProfileViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_profile_ResidentProfileViewModel_HiltModules_KeyModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_verification_TierVerificationViewModel_HiltModules_BindsModule;
-import hilt_aggregated_deps._net_wetheGoverned_ui_verification_TierVerificationViewModel_HiltModules_KeyModule;
+import hilt_aggregated_deps._net_wetheGoverned_di_CivicRepositoryBindingModule;
+import hilt_aggregated_deps._net_wetheGoverned_di_ViewModelModule;
+import hilt_aggregated_deps._net_wetheGoverned_ui_AppEntryPoint;
 
 @ComponentTreeDeps(
     rootDeps = _net_wetheGoverned_WeTheGovernedApplication.class,
@@ -99,25 +86,12 @@ import hilt_aggregated_deps._net_wetheGoverned_ui_verification_TierVerificationV
         _dagger_hilt_android_internal_modules_HiltWrapper_ActivityModule.class,
         _net_wetheGoverned_MainActivity_GeneratedInjector.class,
         _net_wetheGoverned_WeTheGovernedApplication_GeneratedInjector.class,
+        _net_wetheGoverned_data_P2PService_GeneratedInjector.class,
         _net_wetheGoverned_di_CivicDatabaseModule.class,
         _net_wetheGoverned_di_CivicNetworkModule.class,
-        _net_wetheGoverned_di_CivicRepositoryModule.class,
-        _net_wetheGoverned_ui_HomeViewModel_HiltModules_BindsModule.class,
-        _net_wetheGoverned_ui_HomeViewModel_HiltModules_KeyModule.class,
-        _net_wetheGoverned_ui_ManifestoViewModel_HiltModules_BindsModule.class,
-        _net_wetheGoverned_ui_ManifestoViewModel_HiltModules_KeyModule.class,
-        _net_wetheGoverned_ui_PollDetailViewModel_HiltModules_BindsModule.class,
-        _net_wetheGoverned_ui_PollDetailViewModel_HiltModules_KeyModule.class,
-        _net_wetheGoverned_ui_ScorecardViewModel_HiltModules_BindsModule.class,
-        _net_wetheGoverned_ui_ScorecardViewModel_HiltModules_KeyModule.class,
-        _net_wetheGoverned_ui_district_MetricsViewModel_HiltModules_BindsModule.class,
-        _net_wetheGoverned_ui_district_MetricsViewModel_HiltModules_KeyModule.class,
-        _net_wetheGoverned_ui_onboarding_OnboardingViewModel_HiltModules_BindsModule.class,
-        _net_wetheGoverned_ui_onboarding_OnboardingViewModel_HiltModules_KeyModule.class,
-        _net_wetheGoverned_ui_profile_ResidentProfileViewModel_HiltModules_BindsModule.class,
-        _net_wetheGoverned_ui_profile_ResidentProfileViewModel_HiltModules_KeyModule.class,
-        _net_wetheGoverned_ui_verification_TierVerificationViewModel_HiltModules_BindsModule.class,
-        _net_wetheGoverned_ui_verification_TierVerificationViewModel_HiltModules_KeyModule.class
+        _net_wetheGoverned_di_CivicRepositoryBindingModule.class,
+        _net_wetheGoverned_di_ViewModelModule.class,
+        _net_wetheGoverned_ui_AppEntryPoint.class
     }
 )
 public final class WeTheGovernedApplication_ComponentTreeDeps {

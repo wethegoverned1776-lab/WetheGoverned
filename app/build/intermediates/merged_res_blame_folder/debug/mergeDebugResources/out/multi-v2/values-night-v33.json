@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "net.wetheGoverned.app-mergeDebugResources-70:/values-night-v33/values-night-v33.xml",
+            "outputFile": "net.wetheGoverned.app-mergeDebugResources-75:/values-night-v33/values-night-v33.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\b3f4f77a987bf8d69b7d899053f3173a\\transformed\\core-splashscreen-1.2.0\\res\\values-night-v33\\values-night-v33.xml",
+                    "source": "C:\\Users\\rodne\\.gradle\\caches\\9.0.0\\transforms\\5b7a3540c7a3eeddfe0db3da2ef1109f\\transformed\\core-splashscreen-1.2.0\\res\\values-night-v33\\values-night-v33.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

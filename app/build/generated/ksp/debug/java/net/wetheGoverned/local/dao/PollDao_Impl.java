@@ -11,6 +11,7 @@ import androidx.room.RoomSQLiteQuery;
 import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
+import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import java.lang.Class;
 import java.lang.Exception;
@@ -18,6 +19,7 @@ import java.lang.Long;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +48,7 @@ public final class PollDao_Impl implements PollDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `district_polls` (`id`,`scope`,`districtId`,`localId`,`authorPubKey`,`question`,`optionsJson`,`status`,`createdAt`,`closesAt`,`totalVotes`,`importanceScore`,`userImportanceVote`,`residentVoteOption`,`linkedLegislationId`,`cachedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `district_polls` (`id`,`scope`,`districtId`,`localId`,`authorPubKey`,`question`,`optionsJson`,`status`,`createdAt`,`closesAt`,`totalVotes`,`importanceScore`,`userImportanceVote`,`residentVoteOption`,`linkedLegislationId`,`districtBreakdownJson`,`cachedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -87,7 +89,12 @@ public final class PollDao_Impl implements PollDao {
         } else {
           statement.bindString(15, entity.getLinkedLegislationId());
         }
-        statement.bindLong(16, entity.getCachedAt());
+        if (entity.getDistrictBreakdownJson() == null) {
+          statement.bindNull(16);
+        } else {
+          statement.bindString(16, entity.getDistrictBreakdownJson());
+        }
+        statement.bindLong(17, entity.getCachedAt());
       }
     };
     this.__preparedStmtOfApplyOptimisticVote = new SharedSQLiteStatement(__db) {
@@ -210,6 +217,7 @@ public final class PollDao_Impl implements PollDao {
           final int _cursorIndexOfUserImportanceVote = CursorUtil.getColumnIndexOrThrow(_cursor, "userImportanceVote");
           final int _cursorIndexOfResidentVoteOption = CursorUtil.getColumnIndexOrThrow(_cursor, "residentVoteOption");
           final int _cursorIndexOfLinkedLegislationId = CursorUtil.getColumnIndexOrThrow(_cursor, "linkedLegislationId");
+          final int _cursorIndexOfDistrictBreakdownJson = CursorUtil.getColumnIndexOrThrow(_cursor, "districtBreakdownJson");
           final int _cursorIndexOfCachedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "cachedAt");
           final List<DistrictPollEntity> _result = new ArrayList<DistrictPollEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
@@ -264,10 +272,131 @@ public final class PollDao_Impl implements PollDao {
             } else {
               _tmpLinkedLegislationId = _cursor.getString(_cursorIndexOfLinkedLegislationId);
             }
+            final String _tmpDistrictBreakdownJson;
+            if (_cursor.isNull(_cursorIndexOfDistrictBreakdownJson)) {
+              _tmpDistrictBreakdownJson = null;
+            } else {
+              _tmpDistrictBreakdownJson = _cursor.getString(_cursorIndexOfDistrictBreakdownJson);
+            }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _item = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpCachedAt);
+            _item = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpDistrictBreakdownJson,_tmpCachedAt);
             _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+        }
+      }
+
+      @Override
+      protected void finalize() {
+        _statement.release();
+      }
+    });
+  }
+
+  @Override
+  public Flow<List<DistrictPollEntity>> observePollsByIds(final List<String> districtIds) {
+    final StringBuilder _stringBuilder = StringUtil.newStringBuilder();
+    _stringBuilder.append("SELECT * FROM district_polls WHERE districtId IN (");
+    final int _inputSize = districtIds.size();
+    StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
+    _stringBuilder.append(") ORDER BY importanceScore DESC, createdAt DESC");
+    final String _sql = _stringBuilder.toString();
+    final int _argCount = 0 + _inputSize;
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
+    int _argIndex = 1;
+    for (String _item : districtIds) {
+      _statement.bindString(_argIndex, _item);
+      _argIndex++;
+    }
+    return CoroutinesRoom.createFlow(__db, false, new String[] {"district_polls"}, new Callable<List<DistrictPollEntity>>() {
+      @Override
+      @NonNull
+      public List<DistrictPollEntity> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfScope = CursorUtil.getColumnIndexOrThrow(_cursor, "scope");
+          final int _cursorIndexOfDistrictId = CursorUtil.getColumnIndexOrThrow(_cursor, "districtId");
+          final int _cursorIndexOfLocalId = CursorUtil.getColumnIndexOrThrow(_cursor, "localId");
+          final int _cursorIndexOfAuthorPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "authorPubKey");
+          final int _cursorIndexOfQuestion = CursorUtil.getColumnIndexOrThrow(_cursor, "question");
+          final int _cursorIndexOfOptionsJson = CursorUtil.getColumnIndexOrThrow(_cursor, "optionsJson");
+          final int _cursorIndexOfStatus = CursorUtil.getColumnIndexOrThrow(_cursor, "status");
+          final int _cursorIndexOfCreatedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAt");
+          final int _cursorIndexOfClosesAt = CursorUtil.getColumnIndexOrThrow(_cursor, "closesAt");
+          final int _cursorIndexOfTotalVotes = CursorUtil.getColumnIndexOrThrow(_cursor, "totalVotes");
+          final int _cursorIndexOfImportanceScore = CursorUtil.getColumnIndexOrThrow(_cursor, "importanceScore");
+          final int _cursorIndexOfUserImportanceVote = CursorUtil.getColumnIndexOrThrow(_cursor, "userImportanceVote");
+          final int _cursorIndexOfResidentVoteOption = CursorUtil.getColumnIndexOrThrow(_cursor, "residentVoteOption");
+          final int _cursorIndexOfLinkedLegislationId = CursorUtil.getColumnIndexOrThrow(_cursor, "linkedLegislationId");
+          final int _cursorIndexOfDistrictBreakdownJson = CursorUtil.getColumnIndexOrThrow(_cursor, "districtBreakdownJson");
+          final int _cursorIndexOfCachedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "cachedAt");
+          final List<DistrictPollEntity> _result = new ArrayList<DistrictPollEntity>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final DistrictPollEntity _item_1;
+            final String _tmpId;
+            _tmpId = _cursor.getString(_cursorIndexOfId);
+            final String _tmpScope;
+            if (_cursor.isNull(_cursorIndexOfScope)) {
+              _tmpScope = null;
+            } else {
+              _tmpScope = _cursor.getString(_cursorIndexOfScope);
+            }
+            final String _tmpDistrictId;
+            _tmpDistrictId = _cursor.getString(_cursorIndexOfDistrictId);
+            final String _tmpLocalId;
+            if (_cursor.isNull(_cursorIndexOfLocalId)) {
+              _tmpLocalId = null;
+            } else {
+              _tmpLocalId = _cursor.getString(_cursorIndexOfLocalId);
+            }
+            final String _tmpAuthorPubKey;
+            _tmpAuthorPubKey = _cursor.getString(_cursorIndexOfAuthorPubKey);
+            final String _tmpQuestion;
+            _tmpQuestion = _cursor.getString(_cursorIndexOfQuestion);
+            final String _tmpOptionsJson;
+            _tmpOptionsJson = _cursor.getString(_cursorIndexOfOptionsJson);
+            final String _tmpStatus;
+            _tmpStatus = _cursor.getString(_cursorIndexOfStatus);
+            final long _tmpCreatedAt;
+            _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
+            final Long _tmpClosesAt;
+            if (_cursor.isNull(_cursorIndexOfClosesAt)) {
+              _tmpClosesAt = null;
+            } else {
+              _tmpClosesAt = _cursor.getLong(_cursorIndexOfClosesAt);
+            }
+            final int _tmpTotalVotes;
+            _tmpTotalVotes = _cursor.getInt(_cursorIndexOfTotalVotes);
+            final int _tmpImportanceScore;
+            _tmpImportanceScore = _cursor.getInt(_cursorIndexOfImportanceScore);
+            final int _tmpUserImportanceVote;
+            _tmpUserImportanceVote = _cursor.getInt(_cursorIndexOfUserImportanceVote);
+            final String _tmpResidentVoteOption;
+            if (_cursor.isNull(_cursorIndexOfResidentVoteOption)) {
+              _tmpResidentVoteOption = null;
+            } else {
+              _tmpResidentVoteOption = _cursor.getString(_cursorIndexOfResidentVoteOption);
+            }
+            final String _tmpLinkedLegislationId;
+            if (_cursor.isNull(_cursorIndexOfLinkedLegislationId)) {
+              _tmpLinkedLegislationId = null;
+            } else {
+              _tmpLinkedLegislationId = _cursor.getString(_cursorIndexOfLinkedLegislationId);
+            }
+            final String _tmpDistrictBreakdownJson;
+            if (_cursor.isNull(_cursorIndexOfDistrictBreakdownJson)) {
+              _tmpDistrictBreakdownJson = null;
+            } else {
+              _tmpDistrictBreakdownJson = _cursor.getString(_cursorIndexOfDistrictBreakdownJson);
+            }
+            final long _tmpCachedAt;
+            _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
+            _item_1 = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpDistrictBreakdownJson,_tmpCachedAt);
+            _result.add(_item_1);
           }
           return _result;
         } finally {
@@ -311,6 +440,7 @@ public final class PollDao_Impl implements PollDao {
           final int _cursorIndexOfUserImportanceVote = CursorUtil.getColumnIndexOrThrow(_cursor, "userImportanceVote");
           final int _cursorIndexOfResidentVoteOption = CursorUtil.getColumnIndexOrThrow(_cursor, "residentVoteOption");
           final int _cursorIndexOfLinkedLegislationId = CursorUtil.getColumnIndexOrThrow(_cursor, "linkedLegislationId");
+          final int _cursorIndexOfDistrictBreakdownJson = CursorUtil.getColumnIndexOrThrow(_cursor, "districtBreakdownJson");
           final int _cursorIndexOfCachedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "cachedAt");
           final List<DistrictPollEntity> _result = new ArrayList<DistrictPollEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
@@ -365,9 +495,15 @@ public final class PollDao_Impl implements PollDao {
             } else {
               _tmpLinkedLegislationId = _cursor.getString(_cursorIndexOfLinkedLegislationId);
             }
+            final String _tmpDistrictBreakdownJson;
+            if (_cursor.isNull(_cursorIndexOfDistrictBreakdownJson)) {
+              _tmpDistrictBreakdownJson = null;
+            } else {
+              _tmpDistrictBreakdownJson = _cursor.getString(_cursorIndexOfDistrictBreakdownJson);
+            }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _item = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpCachedAt);
+            _item = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpDistrictBreakdownJson,_tmpCachedAt);
             _result.add(_item);
           }
           return _result;
@@ -406,6 +542,7 @@ public final class PollDao_Impl implements PollDao {
           final int _cursorIndexOfUserImportanceVote = CursorUtil.getColumnIndexOrThrow(_cursor, "userImportanceVote");
           final int _cursorIndexOfResidentVoteOption = CursorUtil.getColumnIndexOrThrow(_cursor, "residentVoteOption");
           final int _cursorIndexOfLinkedLegislationId = CursorUtil.getColumnIndexOrThrow(_cursor, "linkedLegislationId");
+          final int _cursorIndexOfDistrictBreakdownJson = CursorUtil.getColumnIndexOrThrow(_cursor, "districtBreakdownJson");
           final int _cursorIndexOfCachedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "cachedAt");
           final List<DistrictPollEntity> _result = new ArrayList<DistrictPollEntity>(_cursor.getCount());
           while (_cursor.moveToNext()) {
@@ -460,9 +597,15 @@ public final class PollDao_Impl implements PollDao {
             } else {
               _tmpLinkedLegislationId = _cursor.getString(_cursorIndexOfLinkedLegislationId);
             }
+            final String _tmpDistrictBreakdownJson;
+            if (_cursor.isNull(_cursorIndexOfDistrictBreakdownJson)) {
+              _tmpDistrictBreakdownJson = null;
+            } else {
+              _tmpDistrictBreakdownJson = _cursor.getString(_cursorIndexOfDistrictBreakdownJson);
+            }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _item = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpCachedAt);
+            _item = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpDistrictBreakdownJson,_tmpCachedAt);
             _result.add(_item);
           }
           return _result;
@@ -503,6 +646,7 @@ public final class PollDao_Impl implements PollDao {
           final int _cursorIndexOfUserImportanceVote = CursorUtil.getColumnIndexOrThrow(_cursor, "userImportanceVote");
           final int _cursorIndexOfResidentVoteOption = CursorUtil.getColumnIndexOrThrow(_cursor, "residentVoteOption");
           final int _cursorIndexOfLinkedLegislationId = CursorUtil.getColumnIndexOrThrow(_cursor, "linkedLegislationId");
+          final int _cursorIndexOfDistrictBreakdownJson = CursorUtil.getColumnIndexOrThrow(_cursor, "districtBreakdownJson");
           final int _cursorIndexOfCachedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "cachedAt");
           final DistrictPollEntity _result;
           if (_cursor.moveToFirst()) {
@@ -556,9 +700,15 @@ public final class PollDao_Impl implements PollDao {
             } else {
               _tmpLinkedLegislationId = _cursor.getString(_cursorIndexOfLinkedLegislationId);
             }
+            final String _tmpDistrictBreakdownJson;
+            if (_cursor.isNull(_cursorIndexOfDistrictBreakdownJson)) {
+              _tmpDistrictBreakdownJson = null;
+            } else {
+              _tmpDistrictBreakdownJson = _cursor.getString(_cursorIndexOfDistrictBreakdownJson);
+            }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _result = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpCachedAt);
+            _result = new DistrictPollEntity(_tmpId,_tmpScope,_tmpDistrictId,_tmpLocalId,_tmpAuthorPubKey,_tmpQuestion,_tmpOptionsJson,_tmpStatus,_tmpCreatedAt,_tmpClosesAt,_tmpTotalVotes,_tmpImportanceScore,_tmpUserImportanceVote,_tmpResidentVoteOption,_tmpLinkedLegislationId,_tmpDistrictBreakdownJson,_tmpCachedAt);
           } else {
             _result = null;
           }

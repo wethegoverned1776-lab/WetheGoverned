@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="26"
+        android:minSdkVersion="24"
         android:targetSdkVersion="35" />
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -27,10 +27,13 @@
         android:name="net.wetheGoverned.WeTheGovernedApplication"
         android:allowBackup="false"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:debuggable="true"
         android:extractNativeLibs="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
         android:label="WeTheGoverned"
-        android:testOnly="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.WeTheGoverned" >
         <activity
             android:name="net.wetheGoverned.MainActivity"
@@ -49,6 +52,9 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <activity
+            android:name="androidx.activity.ComponentActivity"
+            android:exported="true" />
         <activity
             android:name="androidx.compose.ui.tooling.PreviewActivity"
             android:exported="true" />

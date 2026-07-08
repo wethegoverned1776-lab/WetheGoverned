@@ -4,7 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.*
 import net.wetheGoverned.model.VerificationTier
 import net.wetheGoverned.session.SessionManager
-import net.wetheGoverned.data.repository.AccountRepository
+import net.wetheGoverned.repository.AccountRepository
 import net.wetheGoverned.model.UserAccount
 import net.wetheGoverned.repository.ResidentRepository
 import net.wetheGoverned.remote.api.CivicApi
@@ -51,10 +51,8 @@ class VerificationSimulator @Inject constructor(
                 onResult("VOTER_ROLL: Match found in ${detected.id}. Seating resident...")
                 
                 residentRepository.upgradeTierFull(
-                    pubKey = "admin",
+                    pubKey = adminAccount.pubKey,
                     newTier = VerificationTier.TIER_2,
-                    firstName = first,
-                    lastName = last,
                     fingerprint = "fp_daytona_123"
                 )
                 accountRepository.updateDistrict("admin", detected.id)
@@ -66,22 +64,21 @@ class VerificationSimulator @Inject constructor(
             
             // 1. Create Spouse Account
             val spouseUser = "spouse_voter"
-            accountRepository.register(UserAccount(spouseUser, "pass", "Spouse User", null))
+            val spouseKeys = net.wetheGoverned.core.Secp256k1KeyManager.generateKeyPair()
+            accountRepository.register(UserAccount(spouseUser, "pass", spouseKeys.pubKeyHex, spouseKeys.privateKeyHex, null))
             
             // 2. Check if admin can vouch (Address is shared)
-            val adminProfile = residentRepository.getProfile("admin").getOrThrow()
-            val vouchCount = residentRepository.getVouchCount("admin")
+            val adminProfile = residentRepository.getProfile(adminAccount.pubKey).getOrThrow()
+            val vouchCount = residentRepository.getVouchCount(adminAccount.pubKey)
             onResult("INFO: Admin verified status: ${adminProfile.tier}, Vouches used: $vouchCount")
 
             if (adminProfile.tier >= VerificationTier.TIER_2 && vouchCount < 1) {
                 onResult("VOUCH: Admin signing residency attestation for spouse...")
                 residentRepository.upgradeTierFull(
-                    pubKey = spouseUser,
+                    pubKey = spouseKeys.pubKeyHex,
                     newTier = VerificationTier.TIER_2,
-                    firstName = "Jane",
-                    lastName = "User",
                     fingerprint = "fp_daytona_123", // Same household fingerprint
-                    verifiedBy = "admin"
+                    verifiedBy = adminAccount.pubKey
                 )
                 onResult("SUCCESS: Spouse verified via P2P Vouch.")
             }
@@ -89,9 +86,10 @@ class VerificationSimulator @Inject constructor(
             // 3. Security Stress Test: Third Person at same address
             onResult("PHASE 3: Security Stress Test (Duplicate Vouch Prevention)...")
             val roommateUser = "roommate_voter"
-            accountRepository.register(UserAccount(roommateUser, "pass", "Roommate User", null))
+            val roomKeys = net.wetheGoverned.core.Secp256k1KeyManager.generateKeyPair()
+            accountRepository.register(UserAccount(roommateUser, "pass", roomKeys.pubKeyHex, roomKeys.privateKeyHex, null))
             
-            val updatedVouchCount = residentRepository.getVouchCount("admin")
+            val updatedVouchCount = residentRepository.getVouchCount(adminAccount.pubKey)
             if (updatedVouchCount >= 1) {
                 onResult("SECURITY: Admin vouch credit exhausted ($updatedVouchCount/1).")
                 onResult("BLOCK: Roommate rejected from P2P Vouch path. Correct behavior.")

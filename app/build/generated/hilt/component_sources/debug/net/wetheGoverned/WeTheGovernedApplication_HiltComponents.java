@@ -46,17 +46,12 @@ import dagger.hilt.internal.GeneratedComponent;
 import dagger.hilt.migration.DisableInstallInCheck;
 import javax.annotation.processing.Generated;
 import javax.inject.Singleton;
+import net.wetheGoverned.data.P2PService_GeneratedInjector;
 import net.wetheGoverned.di.CivicDatabaseModule;
 import net.wetheGoverned.di.CivicNetworkModule;
-import net.wetheGoverned.di.CivicRepositoryModule;
-import net.wetheGoverned.ui.HomeViewModel_HiltModules;
-import net.wetheGoverned.ui.ManifestoViewModel_HiltModules;
-import net.wetheGoverned.ui.PollDetailViewModel_HiltModules;
-import net.wetheGoverned.ui.ScorecardViewModel_HiltModules;
-import net.wetheGoverned.ui.district.MetricsViewModel_HiltModules;
-import net.wetheGoverned.ui.onboarding.OnboardingViewModel_HiltModules;
-import net.wetheGoverned.ui.profile.ResidentProfileViewModel_HiltModules;
-import net.wetheGoverned.ui.verification.TierVerificationViewModel_HiltModules;
+import net.wetheGoverned.di.CivicRepositoryBindingModule;
+import net.wetheGoverned.di.ViewModelModule;
+import net.wetheGoverned.ui.AppEntryPoint;
 
 @Generated("dagger.hilt.processor.internal.root.RootProcessor")
 public final class WeTheGovernedApplication_HiltComponents {
@@ -138,7 +133,7 @@ public final class WeTheGovernedApplication_HiltComponents {
           ApplicationContextModule.class,
           CivicDatabaseModule.class,
           CivicNetworkModule.class,
-          CivicRepositoryModule.class,
+          CivicRepositoryBindingModule.class,
           HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
           ActivityRetainedCBuilderModule.class,
           ServiceCBuilderModule.class
@@ -150,13 +145,15 @@ public final class WeTheGovernedApplication_HiltComponents {
       ServiceComponentManager.ServiceComponentBuilderEntryPoint,
       SingletonComponent,
       GeneratedComponent,
-      WeTheGovernedApplication_GeneratedInjector {
+      WeTheGovernedApplication_GeneratedInjector,
+      AppEntryPoint {
   }
 
   @Subcomponent
   @ServiceScoped
   public abstract static class ServiceC implements ServiceComponent,
-      GeneratedComponent {
+      GeneratedComponent,
+      P2PService_GeneratedInjector {
     @Subcomponent.Builder
     abstract interface Builder extends ServiceComponentBuilder {
     }
@@ -166,14 +163,6 @@ public final class WeTheGovernedApplication_HiltComponents {
       modules = {
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
-          HomeViewModel_HiltModules.KeyModule.class,
-          ManifestoViewModel_HiltModules.KeyModule.class,
-          MetricsViewModel_HiltModules.KeyModule.class,
-          OnboardingViewModel_HiltModules.KeyModule.class,
-          PollDetailViewModel_HiltModules.KeyModule.class,
-          ResidentProfileViewModel_HiltModules.KeyModule.class,
-          ScorecardViewModel_HiltModules.KeyModule.class,
-          TierVerificationViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class
       }
@@ -212,14 +201,7 @@ public final class WeTheGovernedApplication_HiltComponents {
   @Subcomponent(
       modules = {
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
-          HomeViewModel_HiltModules.BindsModule.class,
-          ManifestoViewModel_HiltModules.BindsModule.class,
-          MetricsViewModel_HiltModules.BindsModule.class,
-          OnboardingViewModel_HiltModules.BindsModule.class,
-          PollDetailViewModel_HiltModules.BindsModule.class,
-          ResidentProfileViewModel_HiltModules.BindsModule.class,
-          ScorecardViewModel_HiltModules.BindsModule.class,
-          TierVerificationViewModel_HiltModules.BindsModule.class
+          ViewModelModule.class
       }
   )
   @ViewModelScoped

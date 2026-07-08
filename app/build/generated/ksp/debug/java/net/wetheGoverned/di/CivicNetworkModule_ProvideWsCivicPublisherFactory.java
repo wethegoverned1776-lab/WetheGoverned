@@ -5,11 +5,10 @@ import dagger.internal.Factory;
 import dagger.internal.Preconditions;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
-import java.util.List;
 import javax.annotation.processing.Generated;
 import javax.inject.Provider;
-import net.wetheGoverned.core.DispatcherProvider;
-import net.wetheGoverned.core.WsCivicPublisherWithQueue;
+import net.wetheGoverned.core.CivicPublisher;
+import net.wetheGoverned.data.NostrRelayManager;
 import net.wetheGoverned.session.PendingEventQueue;
 import net.wetheGoverned.session.SessionManager;
 import net.wetheGoverned.zk.ZkProver;
@@ -28,43 +27,39 @@ import net.wetheGoverned.zk.ZkProver;
     "KotlinInternalInJava",
     "cast"
 })
-public final class CivicNetworkModule_ProvideWsCivicPublisherFactory implements Factory<WsCivicPublisherWithQueue> {
-  private final Provider<List<String>> relayUrlsProvider;
+public final class CivicNetworkModule_ProvideWsCivicPublisherFactory implements Factory<CivicPublisher> {
+  private final Provider<NostrRelayManager> relayManagerProvider;
 
   private final Provider<SessionManager> sessionManagerProvider;
-
-  private final Provider<DispatcherProvider> dispatchersProvider;
 
   private final Provider<PendingEventQueue> pendingQueueProvider;
 
   private final Provider<ZkProver> zkProverProvider;
 
-  public CivicNetworkModule_ProvideWsCivicPublisherFactory(Provider<List<String>> relayUrlsProvider,
+  public CivicNetworkModule_ProvideWsCivicPublisherFactory(
+      Provider<NostrRelayManager> relayManagerProvider,
       Provider<SessionManager> sessionManagerProvider,
-      Provider<DispatcherProvider> dispatchersProvider,
       Provider<PendingEventQueue> pendingQueueProvider, Provider<ZkProver> zkProverProvider) {
-    this.relayUrlsProvider = relayUrlsProvider;
+    this.relayManagerProvider = relayManagerProvider;
     this.sessionManagerProvider = sessionManagerProvider;
-    this.dispatchersProvider = dispatchersProvider;
     this.pendingQueueProvider = pendingQueueProvider;
     this.zkProverProvider = zkProverProvider;
   }
 
   @Override
-  public WsCivicPublisherWithQueue get() {
-    return provideWsCivicPublisher(relayUrlsProvider.get(), sessionManagerProvider.get(), dispatchersProvider.get(), pendingQueueProvider.get(), zkProverProvider.get());
+  public CivicPublisher get() {
+    return provideWsCivicPublisher(relayManagerProvider.get(), sessionManagerProvider.get(), pendingQueueProvider.get(), zkProverProvider.get());
   }
 
   public static CivicNetworkModule_ProvideWsCivicPublisherFactory create(
-      Provider<List<String>> relayUrlsProvider, Provider<SessionManager> sessionManagerProvider,
-      Provider<DispatcherProvider> dispatchersProvider,
+      Provider<NostrRelayManager> relayManagerProvider,
+      Provider<SessionManager> sessionManagerProvider,
       Provider<PendingEventQueue> pendingQueueProvider, Provider<ZkProver> zkProverProvider) {
-    return new CivicNetworkModule_ProvideWsCivicPublisherFactory(relayUrlsProvider, sessionManagerProvider, dispatchersProvider, pendingQueueProvider, zkProverProvider);
+    return new CivicNetworkModule_ProvideWsCivicPublisherFactory(relayManagerProvider, sessionManagerProvider, pendingQueueProvider, zkProverProvider);
   }
 
-  public static WsCivicPublisherWithQueue provideWsCivicPublisher(List<String> relayUrls,
-      SessionManager sessionManager, DispatcherProvider dispatchers, PendingEventQueue pendingQueue,
-      ZkProver zkProver) {
-    return Preconditions.checkNotNullFromProvides(CivicNetworkModule.INSTANCE.provideWsCivicPublisher(relayUrls, sessionManager, dispatchers, pendingQueue, zkProver));
+  public static CivicPublisher provideWsCivicPublisher(NostrRelayManager relayManager,
+      SessionManager sessionManager, PendingEventQueue pendingQueue, ZkProver zkProver) {
+    return Preconditions.checkNotNullFromProvides(CivicNetworkModule.INSTANCE.provideWsCivicPublisher(relayManager, sessionManager, pendingQueue, zkProver));
   }
 }

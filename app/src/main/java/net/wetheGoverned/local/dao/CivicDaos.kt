@@ -51,6 +51,9 @@ interface PollDao {
     @Query("SELECT * FROM district_polls WHERE districtId = :districtId ORDER BY importanceScore DESC, createdAt DESC")
     fun observePolls(districtId: String): Flow<List<DistrictPollEntity>>
 
+    @Query("SELECT * FROM district_polls WHERE districtId IN (:districtIds) ORDER BY importanceScore DESC, createdAt DESC")
+    fun observePollsByIds(districtIds: List<String>): Flow<List<DistrictPollEntity>>
+
     @Query("SELECT * FROM district_polls WHERE districtId = :districtId ORDER BY importanceScore DESC, createdAt DESC")
     suspend fun getPollsSync(districtId: String): List<DistrictPollEntity>
 
@@ -158,4 +161,25 @@ interface PendingEventDao {
 
     @Query("DELETE FROM pending_civic_events WHERE eventId = :eventId")
     suspend fun dequeue(eventId: String)
+}
+
+@Dao
+interface CommunityPostDao {
+    @Query("SELECT * FROM community_posts WHERE districtId = :districtId ORDER BY createdAt DESC")
+    fun observePosts(districtId: String): Flow<List<CommunityPostEntity>>
+
+    @Query("SELECT * FROM community_posts WHERE districtId = :districtId AND kind = :kind ORDER BY createdAt DESC")
+    fun observePostsByKind(districtId: String, kind: String): Flow<List<CommunityPostEntity>>
+
+    @Query("SELECT * FROM community_posts WHERE id = :postId")
+    suspend fun getPost(postId: String): CommunityPostEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertPost(post: CommunityPostEntity)
+
+    @Query("DELETE FROM community_posts WHERE id = :postId")
+    suspend fun deletePost(postId: String)
+
+    @Query("SELECT * FROM community_posts")
+    suspend fun getAllPosts(): List<CommunityPostEntity>
 }

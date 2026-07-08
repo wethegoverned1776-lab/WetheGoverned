@@ -3245,6 +3245,7 @@ id graph_wrap
 id group_divider
 id groups
 id header_title
+id hide_graphics_layer_in_inspector_tag
 id hide_ime_id
 id hide_in_inspector_tag
 id hideable
@@ -3954,8 +3955,6 @@ string nav_polls
 string nav_scorecard
 string navigation_menu
 string not_selected
-string off
-string on
 string onboarding_detect_location
 string onboarding_generate_key
 string onboarding_get_started
@@ -3990,6 +3989,9 @@ string searchview_navigation_content_description
 string selected
 string side_sheet_accessibility_pane_title
 string side_sheet_behavior
+string state_empty
+string state_off
+string state_on
 string status_bar_notification_info_overflow
 string switch_role
 string tab

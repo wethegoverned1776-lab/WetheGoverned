@@ -5,8 +5,10 @@ import dagger.internal.Factory;
 import dagger.internal.Preconditions;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
+import io.ktor.client.HttpClient;
 import javax.annotation.processing.Generated;
-import net.wetheGoverned.remote.backend.WtgBackendApi;
+import javax.inject.Provider;
+import net.wetheGoverned.remote.api.WtgBackendApi;
 
 @ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
@@ -23,20 +25,23 @@ import net.wetheGoverned.remote.backend.WtgBackendApi;
     "cast"
 })
 public final class CivicNetworkModule_ProvideWtgBackendApiFactory implements Factory<WtgBackendApi> {
+  private final Provider<HttpClient> httpClientProvider;
+
+  public CivicNetworkModule_ProvideWtgBackendApiFactory(Provider<HttpClient> httpClientProvider) {
+    this.httpClientProvider = httpClientProvider;
+  }
+
   @Override
   public WtgBackendApi get() {
-    return provideWtgBackendApi();
+    return provideWtgBackendApi(httpClientProvider.get());
   }
 
-  public static CivicNetworkModule_ProvideWtgBackendApiFactory create() {
-    return InstanceHolder.INSTANCE;
+  public static CivicNetworkModule_ProvideWtgBackendApiFactory create(
+      Provider<HttpClient> httpClientProvider) {
+    return new CivicNetworkModule_ProvideWtgBackendApiFactory(httpClientProvider);
   }
 
-  public static WtgBackendApi provideWtgBackendApi() {
-    return Preconditions.checkNotNullFromProvides(CivicNetworkModule.INSTANCE.provideWtgBackendApi());
-  }
-
-  private static final class InstanceHolder {
-    private static final CivicNetworkModule_ProvideWtgBackendApiFactory INSTANCE = new CivicNetworkModule_ProvideWtgBackendApiFactory();
+  public static WtgBackendApi provideWtgBackendApi(HttpClient httpClient) {
+    return Preconditions.checkNotNullFromProvides(CivicNetworkModule.INSTANCE.provideWtgBackendApi(httpClient));
   }
 }

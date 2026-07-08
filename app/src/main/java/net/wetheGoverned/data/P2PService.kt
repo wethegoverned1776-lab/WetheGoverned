@@ -4,9 +4,7 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import dagger.hilt.android.AndroidEntryPoint
@@ -18,20 +16,17 @@ class P2PService : Service() {
     @Inject
     lateinit var p2pSyncEngine: P2PSyncEngine
 
-    private val CHANNEL_ID = "p2p_sync_channel"
-    private val NOTIFICATION_ID = 1001
-
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, createNotification())
         
-        // Start the P2P server
-        p2pSyncEngine.startServer()
+        // Start the Nostr-based sync engine
+        p2pSyncEngine.start()
     }
 
     override fun onDestroy() {
-        p2pSyncEngine.stopServer()
+        p2pSyncEngine.stop()
         super.onDestroy()
     }
 
@@ -51,14 +46,17 @@ class P2PService : Service() {
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                CHANNEL_ID,
-                "P2P Sync Service Channel",
-                NotificationManager.IMPORTANCE_LOW
-            )
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(serviceChannel)
-        }
+        val serviceChannel = NotificationChannel(
+            CHANNEL_ID,
+            "P2P Sync Service Channel",
+            NotificationManager.IMPORTANCE_LOW,
+        )
+        val manager = getSystemService(NotificationManager::class.java)
+        manager.createNotificationChannel(serviceChannel)
+    }
+
+    companion object {
+        private const val CHANNEL_ID = "p2p_sync_channel"
+        private const val NOTIFICATION_ID = 1001
     }
 }

@@ -46,7 +46,7 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
       @Override
       @NonNull
       protected String createQuery() {
-        return "INSERT OR REPLACE INTO `resident_profiles` (`pubKey`,`displayName`,`firstName`,`lastName`,`districtId`,`localId`,`tier`,`avatarUrl`,`bio`,`joinedAt`,`addressFingerprint`,`verifiedByPubKey`,`cachedAt`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return "INSERT OR REPLACE INTO `resident_profiles` (`pubKey`,`displayName`,`districtId`,`localId`,`tier`,`avatarUrl`,`joinedAt`,`addressFingerprint`,`verifiedByPubKey`,`cachedAt`) VALUES (?,?,?,?,?,?,?,?,?,?)";
       }
 
       @Override
@@ -54,49 +54,34 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
           @NonNull final ResidentProfileEntity entity) {
         statement.bindString(1, entity.getPubKey());
         statement.bindString(2, entity.getDisplayName());
-        if (entity.getFirstName() == null) {
+        if (entity.getDistrictId() == null) {
           statement.bindNull(3);
         } else {
-          statement.bindString(3, entity.getFirstName());
-        }
-        if (entity.getLastName() == null) {
-          statement.bindNull(4);
-        } else {
-          statement.bindString(4, entity.getLastName());
-        }
-        if (entity.getDistrictId() == null) {
-          statement.bindNull(5);
-        } else {
-          statement.bindString(5, entity.getDistrictId());
+          statement.bindString(3, entity.getDistrictId());
         }
         if (entity.getLocalId() == null) {
+          statement.bindNull(4);
+        } else {
+          statement.bindString(4, entity.getLocalId());
+        }
+        statement.bindString(5, entity.getTier());
+        if (entity.getAvatarUrl() == null) {
           statement.bindNull(6);
         } else {
-          statement.bindString(6, entity.getLocalId());
+          statement.bindString(6, entity.getAvatarUrl());
         }
-        statement.bindString(7, entity.getTier());
-        if (entity.getAvatarUrl() == null) {
+        statement.bindLong(7, entity.getJoinedAt());
+        if (entity.getAddressFingerprint() == null) {
           statement.bindNull(8);
         } else {
-          statement.bindString(8, entity.getAvatarUrl());
-        }
-        if (entity.getBio() == null) {
-          statement.bindNull(9);
-        } else {
-          statement.bindString(9, entity.getBio());
-        }
-        statement.bindLong(10, entity.getJoinedAt());
-        if (entity.getAddressFingerprint() == null) {
-          statement.bindNull(11);
-        } else {
-          statement.bindString(11, entity.getAddressFingerprint());
+          statement.bindString(8, entity.getAddressFingerprint());
         }
         if (entity.getVerifiedByPubKey() == null) {
-          statement.bindNull(12);
+          statement.bindNull(9);
         } else {
-          statement.bindString(12, entity.getVerifiedByPubKey());
+          statement.bindString(9, entity.getVerifiedByPubKey());
         }
-        statement.bindLong(13, entity.getCachedAt());
+        statement.bindLong(10, entity.getCachedAt());
       }
     };
     this.__preparedStmtOfUpdateTier = new SharedSQLiteStatement(__db) {
@@ -208,13 +193,10 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
         try {
           final int _cursorIndexOfPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "pubKey");
           final int _cursorIndexOfDisplayName = CursorUtil.getColumnIndexOrThrow(_cursor, "displayName");
-          final int _cursorIndexOfFirstName = CursorUtil.getColumnIndexOrThrow(_cursor, "firstName");
-          final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
           final int _cursorIndexOfDistrictId = CursorUtil.getColumnIndexOrThrow(_cursor, "districtId");
           final int _cursorIndexOfLocalId = CursorUtil.getColumnIndexOrThrow(_cursor, "localId");
           final int _cursorIndexOfTier = CursorUtil.getColumnIndexOrThrow(_cursor, "tier");
           final int _cursorIndexOfAvatarUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "avatarUrl");
-          final int _cursorIndexOfBio = CursorUtil.getColumnIndexOrThrow(_cursor, "bio");
           final int _cursorIndexOfJoinedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "joinedAt");
           final int _cursorIndexOfAddressFingerprint = CursorUtil.getColumnIndexOrThrow(_cursor, "addressFingerprint");
           final int _cursorIndexOfVerifiedByPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "verifiedByPubKey");
@@ -225,18 +207,6 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             _tmpPubKey = _cursor.getString(_cursorIndexOfPubKey);
             final String _tmpDisplayName;
             _tmpDisplayName = _cursor.getString(_cursorIndexOfDisplayName);
-            final String _tmpFirstName;
-            if (_cursor.isNull(_cursorIndexOfFirstName)) {
-              _tmpFirstName = null;
-            } else {
-              _tmpFirstName = _cursor.getString(_cursorIndexOfFirstName);
-            }
-            final String _tmpLastName;
-            if (_cursor.isNull(_cursorIndexOfLastName)) {
-              _tmpLastName = null;
-            } else {
-              _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
-            }
             final String _tmpDistrictId;
             if (_cursor.isNull(_cursorIndexOfDistrictId)) {
               _tmpDistrictId = null;
@@ -257,12 +227,6 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             } else {
               _tmpAvatarUrl = _cursor.getString(_cursorIndexOfAvatarUrl);
             }
-            final String _tmpBio;
-            if (_cursor.isNull(_cursorIndexOfBio)) {
-              _tmpBio = null;
-            } else {
-              _tmpBio = _cursor.getString(_cursorIndexOfBio);
-            }
             final long _tmpJoinedAt;
             _tmpJoinedAt = _cursor.getLong(_cursorIndexOfJoinedAt);
             final String _tmpAddressFingerprint;
@@ -279,7 +243,7 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _result = new ResidentProfileEntity(_tmpPubKey,_tmpDisplayName,_tmpFirstName,_tmpLastName,_tmpDistrictId,_tmpLocalId,_tmpTier,_tmpAvatarUrl,_tmpBio,_tmpJoinedAt,_tmpAddressFingerprint,_tmpVerifiedByPubKey,_tmpCachedAt);
+            _result = new ResidentProfileEntity(_tmpPubKey,_tmpDisplayName,_tmpDistrictId,_tmpLocalId,_tmpTier,_tmpAvatarUrl,_tmpJoinedAt,_tmpAddressFingerprint,_tmpVerifiedByPubKey,_tmpCachedAt);
           } else {
             _result = null;
           }
@@ -310,13 +274,10 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
         try {
           final int _cursorIndexOfPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "pubKey");
           final int _cursorIndexOfDisplayName = CursorUtil.getColumnIndexOrThrow(_cursor, "displayName");
-          final int _cursorIndexOfFirstName = CursorUtil.getColumnIndexOrThrow(_cursor, "firstName");
-          final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
           final int _cursorIndexOfDistrictId = CursorUtil.getColumnIndexOrThrow(_cursor, "districtId");
           final int _cursorIndexOfLocalId = CursorUtil.getColumnIndexOrThrow(_cursor, "localId");
           final int _cursorIndexOfTier = CursorUtil.getColumnIndexOrThrow(_cursor, "tier");
           final int _cursorIndexOfAvatarUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "avatarUrl");
-          final int _cursorIndexOfBio = CursorUtil.getColumnIndexOrThrow(_cursor, "bio");
           final int _cursorIndexOfJoinedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "joinedAt");
           final int _cursorIndexOfAddressFingerprint = CursorUtil.getColumnIndexOrThrow(_cursor, "addressFingerprint");
           final int _cursorIndexOfVerifiedByPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "verifiedByPubKey");
@@ -328,18 +289,6 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             _tmpPubKey = _cursor.getString(_cursorIndexOfPubKey);
             final String _tmpDisplayName;
             _tmpDisplayName = _cursor.getString(_cursorIndexOfDisplayName);
-            final String _tmpFirstName;
-            if (_cursor.isNull(_cursorIndexOfFirstName)) {
-              _tmpFirstName = null;
-            } else {
-              _tmpFirstName = _cursor.getString(_cursorIndexOfFirstName);
-            }
-            final String _tmpLastName;
-            if (_cursor.isNull(_cursorIndexOfLastName)) {
-              _tmpLastName = null;
-            } else {
-              _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
-            }
             final String _tmpDistrictId;
             if (_cursor.isNull(_cursorIndexOfDistrictId)) {
               _tmpDistrictId = null;
@@ -360,12 +309,6 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             } else {
               _tmpAvatarUrl = _cursor.getString(_cursorIndexOfAvatarUrl);
             }
-            final String _tmpBio;
-            if (_cursor.isNull(_cursorIndexOfBio)) {
-              _tmpBio = null;
-            } else {
-              _tmpBio = _cursor.getString(_cursorIndexOfBio);
-            }
             final long _tmpJoinedAt;
             _tmpJoinedAt = _cursor.getLong(_cursorIndexOfJoinedAt);
             final String _tmpAddressFingerprint;
@@ -382,7 +325,7 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _item = new ResidentProfileEntity(_tmpPubKey,_tmpDisplayName,_tmpFirstName,_tmpLastName,_tmpDistrictId,_tmpLocalId,_tmpTier,_tmpAvatarUrl,_tmpBio,_tmpJoinedAt,_tmpAddressFingerprint,_tmpVerifiedByPubKey,_tmpCachedAt);
+            _item = new ResidentProfileEntity(_tmpPubKey,_tmpDisplayName,_tmpDistrictId,_tmpLocalId,_tmpTier,_tmpAvatarUrl,_tmpJoinedAt,_tmpAddressFingerprint,_tmpVerifiedByPubKey,_tmpCachedAt);
             _result.add(_item);
           }
           return _result;
@@ -474,13 +417,10 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
         try {
           final int _cursorIndexOfPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "pubKey");
           final int _cursorIndexOfDisplayName = CursorUtil.getColumnIndexOrThrow(_cursor, "displayName");
-          final int _cursorIndexOfFirstName = CursorUtil.getColumnIndexOrThrow(_cursor, "firstName");
-          final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
           final int _cursorIndexOfDistrictId = CursorUtil.getColumnIndexOrThrow(_cursor, "districtId");
           final int _cursorIndexOfLocalId = CursorUtil.getColumnIndexOrThrow(_cursor, "localId");
           final int _cursorIndexOfTier = CursorUtil.getColumnIndexOrThrow(_cursor, "tier");
           final int _cursorIndexOfAvatarUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "avatarUrl");
-          final int _cursorIndexOfBio = CursorUtil.getColumnIndexOrThrow(_cursor, "bio");
           final int _cursorIndexOfJoinedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "joinedAt");
           final int _cursorIndexOfAddressFingerprint = CursorUtil.getColumnIndexOrThrow(_cursor, "addressFingerprint");
           final int _cursorIndexOfVerifiedByPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "verifiedByPubKey");
@@ -492,18 +432,6 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             _tmpPubKey = _cursor.getString(_cursorIndexOfPubKey);
             final String _tmpDisplayName;
             _tmpDisplayName = _cursor.getString(_cursorIndexOfDisplayName);
-            final String _tmpFirstName;
-            if (_cursor.isNull(_cursorIndexOfFirstName)) {
-              _tmpFirstName = null;
-            } else {
-              _tmpFirstName = _cursor.getString(_cursorIndexOfFirstName);
-            }
-            final String _tmpLastName;
-            if (_cursor.isNull(_cursorIndexOfLastName)) {
-              _tmpLastName = null;
-            } else {
-              _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
-            }
             final String _tmpDistrictId;
             if (_cursor.isNull(_cursorIndexOfDistrictId)) {
               _tmpDistrictId = null;
@@ -524,12 +452,6 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             } else {
               _tmpAvatarUrl = _cursor.getString(_cursorIndexOfAvatarUrl);
             }
-            final String _tmpBio;
-            if (_cursor.isNull(_cursorIndexOfBio)) {
-              _tmpBio = null;
-            } else {
-              _tmpBio = _cursor.getString(_cursorIndexOfBio);
-            }
             final long _tmpJoinedAt;
             _tmpJoinedAt = _cursor.getLong(_cursorIndexOfJoinedAt);
             final String _tmpAddressFingerprint;
@@ -546,7 +468,7 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _item = new ResidentProfileEntity(_tmpPubKey,_tmpDisplayName,_tmpFirstName,_tmpLastName,_tmpDistrictId,_tmpLocalId,_tmpTier,_tmpAvatarUrl,_tmpBio,_tmpJoinedAt,_tmpAddressFingerprint,_tmpVerifiedByPubKey,_tmpCachedAt);
+            _item = new ResidentProfileEntity(_tmpPubKey,_tmpDisplayName,_tmpDistrictId,_tmpLocalId,_tmpTier,_tmpAvatarUrl,_tmpJoinedAt,_tmpAddressFingerprint,_tmpVerifiedByPubKey,_tmpCachedAt);
             _result.add(_item);
           }
           return _result;
@@ -574,13 +496,10 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
         try {
           final int _cursorIndexOfPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "pubKey");
           final int _cursorIndexOfDisplayName = CursorUtil.getColumnIndexOrThrow(_cursor, "displayName");
-          final int _cursorIndexOfFirstName = CursorUtil.getColumnIndexOrThrow(_cursor, "firstName");
-          final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
           final int _cursorIndexOfDistrictId = CursorUtil.getColumnIndexOrThrow(_cursor, "districtId");
           final int _cursorIndexOfLocalId = CursorUtil.getColumnIndexOrThrow(_cursor, "localId");
           final int _cursorIndexOfTier = CursorUtil.getColumnIndexOrThrow(_cursor, "tier");
           final int _cursorIndexOfAvatarUrl = CursorUtil.getColumnIndexOrThrow(_cursor, "avatarUrl");
-          final int _cursorIndexOfBio = CursorUtil.getColumnIndexOrThrow(_cursor, "bio");
           final int _cursorIndexOfJoinedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "joinedAt");
           final int _cursorIndexOfAddressFingerprint = CursorUtil.getColumnIndexOrThrow(_cursor, "addressFingerprint");
           final int _cursorIndexOfVerifiedByPubKey = CursorUtil.getColumnIndexOrThrow(_cursor, "verifiedByPubKey");
@@ -591,18 +510,6 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             _tmpPubKey = _cursor.getString(_cursorIndexOfPubKey);
             final String _tmpDisplayName;
             _tmpDisplayName = _cursor.getString(_cursorIndexOfDisplayName);
-            final String _tmpFirstName;
-            if (_cursor.isNull(_cursorIndexOfFirstName)) {
-              _tmpFirstName = null;
-            } else {
-              _tmpFirstName = _cursor.getString(_cursorIndexOfFirstName);
-            }
-            final String _tmpLastName;
-            if (_cursor.isNull(_cursorIndexOfLastName)) {
-              _tmpLastName = null;
-            } else {
-              _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
-            }
             final String _tmpDistrictId;
             if (_cursor.isNull(_cursorIndexOfDistrictId)) {
               _tmpDistrictId = null;
@@ -623,12 +530,6 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             } else {
               _tmpAvatarUrl = _cursor.getString(_cursorIndexOfAvatarUrl);
             }
-            final String _tmpBio;
-            if (_cursor.isNull(_cursorIndexOfBio)) {
-              _tmpBio = null;
-            } else {
-              _tmpBio = _cursor.getString(_cursorIndexOfBio);
-            }
             final long _tmpJoinedAt;
             _tmpJoinedAt = _cursor.getLong(_cursorIndexOfJoinedAt);
             final String _tmpAddressFingerprint;
@@ -645,7 +546,7 @@ public final class ResidentProfileDao_Impl implements ResidentProfileDao {
             }
             final long _tmpCachedAt;
             _tmpCachedAt = _cursor.getLong(_cursorIndexOfCachedAt);
-            _result = new ResidentProfileEntity(_tmpPubKey,_tmpDisplayName,_tmpFirstName,_tmpLastName,_tmpDistrictId,_tmpLocalId,_tmpTier,_tmpAvatarUrl,_tmpBio,_tmpJoinedAt,_tmpAddressFingerprint,_tmpVerifiedByPubKey,_tmpCachedAt);
+            _result = new ResidentProfileEntity(_tmpPubKey,_tmpDisplayName,_tmpDistrictId,_tmpLocalId,_tmpTier,_tmpAvatarUrl,_tmpJoinedAt,_tmpAddressFingerprint,_tmpVerifiedByPubKey,_tmpCachedAt);
           } else {
             _result = null;
           }

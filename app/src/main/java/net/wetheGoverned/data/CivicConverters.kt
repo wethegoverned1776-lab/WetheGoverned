@@ -20,4 +20,12 @@ class CivicConverters {
 
     @TypeConverter
     fun toPollPosts(value: String): List<PollPost> = json.decodeFromString(value)
+
+    @TypeConverter
+    fun fromDistrictBreakdown(value: Map<String, Map<String, Int>>?): String? = 
+        value?.let { json.encodeToString(it) }
+
+    @TypeConverter
+    fun toDistrictBreakdown(value: String?): Map<String, Map<String, Int>>? = 
+        value?.let { json.decodeFromString(it) }
 }

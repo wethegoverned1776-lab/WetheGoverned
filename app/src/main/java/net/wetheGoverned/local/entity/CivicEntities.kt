@@ -17,13 +17,10 @@ data class DistrictEntity(
 data class ResidentProfileEntity(
     @PrimaryKey val pubKey: String,
     val displayName: String,
-    val firstName: String? = null,
-    val lastName: String? = null,
     val districtId: String?,
     val localId: String?,
     val tier: String,
     val avatarUrl: String?,
-    val bio: String?,
     val joinedAt: Long,
     val addressFingerprint: String?,
     val verifiedByPubKey: String? = null,
@@ -47,7 +44,25 @@ data class DistrictPollEntity(
     val userImportanceVote: Int = 0,
     val residentVoteOption: String?,
     val linkedLegislationId: String? = null,
+    val districtBreakdownJson: String? = null, // Added for State Weighted Rules
     val cachedAt: Long,
+)
+
+@Entity(tableName = "poll_votes")
+data class CivicVoteEntity(
+    @PrimaryKey val id: String,
+    val pollId: String,
+    val voterPubKey: String,
+    val voterName: String,
+    val optionId: String,
+    val timestamp: Long,
+    val nonce: Long,
+    val signature: String?,
+    val isFlagged: Boolean = false,
+    val flagReason: String? = null,
+    val disputeComment: String? = null,
+    val disputeExpiresAt: Long? = null,
+    val status: String = "NONE"
 )
 
 @Entity(tableName = "poll_posts")
@@ -130,4 +145,20 @@ data class PendingCivicEventEntity(
     val sig: String,
     val createdAt: Long,
     val retryCount: Int = 0,
+)
+
+@Entity(tableName = "community_posts")
+data class CommunityPostEntity(
+    @PrimaryKey val id: String,
+    val authorPubKey: String,
+    val districtId: String,
+    val kind: String,
+    val title: String,
+    val description: String,
+    val price: Double?,
+    val location: String?,
+    val contactInfo: String?,
+    val createdAt: Long,
+    val expiresAt: Long?,
+    val cachedAt: Long
 )
