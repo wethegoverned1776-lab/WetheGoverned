@@ -1,0 +1,63 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ WetheGoverned-IOS ]
+  workflow_dispatch:   # Allows manual trigger from GitHub
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: WetheGoverned-IOS
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build KMP iOS Framework
+        run: ./gradlew :shared:compileKotlinIosArm64 :shared:compileKotlinIosSimulatorArm64 --stacktrace
+
+      - name: Install CocoaPods
+        run: |
+          cd iosApp
+          pod install
+
+      - name: Archive iOS App
+        run: |
+          cd iosApp
+          xcodebuild archive \
+            -workspace iosApp.xcworkspace \
+            -scheme iosApp \
+            -sdk iphoneos \
+            -archivePath build/iosApp.xcarchive \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Export IPA (Development)
+        run: |
+          cd iosApp
+          xcodebuild -exportArchive \
+            -archivePath build/iosApp.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath build
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WeTheGoverned-iOS-IPA
+          path: iosApp/build/*.ipa
+          retention-days: 14
