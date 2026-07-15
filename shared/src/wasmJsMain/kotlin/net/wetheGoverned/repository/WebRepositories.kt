@@ -7,7 +7,6 @@ import net.wetheGoverned.session.*
 import net.wetheGoverned.remote.api.*
 import io.ktor.client.*
 
-// Simple LocalStorage wrapper for Wasm
 private fun localStorageGet(key: String): String? = 
     js("window.localStorage.getItem(key)")
 
@@ -93,7 +92,8 @@ class WebSessionStorage : SessionStorage {
         val dn = localStorageGet("session_displayName") ?: ""
         val di = localStorageGet("session_districtId")?.ifBlank { null }
         val t = localStorageGet("session_tier") ?: "OBSERVER"
-        return UserSession(pk, dn, di, tier = VerificationTier.valueOf(t))
+        val tier = try { VerificationTier.valueOf(t) } catch (e: Exception) { VerificationTier.OBSERVER }
+        return UserSession(pk, dn, di, tier = tier)
     }
     override fun clearSession() {
         localStorageRemove("session_pubKey")
@@ -106,13 +106,38 @@ class WebSessionStorage : SessionStorage {
 }
 
 class WebAccountRepository : AccountRepository {
-    override suspend fun register(account: UserAccount): Result<Unit> = Result.success(Unit)
-    override suspend fun login(username: String, password: String): Result<UserAccount> {
-         // Mock login for demo
-         return Result.success(UserAccount(username, password, "web_pub_${username}", "web_priv", "us-wa-07"))
+    private val json = Json { ignoreUnknownKeys = true }
+
+    override suspend fun register(account: UserAccount): Result<Unit> {
+        localStorageSet("acc_${account.username}", json.encodeToString(UserAccount.serializer(), account))
+        return Result.success(Unit)
     }
-    override suspend fun changePassword(username: String, newPassword: String): Result<Unit> = Result.success(Unit)
-    override suspend fun updateDistrict(username: String, districtId: String) {}
+
+    override suspend fun login(username: String, password: String): Result<UserAccount> {
+        val data = localStorageGet("acc_$username") ?: return Result.failure(Exception("Account not found"))
+        val acc = json.decodeFromString(UserAccount.serializer(), data)
+        return if (acc.password == password) Result.success(acc) else Result.failure(Exception("Invalid password"))
+    }
+
+    override suspend fun changePassword(username: String, newPassword: String): Result<Unit> {
+        val data = localStorageGet("acc_$username") ?: return Result.failure(Exception("Account not found"))
+        val acc = json.decodeFromString(UserAccount.serializer(), data)
+        localStorageSet("acc_$username", json.encodeToString(UserAccount.serializer(), acc.copy(password = newPassword)))
+        return Result.success(Unit)
+    }
+
+    override suspend fun updateDistrict(username: String, districtId: String) {
+        val data = localStorageGet("acc_$username") ?: return
+        val acc = json.decodeFromString(UserAccount.serializer(), data)
+        localStorageSet("acc_$username", json.encodeToString(UserAccount.serializer(), acc.copy(districtId = districtId)))
+    }
+}
+
+class WebDistrictRepository : DistrictRepository {
+    override fun observeDistrict(districtId: String): Flow<District?> = flowOf(null)
+    override suspend fun getDistrict(districtId: String): Result<District> = Result.failure(Exception("Not found"))
+    override fun observeMetrics(districtId: String): Flow<List<DistrictMetric>> = flowOf(emptyList())
+    override suspend fun refreshMetrics(districtId: String): Result<List<DistrictMetric>> = Result.success(emptyList())
 }
 
 class WebVerificationRequestRepository : VerificationRequestRepository {
@@ -144,13 +169,6 @@ class WebCommunityRepository : CommunityRepository {
     override suspend fun deletePost(postId: String): Result<Unit> = Result.success(Unit)
     override suspend fun getAllPosts(): List<CommunityPost> = emptyList()
     override suspend fun syncPost(post: CommunityPost) {}
-}
-
-class WebDistrictRepository : DistrictRepository {
-    override fun observeDistrict(districtId: String): Flow<District?> = flowOf(null)
-    override suspend fun getDistrict(districtId: String): Result<District> = Result.failure(Exception("Not found"))
-    override fun observeMetrics(districtId: String): Flow<List<DistrictMetric>> = flowOf(emptyList())
-    override suspend fun refreshMetrics(districtId: String): Result<List<DistrictMetric>> = Result.success(emptyList())
 }
 
 class WebWtgBackendApi(httpClient: HttpClient) : WtgBackendApi(httpClient = httpClient)

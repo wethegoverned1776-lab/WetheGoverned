@@ -102,7 +102,6 @@ kotlin {
                 implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
                 implementation("org.web3j:core:4.11.0")
-                api("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
                 
                 // QR Code Generation
                 implementation("io.github.g0dkar:qrcode-kotlin:4.1.1")
@@ -140,7 +139,6 @@ kotlin {
                 implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
                 implementation("org.web3j:core:4.11.0")
-                api("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
                 // QR Code Generation
                 implementation("io.github.g0dkar:qrcode-kotlin:4.1.1")
             }
