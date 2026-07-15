@@ -6,6 +6,7 @@ import net.wetheGoverned.model.*
 import net.wetheGoverned.session.PendingEventQueue
 import net.wetheGoverned.session.SessionManager
 import net.wetheGoverned.zk.ZkProver
+import kotlinx.datetime.Clock
 
 class WsCivicPublisher(
     private val relayManager: NostrRelayManager,
@@ -22,7 +23,6 @@ class WsCivicPublisher(
         content: String,
         pubKey: String
     ) {
-        // 1. ZK-Proof Logic for sensitive events
         val finalTags = if (kind == CivicEventKind.POLL_VOTE) {
             val proofResult = zkProver.generateProof(
                 circuitName = "voter_nostr",
@@ -36,21 +36,17 @@ class WsCivicPublisher(
             tags
         }
 
-        // 2. Build Nostr Event (Stub signing for working model)
         val event = CivicEvent(
             id = randomUUID(),
             pubKey = pubKey,
-            createdAt = System.currentTimeMillis() / 1000,
+            createdAt = Clock.System.now().toEpochMilliseconds() / 1000,
             kind = kind,
             tags = finalTags,
             content = content,
             sig = "STUB_SIGNATURE"
         )
 
-        // 3. Publish and Queue
         relayManager.publish(event)
-        
-        // Enqueue locally for offline support / retry
         pendingQueue.enqueue(kind, content, event.sig)
     }
 }

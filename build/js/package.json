@@ -1,0 +1,20 @@
+{
+  "name": "WeTheGoverned",
+  "version": "unspecified",
+  "private": true,
+  "workspaces": [
+    "packages\\shared",
+    "packages\\shared-test",
+    "packages_imported\\skiko-wasm-js\\0.8.15",
+    "packages_imported\\skiko-js-wasm-runtime\\0.8.15",
+    "packages_imported\\Kotlin-DateTime-library-kotlinx-datetime-wasm-js\\0.6.0",
+    "packages_imported\\ktor-ktor-client-ktor-client-core-wasm-js\\3.0.0-rc-1",
+    "packages_imported\\kotlin-test-js-runner\\0.0.2"
+  ],
+  "devDependencies": {},
+  "dependencies": {},
+  "peerDependencies": {},
+  "optionalDependencies": {},
+  "bundledDependencies": [],
+  "resolutions": {}
+}

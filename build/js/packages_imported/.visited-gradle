@@ -1,0 +1,190 @@
+{
+  "version": "9",
+  "items": {
+    "8027a4b5a16a6389dd3712d6b1030b4d": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlin\\kotlin-stdlib-wasm-js\\2.0.21\\ff426b6616aa0b435eef409b48c996b283209a36\\kotlin-stdlib-wasm-js-2.0.21.klib"
+    },
+    "55e85ca297e1f6ddfb1d26d497bb7e1a": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.runtime\\runtime-wasm-js\\1.7.0\\146f83f5b0ef1b60f57737dea8f1466f23aadc01\\runtime-wasm-js-1.7.0.klib"
+    },
+    "dba888e62a0e1cfcd751e725da3ab2d2": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\kotlinx-coroutines-core-wasm-js\\1.8.1\\6379adf2812bea0a894ee866456b02337c5cf944\\kotlinx-coroutines-core-wasm-js-1.8.1.klib"
+    },
+    "e99fda7cf08bf3130ddf330a56ca3009": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\atomicfu-wasm-js\\0.25.0\\5eaf47e6281bf2abafe0fd02404628407e07d2a7\\atomicfu-wasm-js-0.25.0.klib"
+    },
+    "0f3255e665ec5751f61856350f575704": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.collection-internal\\collection-wasm-js\\1.7.0\\392a6abb2ae46a78274054a6e0023331c6f1d39\\collection-wasm-js-1.7.0.klib"
+    },
+    "1c5d7fced3c3b76768b9c8f50cc4237b": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.annotation-internal\\annotation-wasm-js\\1.7.0\\f237e7a67c656621c0c7f5797b3c139b735d1a64\\annotation-wasm-js-1.7.0.klib"
+    },
+    "6252f9c01cad4fe293be712417254004": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\kotlinx-browser-wasm-js\\0.1\\546fc8fbc296c4b18d2719f869bc483f5fcbc0d9\\kotlinx-browser-wasm-js-0.1-javadoc.klib"
+    },
+    "38830c0bb98c5a2859f8c9f2efff8ad6": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.foundation\\foundation-wasm-js\\1.7.0\\59e2a9ce7c72648bcdde654cf707889e0765716e\\foundation-wasm-js-1.7.0.klib"
+    },
+    "de836f4f2a6dd5d0a2298d8e9f441681": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.animation\\animation-wasm-js\\1.7.0\\47b8168675d0d47408d2cf880791e18f01880ca9\\animation-wasm-js-1.7.0.klib"
+    },
+    "d4464a4d3d5a1942e2c08feeea233a9b": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.foundation\\foundation-layout-wasm-js\\1.7.0\\f1e42f21726cdd3d6b65f56164030e2c5de5151f\\foundation-layout-wasm-js-1.7.0.klib"
+    },
+    "bb58aab8bfce769ce196fa5c4775b10b": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.ui\\ui-wasm-js\\1.7.0\\4935ba72903fdb544efe71a315e6e5646c113fd4\\ui-wasm-js-1.7.0.klib"
+    },
+    "3ed577424ce1584cefb3209a184baf72": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.lifecycle\\lifecycle-viewmodel-wasm-js\\2.8.3\\6117540429bb1943258ff47db14c6a338e7b5db3\\lifecycle-viewmodel-wasm-js-2.8.3.klib"
+    },
+    "cd440704667853fcdddf55cfce4ef29b": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.lifecycle\\lifecycle-runtime-compose-wasm-js\\2.8.3\\8ec0c0686aa7149bbeadf4aa40b5a645a3a74a3b\\lifecycle-runtime-compose-wasm-js-2.8.3.klib"
+    },
+    "55e97ba83b446a3ca8a5930eb36802db": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.lifecycle\\lifecycle-runtime-wasm-js\\2.8.3\\3ea93bddfadea0cc538967e1bc7974a48a05d8c3\\lifecycle-runtime-wasm-js-2.8.3.klib"
+    },
+    "8689a5b7cccb7bb5b1a01a59af650a15": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.lifecycle\\lifecycle-common-wasm-js\\2.8.3\\934040fc02c41d1c0f9e2d777ba76946f1a19d62\\lifecycle-common-wasm-js-2.8.3.klib"
+    },
+    "121ac75c032c732db4b0e34e81d1530f": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.ui\\ui-text-wasm-js\\1.7.0\\54a2b5f2740861426a348314d6c1e781ac9a3118\\ui-text-wasm-js-1.7.0.klib"
+    },
+    "79e8a23e138fce95bd4b36a5dd9ac584": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.ui\\ui-graphics-wasm-js\\1.7.0\\4a8a375a49701815400f4800e198fff8d271ad9\\ui-graphics-wasm-js-1.7.0.klib"
+    },
+    "9e2a35c93ba2d41117917f82927b6c1f": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.ui\\ui-unit-wasm-js\\1.7.0\\d1388330032afa41c882ff52ffc47485b63f0bb0\\ui-unit-wasm-js-1.7.0.klib"
+    },
+    "0e8cdf65c2314d38d9260038c2ffb489": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.ui\\ui-geometry-wasm-js\\1.7.0\\527b1bca55c5d15b9e8e4ab8640d75bdc56b6420\\ui-geometry-wasm-js-1.7.0.klib"
+    },
+    "55869c082e6aa6fc080c48585b7445b3": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.ui\\ui-util-wasm-js\\1.7.0\\7ad89899e7a467c64565bd7fd634042c266b3365\\ui-util-wasm-js-1.7.0.klib"
+    },
+    "ed8f92682ffa9707bdf40299d481c24f": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.skiko\\skiko-wasm-js\\0.8.15\\59bae0a1fb5630df075ad4f23c23f291da11f932\\skiko-wasm-js-0.8.15.klib",
+      "target": "skiko-wasm-js\\0.8.15"
+    },
+    "0d79cf1b95154fc8a57e023d210a9c43": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.skiko\\skiko-js-wasm-runtime\\0.8.15\\ce7c7fa0f7567344dfc3304a76fd8e23bd8df936\\skiko-js-wasm-runtime-0.8.15.jar",
+      "target": "skiko-js-wasm-runtime\\0.8.15"
+    },
+    "46d89e8cc185e69643d71e2bb69dcf13": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.runtime\\runtime-saveable-wasm-js\\1.7.0\\325e38fe018c352a39a7ef8b9f40be88f269b13d\\runtime-saveable-wasm-js-1.7.0.klib"
+    },
+    "276a27385ff217b6a75e4936aaa32baa": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.animation\\animation-core-wasm-js\\1.7.0\\2de2a6a1fc2a2d2739606bc93ec8b7a527a98a16\\animation-core-wasm-js-1.7.0.klib"
+    },
+    "2b7f33ec7c29d98140a850e39270012f": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.material3\\material3-wasm-js\\1.7.0\\50177f473c69b4fc32136eb36213dae09b2c1c2e\\material3-wasm-js-1.7.0.klib"
+    },
+    "064ebeddcf34df6741639550415b7a69": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.material\\material-ripple-wasm-js\\1.7.0\\ef47c9fa881eb713f47ef389a507220c9cf7822\\material-ripple-wasm-js-1.7.0.klib"
+    },
+    "f98a74dcc073079c44637fa9f1578b26": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.material\\material-icons-core-wasm-js\\1.7.0\\5ed35811e5ada42b6184935670de617af2dcc235\\material-icons-core-wasm-js-1.7.0.klib"
+    },
+    "a4217dae6633a84e5d55b06f29404f23": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\kotlinx-datetime-wasm-js\\0.6.0\\ef7a9f6a2d3d743418db62508be4ca96760bf85b\\kotlinx-datetime-wasm-js-0.6.0.klib",
+      "target": "Kotlin-DateTime-library-kotlinx-datetime-wasm-js\\0.6.0"
+    },
+    "ea75b348fa695131578505c219b6760a": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\kotlinx-serialization-core-wasm-js\\1.7.2\\376b039353e54f37ce4f372f4de9b1024f951f7\\kotlinx-serialization-core-wasm-js-1.7.2.klib"
+    },
+    "278d0ad3dcdf5c70b0c27f36441b2f0f": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.material\\material-icons-extended-wasm-js\\1.7.0\\6eff00d1ff22a69c6ea528d4bdd6ba15875afd2e\\material-icons-extended-wasm-js-1.7.0.klib"
+    },
+    "22201fb48b9fe2c7c8244d2838483d42": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.components\\components-resources-wasmJs\\1.7.0\\dc82877c830f3a5d1801a19c990e58053eaa4d76\\library-wasm-js-1.7.0.klib"
+    },
+    "3d4988c400ef0f100b3270e4394e60a2": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.compose.components\\components-ui-tooling-preview-wasmJs\\1.7.0\\433ef8bb59d98dd38841687ca2343155ffa8751\\library-wasm-js-1.7.0.klib"
+    },
+    "4e952dbd50282b6f108ea6213abd5108": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.navigation\\navigation-compose-wasm-js\\2.8.0-alpha10\\7e42b88346ad80f4a0e6ae92b5e95d70bbae73e4\\navigation-compose-wasm-js-2.8.0-alpha10.klib"
+    },
+    "e7e804fc5a6e9cd3d5a888b72e7503be": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.lifecycle\\lifecycle-viewmodel-compose-wasm-js\\2.8.2\\ded0384aea32a53849846d9f350d9aab4ea8c7cb\\lifecycle-viewmodel-compose-wasm-js-2.8.2.klib"
+    },
+    "4234f05532071ad0c63481e958c243c1": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.lifecycle\\lifecycle-viewmodel-savedstate-wasm-js\\2.8.2\\fcbdf02c06d15d2ed40db2e6c8b34e7df1ba4d5d\\lifecycle-viewmodel-savedstate-wasm-js-2.8.2.klib"
+    },
+    "1b787c8010ce75cd6379768224b02855": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.savedstate\\savedstate-wasm-js\\1.2.2\\deaffc3a1b8e3023bba012e064c63c417c45c293\\savedstate-wasm-js-1.2.2.klib"
+    },
+    "92e9d47e75678ff5927054a324961049": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.core\\core-bundle-wasm-js\\1.0.1\\10413c2f5eb9a03522ad9c6b37d6d9e0666e9a67\\core-bundle-wasm-js-1.0.1.klib"
+    },
+    "366814ae5449ec0bedbd39d60e88e8e8": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.navigation\\navigation-runtime-wasm-js\\2.8.0-alpha10\\3d2b0195391e9d3154f5bcf24e9e8a149d8a7b1c\\navigation-runtime-wasm-js-2.8.0-alpha10.klib"
+    },
+    "d865200e1d2e1221dbcd746bb14f9ca2": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.androidx.navigation\\navigation-common-wasm-js\\2.8.0-alpha10\\42d5f0e8197d8d895762caa7f73c21f4a993b189\\navigation-common-wasm-js-2.8.0-alpha10.klib"
+    },
+    "9d2ca74fda68b33788dd911bf0ac0dae": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-client-core-wasm-js\\3.0.0-rc-1\\2efcb469efc002064d1a6ac08817a5bbc44a79ed\\ktor-client-core-wasm-js-3.0.0-rc-1.klib",
+      "target": "ktor-ktor-client-ktor-client-core-wasm-js\\3.0.0-rc-1"
+    },
+    "46bad9f510bacab3e928717ed73e69ed": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-events-wasm-js\\3.0.0-rc-1\\d0f88d7fb858ea9abe088d22cc6cdd11e87d7e9\\ktor-events-wasm-js-3.0.0-rc-1.klib"
+    },
+    "61ca0b3533464a7ad434628cfd906537": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-http-wasm-js\\3.0.0-rc-1\\4f914c52bfe2b0a8113be18c72ecf9f8866fac77\\ktor-http-wasm-js-3.0.0-rc-1.klib"
+    },
+    "d0e9f6850446a40cef93a3943b09c135": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-utils-wasm-js\\3.0.0-rc-1\\237d16204c7ab965ea10ad9833096715871c6581\\ktor-utils-wasm-js-3.0.0-rc-1.klib"
+    },
+    "df366972ad1db5ec3e0a3c6acd8cc169": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-io-wasm-js\\3.0.0-rc-1\\35aeddd26f0b16728fbcf4338eeac0c328aceb3d\\ktor-io-wasm-js-3.0.0-rc-1.klib"
+    },
+    "c9ae906acb03da1265e2341442a524e2": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\kotlinx-io-core-wasm-js\\0.5.3\\33c50ffe1940b0d10f78a810685fb6e702968e5e\\kotlinx-io-core-wasm-js-0.5.3.klib"
+    },
+    "3840261f5357f4c1b8d70611231a7bc3": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\kotlinx-io-bytestring-wasm-js\\0.5.3\\987cb75e9d868e302f941652d3a983679179c909\\kotlinx-io-bytestring-wasm-js-0.5.3.klib"
+    },
+    "703f240b1e978745d13f60a2ce2a6eb5": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-websocket-serialization-wasm-js\\3.0.0-rc-1\\308f7b3013daa369e15d03d4887c4e5d1fee2d26\\ktor-websocket-serialization-wasm-js-3.0.0-rc-1.klib"
+    },
+    "43fb70ae34ab2c90d072b1664ce4bc60": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-serialization-wasm-js\\3.0.0-rc-1\\e4d5ed1226b5be1e6c2a4aff08dbee21caa2c4e0\\ktor-serialization-wasm-js-3.0.0-rc-1.klib"
+    },
+    "38d67fbeac7a493393d82a1bc2ac7191": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-websockets-wasm-js\\3.0.0-rc-1\\c222dddbedfa8e541500e3731a6b51c795e4738d\\ktor-websockets-wasm-js-3.0.0-rc-1.klib"
+    },
+    "45be62a8b01ab195fc95e3fc046e0b55": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-sse-wasm-js\\3.0.0-rc-1\\6290f358df971c0695d4ac5a096de2b6b4dd944\\ktor-sse-wasm-js-3.0.0-rc-1.klib"
+    },
+    "ed7ad089fb0658c04b2c23639b230332": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-client-content-negotiation-wasm-js\\3.0.0-rc-1\\6256bfaea69519c79eb988c8874e7770dcfea19d\\ktor-client-content-negotiation-wasm-js-3.0.0-rc-1.klib"
+    },
+    "715a667ee9372e4be3cc5184567235f7": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-serialization-kotlinx-json-wasm-js\\3.0.0-rc-1\\1ee18f7e1041b49517f2205f1a2e44770ceb70b\\ktor-serialization-kotlinx-json-wasm-js-3.0.0-rc-1.klib"
+    },
+    "522f6bc2bd37ae8863869f285412fdfe": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-serialization-kotlinx-wasm-js\\3.0.0-rc-1\\9c95df7ad6f8624fec665750f8b5f90b697105a3\\ktor-serialization-kotlinx-wasm-js-3.0.0-rc-1.klib"
+    },
+    "074562ad740a1f4921f327d2ac395abc": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\kotlinx-serialization-json-wasm-js\\1.7.2\\408606cdf3672868ef242ddf5431baac757803b2\\kotlinx-serialization-json-wasm-js-1.7.2.klib"
+    },
+    "781a1d60892f254648478bac62936695": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\javax.inject\\javax.inject\\1\\6975da39a7040257bd51d21a231b76c915872d38\\javax.inject-1.jar"
+    },
+    "cd35c5a4914f2514642bb649fe21cd95": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-client-js-wasm-js\\3.0.0-rc-1\\39b70ce1b05bcef318de7d4d4cffe327fe0fc437\\ktor-client-js-wasm-js-3.0.0-rc-1.klib"
+    },
+    "1962b58062d8d34e36459bbd38e30491": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\io.ktor\\ktor-client-websockets-wasm-js\\3.0.0-rc-1\\ebf64fff736ad411f65195743b4e7744e9a4f80c\\ktor-client-websockets-wasm-js-3.0.0-rc-1.klib"
+    },
+    "fffad12d968e557f4c38a7f8f56b463e": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlin\\kotlin-test-js-runner\\2.0.21\\99e060b94579ec8542bc53e141b0d7ed9a48ad5d\\kotlin-test-js-runner-2.0.21.jar",
+      "target": "kotlin-test-js-runner\\0.0.2"
+    },
+    "4dd54f65aa7cb82ffd8346c3c93b0bf3": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlin\\kotlin-test-wasm-js\\2.0.21\\1333616cae00c19aa54866cb1e62d83e3cdb02b3\\kotlin-test-wasm-js-2.0.21.klib"
+    },
+    "14dfeaa36249815ea72c378a90a2530b": {
+      "src": "C:\\Users\\rodne\\.gradle\\caches\\modules-2\\files-2.1\\org.jetbrains.kotlinx\\kotlinx-coroutines-test-wasm-js\\1.8.1\\9efedacad0dc84f13c57f043d0db94d398de04e3\\kotlinx-coroutines-test-wasm-js-1.8.1.klib"
+    }
+  }
+}

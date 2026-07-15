@@ -2,7 +2,6 @@ package net.wetheGoverned.core
 
 import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
-import javax.inject.Inject
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -13,16 +12,12 @@ interface DispatcherProvider {
     fun default(): CoroutineContext
 }
 
-class DefaultDispatcherProvider @Inject constructor() : DispatcherProvider {
+class DefaultDispatcherProvider : DispatcherProvider {
     override fun io() = Dispatchers.Default 
     override fun main() = Dispatchers.Main
     override fun default() = Dispatchers.Default
 }
 
-/**
- * Secp256k1KeyManager – stub for Nostr key generation.
- * Moved to shared for cross-platform identity management.
- */
 object Secp256k1KeyManager {
     data class KeyPair(val pubKeyHex: String, val privateKeyHex: String)
 
@@ -35,7 +30,6 @@ object Secp256k1KeyManager {
 }
 
 object Bech32Codec {
-    // TEMPORARY STUB: In production, use a real Bech32 / Nostr library
     fun encodeNsec(privKeyHex: String): String = "nsec1$privKeyHex"
     fun decodeNsec(nsec: String): String = nsec.removePrefix("nsec1")
 }

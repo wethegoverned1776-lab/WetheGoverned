@@ -26,17 +26,17 @@ fun OnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            when (uiState.currentStep) {
+            when (uiState.step) {
                 OnboardingStep.WELCOME -> {
                     Text("Welcome to WeTheGoverned", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(16.dp))
                     Text("Your gateway to decentralized governance and sovereign identity.", textAlign = TextAlign.Center)
                     Spacer(Modifier.height(32.dp))
-                    Button(onClick = { viewModel.refreshStep() }) {
+                    Button(onClick = { viewModel.onWelcomeContinue() }) {
                         Text("Get Started")
                     }
                 }
-                OnboardingStep.COMPLETED -> {
+                OnboardingStep.COMPLETE -> {
                     Icon(Icons.Default.CheckCircle, null, tint = Color.Green, modifier = Modifier.size(64.dp))
                     Text("Setup Complete", style = MaterialTheme.typography.headlineSmall)
                     Button(onClick = onOnboardingComplete) {
@@ -46,10 +46,9 @@ fun OnboardingScreen(
                 else -> {
                     Text("Setting up your secure node...", style = MaterialTheme.typography.titleMedium)
                     CircularProgressIndicator(Modifier.padding(16.dp))
-                    // Auto-advance for demo
                     LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(2000)
-                        onOnboardingComplete()
+                        kotlinx.coroutines.delay(1000)
+                        viewModel.onKeySetupContinue()
                     }
                 }
             }

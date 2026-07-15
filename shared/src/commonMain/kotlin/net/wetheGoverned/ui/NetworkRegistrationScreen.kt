@@ -25,6 +25,7 @@ import net.wetheGoverned.model.VerificationTier
 import net.wetheGoverned.repository.AccountRepository
 import net.wetheGoverned.repository.ResidentRepository
 import net.wetheGoverned.session.SessionManager
+import kotlinx.datetime.Clock
 
 class NetworkRegistrationViewModel(
     private val accountRepository: AccountRepository,
@@ -45,13 +46,10 @@ class NetworkRegistrationViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             
-            // Generate Username: StateAbbr + DistrictNum + Random 4-digit ID (e.g. FL060001)
-            // Ensuring District is 2 digits for consistency
             val cleanDist = districtNum.filter { it.isDigit() }.padStart(2, '0')
             val randomId = (1000..9999).random().toString()
             val generatedUsername = "${stateAbbr.uppercase()}$cleanDist$randomId"
             
-            // Generate Temporary Password
             val generatedPassword = "temp_" + (100000..999999).random().toString()
             
             val keyPair = Secp256k1KeyManager.generateKeyPair()
@@ -71,7 +69,7 @@ class NetworkRegistrationViewModel(
                     displayName = displayName,
                     districtId = "us-${stateAbbr.lowercase()}-$cleanDist",
                     tier = VerificationTier.VERIFIED,
-                    joinedAt = System.currentTimeMillis(),
+                    joinedAt = Clock.System.now().toEpochMilliseconds(),
                     verifiedByPubKey = verifierPubKey,
                     address = address,
                     isVerified = true

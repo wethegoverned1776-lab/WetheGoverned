@@ -65,7 +65,8 @@ kotlin {
                 implementation("org.jetbrains.androidx.navigation:navigation-compose:$navigationVersion")
                 
                 // Jetpack Multiplatform Lifecycle
-                api("androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion")
+                api("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion")
+                api("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
 
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")

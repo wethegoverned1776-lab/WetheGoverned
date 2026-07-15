@@ -2,6 +2,7 @@ package net.wetheGoverned.model
 
 import kotlinx.serialization.Serializable
 import net.wetheGoverned.core.randomUUID
+import kotlinx.datetime.Clock
 
 @Serializable
 data class PollPost(
@@ -14,5 +15,5 @@ data class PollPost(
     val content: String,
     val score: Int = 0,
     val userVote: Int = 0,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds()
 )

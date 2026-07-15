@@ -2,6 +2,7 @@ package net.wetheGoverned.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.datetime.Clock
 
 @Serializable
 data class CivicEvent(
@@ -59,7 +60,8 @@ data class CivicVote(
     val flagReason: String? = null,
     val disputeComment: String? = null,
     val disputeExpiresAt: Long? = null,
-    val status: ConflictStatus = ConflictStatus.NONE
+    val status: ConflictStatus = ConflictStatus.NONE,
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds()
 )
 
 enum class ConflictStatus { NONE, FLAGGED, DISPUTED, RESOLVED }
@@ -159,7 +161,7 @@ data class CommunityPost(
     val price: Double? = null,
     val location: String? = null,
     val contactInfo: String? = null,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     val expiresAt: Long? = null,
     val tags: List<String> = emptyList()
 )
@@ -176,7 +178,7 @@ data class AddressResolution(
     val stateLowerDistrict: District? = null,
     val localJurisdiction: String? = null,
     val sources: List<String> = emptyList(),
-    val timestamp: Long = System.currentTimeMillis()
+    val timestamp: Long = Clock.System.now().toEpochMilliseconds()
 )
 
 @Serializable
@@ -188,7 +190,7 @@ data class VerificationRequest(
     val districtId: String,
     val stateId: String,
     val address: String,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = Clock.System.now().toEpochMilliseconds(),
     val status: VerificationRequestStatus = VerificationRequestStatus.PENDING,
     val handledByPubKey: String? = null
 )

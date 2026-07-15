@@ -6,14 +6,15 @@ import net.wetheGoverned.model.*
 import net.wetheGoverned.session.*
 import net.wetheGoverned.remote.api.*
 import io.ktor.client.*
+import kotlinx.datetime.Clock
 
 private fun localStorageGet(key: String): String? = 
     js("window.localStorage.getItem(key)")
 
-private fun localStorageSet(key: String, value: String) = 
+private fun localStorageSet(key: String, value: String): Unit = 
     js("window.localStorage.setItem(key, value)")
 
-private fun localStorageRemove(key: String) = 
+private fun localStorageRemove(key: String): Unit = 
     js("window.localStorage.removeItem(key)")
 
 abstract class WebRepository(val typeName: String) {
@@ -46,7 +47,20 @@ class WebPollRepository : PollRepository, WebRepository("polls") {
     override suspend fun getPoll(pollId: String): Result<CivicPoll> = _polls.value.find { it.id == pollId }?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
     
     override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?): Result<CivicPoll> {
-        val poll = CivicPoll(id = "web_${System.currentTimeMillis()}", scope = scope, districtId = districtId, localId = localId, authorPubKey = "web_admin", question = question, options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) }, status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = closesAt ?: (System.currentTimeMillis() + 86400000), totalVotes = 0)
+        val now = Clock.System.now().toEpochMilliseconds()
+        val poll = CivicPoll(
+            id = "web_$now", 
+            scope = scope, 
+            districtId = districtId, 
+            localId = localId, 
+            authorPubKey = "web_admin", 
+            question = question, 
+            options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) }, 
+            status = PollStatus.ACTIVE, 
+            createdAt = now, 
+            closesAt = closesAt ?: (now + 86400000), 
+            totalVotes = 0
+        )
         _polls.update { it + poll }
         return Result.success(poll)
     }

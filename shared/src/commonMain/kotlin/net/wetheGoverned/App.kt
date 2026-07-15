@@ -61,13 +61,14 @@ fun App(
     residentRepository: ResidentRepository,
     manifestoRepository: ManifestoRepository,
     scorecardRepository: ScorecardRepository,
+    districtRepository: DistrictRepository, // Added
     communityRepository: CommunityRepository,
     requestRepository: VerificationRequestRepository,
     sessionManager: SessionManager,
     civicApi: CivicApi,
     backendApi: WtgBackendApi,
     locationHelper: LocationHelper,
-    relayManager: net.wetheGoverned.data.NostrRelayManager, // Loop 2 Fix
+    relayManager: net.wetheGoverned.data.NostrRelayManager,
 ) {
     val navController = rememberNavController()
 
