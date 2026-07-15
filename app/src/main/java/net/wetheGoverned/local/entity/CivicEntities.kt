@@ -17,8 +17,13 @@ data class DistrictEntity(
 data class ResidentProfileEntity(
     @PrimaryKey val pubKey: String,
     val displayName: String,
-    val districtId: String?,
-    val localId: String?,
+    val federalHouseId: String?,
+    val federalSenateId: String?,
+    val stateSenateId: String?,
+    val stateHouseId: String?,
+    val countyId: String?,
+    val cityId: String?,
+    val schoolBoardId: String?,
     val tier: String,
     val avatarUrl: String?,
     val joinedAt: Long,
@@ -160,5 +165,20 @@ data class CommunityPostEntity(
     val contactInfo: String?,
     val createdAt: Long,
     val expiresAt: Long?,
+    val cachedAt: Long
+)
+
+@Entity(tableName = "verification_requests")
+data class VerificationRequestEntity(
+    @PrimaryKey val id: String,
+    val requesterPubKey: String,
+    val requesterDisplayName: String,
+    val email: String,
+    val districtId: String,
+    val stateId: String,
+    val address: String,
+    val createdAt: Long,
+    val status: String,
+    val handledByPubKey: String?,
     val cachedAt: Long
 )

@@ -1,3 +1,5 @@
+package net.wetheGoverned
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -35,9 +37,9 @@ fun main() {
         val residentRepository = remember { DesktopResidentRepository() }
         val manifestoRepository = remember { DesktopManifestoRepository() }
         val scorecardRepository = remember { DesktopScorecardRepository() }
-        val districtRepository = remember { DesktopDistrictRepository() }
         val communityRepository = remember { DesktopCommunityRepository() }
         val accountRepository = remember { DesktopAccountRepository() }
+        val requestRepository = remember { DesktopVerificationRequestRepository() }
         val sessionStorage = remember { DesktopSessionStorage() }
         val sessionManager = remember { SessionManager(sessionStorage) }
         
@@ -85,7 +87,7 @@ fun main() {
                 onCloseRequest = { isWindowVisible = false },
                 title = "WeTheGoverned",
                 icon = painterResource("icon.png"),
-                state = rememberWindowState(width = 840.dp, height = 900.dp)
+                state = rememberWindowState(placement = WindowPlacement.Maximized)
             ) {
                 App(
                     pollRepository = pollRepository,
@@ -93,8 +95,8 @@ fun main() {
                     residentRepository = residentRepository,
                     manifestoRepository = manifestoRepository,
                     scorecardRepository = scorecardRepository,
-                    districtRepository = districtRepository,
                     communityRepository = communityRepository,
+                    requestRepository = requestRepository,
                     sessionManager = sessionManager,
                     civicApi = civicApi,
                     backendApi = backendApi,

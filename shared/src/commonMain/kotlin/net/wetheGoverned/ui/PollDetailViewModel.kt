@@ -53,7 +53,7 @@ open class PollDetailViewModel(
                 residentRepository.getProfile(pubKey)
                     .onSuccess { profile ->
                         _uiState.update {
-                            it.copy(canVote = profile.tier.ordinal >= VerificationTier.TIER_2.ordinal)
+                            it.copy(canVote = profile.tier == VerificationTier.VERIFIED)
                         }
                     }
             }

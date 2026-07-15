@@ -21,8 +21,9 @@ import net.wetheGoverned.local.entity.*
         PendingCivicEventEntity::class,
         AccountEntity::class,
         CommunityPostEntity::class,
+        VerificationRequestEntity::class,
     ],
-    version = 8, // Incremented to version 8 for Community Hub update
+    version = 9, // Incremented to version 9 for Verification Requests
     exportSchema = false
 )
 @TypeConverters(CivicConverters::class)
@@ -39,6 +40,7 @@ abstract class CivicDatabase : RoomDatabase() {
     abstract fun pendingEventDao(): PendingEventDao
     abstract fun accountDao(): AccountDao
     abstract fun communityPostDao(): CommunityPostDao
+    abstract fun verificationRequestDao(): VerificationRequestDao
 
     companion object {
         const val DATABASE_NAME = "wetheGoverned.db"

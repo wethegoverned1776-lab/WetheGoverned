@@ -36,6 +36,9 @@ interface ResidentProfileDao {
     @Query("SELECT * FROM resident_profiles WHERE pubKey = :pubKey")
     suspend fun getProfile(pubKey: String): ResidentProfileEntity?
 
+    @Query("SELECT * FROM resident_profiles WHERE verifiedByPubKey = :verifierPubKey")
+    fun observeProfilesVerifiedBy(verifierPubKey: String): Flow<List<ResidentProfileEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertProfile(profile: ResidentProfileEntity)
 
@@ -182,4 +185,22 @@ interface CommunityPostDao {
 
     @Query("SELECT * FROM community_posts")
     suspend fun getAllPosts(): List<CommunityPostEntity>
+}
+
+@Dao
+interface VerificationRequestDao {
+    @Query("SELECT * FROM verification_requests WHERE districtId = :districtId ORDER BY createdAt DESC")
+    fun observeRequestsForDistrict(districtId: String): Flow<List<VerificationRequestEntity>>
+
+    @Query("SELECT * FROM verification_requests WHERE stateId = :stateId ORDER BY createdAt DESC")
+    fun observeRequestsForState(stateId: String): Flow<List<VerificationRequestEntity>>
+
+    @Query("SELECT * FROM verification_requests WHERE id = :id")
+    suspend fun getRequest(id: String): VerificationRequestEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertRequest(request: VerificationRequestEntity)
+
+    @Query("UPDATE verification_requests SET status = :status, handledByPubKey = :handledBy WHERE id = :id")
+    suspend fun updateStatus(id: String, status: String, handledBy: String)
 }

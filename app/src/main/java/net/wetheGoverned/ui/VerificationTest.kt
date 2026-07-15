@@ -52,7 +52,7 @@ class VerificationSimulator @Inject constructor(
                 
                 residentRepository.upgradeTierFull(
                     pubKey = adminAccount.pubKey,
-                    newTier = VerificationTier.TIER_2,
+                    newTier = VerificationTier.VERIFIED,
                     fingerprint = "fp_daytona_123"
                 )
                 accountRepository.updateDistrict("admin", detected.id)
@@ -72,11 +72,11 @@ class VerificationSimulator @Inject constructor(
             val vouchCount = residentRepository.getVouchCount(adminAccount.pubKey)
             onResult("INFO: Admin verified status: ${adminProfile.tier}, Vouches used: $vouchCount")
 
-            if (adminProfile.tier >= VerificationTier.TIER_2 && vouchCount < 1) {
+            if (adminProfile.tier == VerificationTier.VERIFIED && vouchCount < 1) {
                 onResult("VOUCH: Admin signing residency attestation for spouse...")
                 residentRepository.upgradeTierFull(
                     pubKey = spouseKeys.pubKeyHex,
-                    newTier = VerificationTier.TIER_2,
+                    newTier = VerificationTier.VERIFIED,
                     fingerprint = "fp_daytona_123", // Same household fingerprint
                     verifiedBy = adminAccount.pubKey
                 )

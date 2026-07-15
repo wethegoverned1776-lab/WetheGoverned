@@ -25,6 +25,7 @@ class HomeViewModelSessionTest {
     private val pollRepository = mockk<PollRepository>(relaxed = true)
     private val residentRepository = mockk<ResidentRepository>(relaxed = true)
     private val sessionManager = mockk<SessionManager>(relaxed = true)
+    private val relayManager = mockk<net.wetheGoverned.data.NostrRelayManager>(relaxed = true)
     private val testDispatcher = StandardTestDispatcher()
 
     @Before fun setUp() {
@@ -44,7 +45,7 @@ class HomeViewModelSessionTest {
 
     @Test
     fun `HomeViewModel uses district from session`() = runTest {
-        val vm = HomeViewModel(pollRepository, residentRepository, sessionManager)
+        val vm = HomeViewModel(pollRepository, residentRepository, sessionManager, relayManager)
         val state = vm.uiState.value
         assertEquals("us-ga-05", state.districtId)
         verify { pollRepository.observePollsByIds(listOf("us", "us-ga", "us-ga-05")) }

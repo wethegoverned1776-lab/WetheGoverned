@@ -110,3 +110,11 @@ interface CommunityRepository {
     suspend fun getAllPosts(): List<CommunityPost>
     suspend fun syncPost(post: CommunityPost)
 }
+
+interface VerificationRequestRepository {
+    fun observeRequestsForDistrict(districtId: String): Flow<List<VerificationRequest>>
+    fun observeRequestsForState(stateId: String): Flow<List<VerificationRequest>>
+    suspend fun createRequest(request: VerificationRequest): Result<Unit>
+    suspend fun updateRequestStatus(requestId: String, status: VerificationRequestStatus, handledBy: String): Result<Unit>
+    suspend fun getRequest(requestId: String): Result<VerificationRequest>
+}

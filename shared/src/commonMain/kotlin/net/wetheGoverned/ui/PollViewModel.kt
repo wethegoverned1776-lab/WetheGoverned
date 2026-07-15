@@ -45,6 +45,7 @@ open class PollViewModel(
             PollScope.STATE -> currentDistrictId.substringBeforeLast('-') // e.g. "us-fl-06" -> "us-fl"
             PollScope.DISTRICT -> currentDistrictId
             PollScope.LOCAL -> currentDistrictId
+            else -> currentDistrictId // Fallback for DASHBOARD, ALL_POLLS, REPRESENTATIVES, RESULTS
         }
         
         val localId = if (scope == PollScope.LOCAL) session?.localId else null

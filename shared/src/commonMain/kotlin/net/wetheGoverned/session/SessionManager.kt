@@ -12,11 +12,13 @@ sealed class SessionEvent {
 data class UserSession(
     val pubKey: String,
     val displayName: String,
-    val districtId: String?,
-    val stateUpperId: String? = null,
-    val stateLowerId: String? = null,
-    val localId: String? = null,
-    val tier: VerificationTier = VerificationTier.UNVERIFIED,
+    val districtId: String?, // Federal House ID (legacy name kept for compatibility)
+    val stateUpperId: String? = null, // State Senate
+    val stateLowerId: String? = null, // State House
+    val localId: String? = null, // County
+    val cityId: String? = null,
+    val schoolBoardId: String? = null,
+    val tier: VerificationTier = VerificationTier.OBSERVER,
     val privateKey: String? = null
 )
 
@@ -49,10 +51,15 @@ class SessionManager(private val storage: SessionStorage? = null) {
         stateUpperId: String? = null,
         stateLowerId: String? = null,
         localId: String? = null,
+        cityId: String? = null,
+        schoolBoardId: String? = null,
         tier: VerificationTier,
         displayName: String
     ) {
-        val session = UserSession(pubKeyHex, displayName, districtId, stateUpperId, stateLowerId, localId, tier, privateKeyHex)
+        val session = UserSession(
+            pubKeyHex, displayName, districtId, stateUpperId, stateLowerId, 
+            localId, cityId, schoolBoardId, tier, privateKeyHex
+        )
         currentPubKey = pubKeyHex
         currentSession = session
         storage?.saveSession(session)

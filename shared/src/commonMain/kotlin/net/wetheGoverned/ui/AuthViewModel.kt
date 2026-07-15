@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import net.wetheGoverned.core.Secp256k1KeyManager
 import net.wetheGoverned.model.UserAccount
 import net.wetheGoverned.model.VerificationTier
@@ -20,6 +21,7 @@ data class AuthUiState(
     val selectedDistrictId: String? = null,
     val selectedDistrictName: String = "No District Selected",
     val isPasswordChanged: Boolean = false,
+    val requiresPasswordChange: Boolean = false,
 )
 
 open class AuthViewModel(
@@ -59,6 +61,16 @@ open class AuthViewModel(
                 )
             )
             result.onSuccess {
+                // Create initial Observer profile
+                residentRepository.createProfile(
+                    net.wetheGoverned.model.ResidentProfile(
+                        pubKey = keyPair.pubKeyHex,
+                        displayName = username,
+                        districtId = _uiState.value.selectedDistrictId,
+                        tier = VerificationTier.OBSERVER,
+                        joinedAt = Clock.System.now().toEpochMilliseconds()
+                    )
+                )
                 _uiState.update { it.copy(isLoading = false, isRegistered = true) }
                 login(username, password)
             }.onFailure { e ->
@@ -72,14 +84,20 @@ open class AuthViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
             val result = accountRepository.login(username, password)
             result.onSuccess { account ->
+                // Fetch profile to determine tier
+                val profile = residentRepository.getProfile(account.pubKey).getOrNull()
                 sessionManager.login(
                     pubKeyHex = account.pubKey,
                     privateKeyHex = account.privateKey,
                     districtId = account.districtId,
-                    tier = if (username == "admin") VerificationTier.TIER_3 else VerificationTier.TIER_1,
+                    tier = profile?.tier ?: VerificationTier.OBSERVER,
                     displayName = username
                 )
-                _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
+                _uiState.update { it.copy(
+                    isLoading = false, 
+                    isAuthenticated = true,
+                    requiresPasswordChange = account.requiresPasswordChange
+                ) }
             }.onFailure { e ->
                 _uiState.update { it.copy(isLoading = false, error = e.message) }
             }
@@ -105,7 +123,7 @@ open class AuthViewModel(
                 pubKeyHex = "guest_observer_hex", // Hardcoded identifier
                 privateKeyHex = null,
                 districtId = null, // No district
-                tier = VerificationTier.UNVERIFIED,
+                tier = VerificationTier.OBSERVER,
                 displayName = "Observer"
             )
             _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }

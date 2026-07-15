@@ -1,7 +1,6 @@
 package net.wetheGoverned.data
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.wetheGoverned.model.*
@@ -24,7 +23,13 @@ class P2PSyncTest {
         val sessionManager = SessionManager()
         
         // Setup session
-        sessionManager.login("user1", null, "us-fl-06", VerificationTier.TIER_2, "User 1")
+        sessionManager.login(
+            pubKeyHex = "user1",
+            privateKeyHex = null,
+            districtId = "us-fl-06",
+            tier = VerificationTier.VERIFIED,
+            displayName = "User 1"
+        )
 
         // Mock Relay Manager
         val relayManager = NostrRelayManager(emptyList())
@@ -32,6 +37,7 @@ class P2PSyncTest {
         val syncEngine = P2PSyncEngine(
             pollRepo, residentRepo, voteRepo, manifestoRepo, accountRepo, sessionManager, relayManager
         )
+        syncEngine.start()
 
         // Verify that our repositories are ready for sync.
         val initialPolls = pollRepo.getAllPolls()
@@ -45,7 +51,7 @@ class P2PSyncTest {
             question = "Remote Question",
             options = emptyList(),
             status = PollStatus.ACTIVE,
-            createdAt = System.currentTimeMillis(),
+            createdAt = kotlinx.datetime.Clock.System.now().toEpochMilliseconds(),
             closesAt = null,
             totalVotes = 0
         )
@@ -67,12 +73,14 @@ class InMemoryPollRepository : PollRepository {
     override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?) = Result.success(polls.first())
     override suspend fun vote(pollId: String, optionId: String, voterPubKey: String) = Result.success(Unit)
     override suspend fun voteImportance(pollId: String, delta: Int, voterPubKey: String) = Result.success(Unit)
+    override fun observePollsPaged(districtId: String, limit: Int, offset: Int) = flowOf(polls.filter { it.districtId == districtId }.drop(offset).take(limit))
+    override fun observePollsByScope(scope: PollScope, districtId: String) = flowOf(polls.filter { it.districtId == districtId && it.scope == scope })
     override fun observePollPosts(pollId: String) = flowOf(emptyList<PollPost>())
     override fun observeOptionPosts(pollId: String, optionId: String) = flowOf(emptyList<PollPost>())
     override fun observeThreadedPosts(parentPostId: String) = flowOf(emptyList<PollPost>())
     override suspend fun createPost(pollId: String, optionId: String, authorName: String, content: String, headline: String?, parentPostId: String?) = Result.success(PollPost(pollId = "", optionId = "", authorName = "", content = ""))
     override suspend fun voteOnPost(postId: String, delta: Int) = Result.success(Unit)
-    override suspend fun getPost(postId: String) = Result.success(PollPost(pollId = "", optionId = "", authorName = "", content = ""))
+    override suspend fun getPost(postId: String) = Result.success(PollPost(pollId = "", optionId = "", authorName = "System", content = ""))
     override suspend fun getAllPolls() = polls
     override suspend fun getPollsForJurisdictions(jurisdictionIds: List<String>, since: Long) = polls.filter { it.districtId in jurisdictionIds }
     override suspend fun syncPoll(poll: CivicPoll) { polls.add(poll) }
@@ -89,6 +97,8 @@ class InMemoryResidentRepository : ResidentRepository {
     override suspend fun updateDistrict(pubKey: String, districtId: String) = Result.success(Unit)
     override suspend fun getResidentCountAtAddress(fingerprint: String) = 0
     override suspend fun getVouchCount(notaryPubKey: String) = 0
+    override fun observeProfilesVerifiedBy(verifierPubKey: String) = flowOf(emptyList<ResidentProfile>())
+    override suspend fun createProfile(profile: ResidentProfile) {}
 }
 
 class InMemoryVoteRepository : VoteRepository {

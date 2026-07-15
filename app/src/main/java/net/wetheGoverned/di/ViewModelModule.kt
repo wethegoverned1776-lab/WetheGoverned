@@ -36,6 +36,7 @@ object ViewModelModule {
     fun provideResidentProfileViewModel(
         residentRepository: ResidentRepository,
         accountRepository: AccountRepository,
-        sessionManager: SessionManager
-    ): ResidentProfileViewModel = ResidentProfileViewModel(residentRepository, accountRepository, sessionManager)
+        sessionManager: SessionManager,
+        requestRepository: VerificationRequestRepository,
+    ): ResidentProfileViewModel = ResidentProfileViewModel(residentRepository, accountRepository, sessionManager, requestRepository)
 }

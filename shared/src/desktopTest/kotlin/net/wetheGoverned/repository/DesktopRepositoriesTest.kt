@@ -58,7 +58,7 @@ class DesktopRepositoriesTest {
         
         assertEquals("admin", profile.pubKey)
         assertEquals("Administrator", profile.displayName)
-        assertEquals(VerificationTier.TIER_3, profile.tier)
+        assertEquals(VerificationTier.VERIFIED, profile.tier)
     }
 
     @Test
@@ -107,7 +107,7 @@ class DesktopRepositoriesTest {
             pubKey = "key1",
             displayName = "User 1",
             districtId = "us-fl-06",
-            tier = VerificationTier.TIER_2,
+            tier = VerificationTier.VERIFIED,
             privateKey = "priv1"
         )
         
@@ -117,7 +117,7 @@ class DesktopRepositoriesTest {
         assertNotNull(loaded)
         assertEquals("key1", loaded.pubKey)
         assertEquals("priv1", loaded.privateKey)
-        assertEquals(VerificationTier.TIER_2, loaded.tier)
+        assertEquals(VerificationTier.VERIFIED, loaded.tier)
         
         storage.clearSession()
         kotlin.test.assertNull(storage.getSession())

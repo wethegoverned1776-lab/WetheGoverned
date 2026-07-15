@@ -1,5 +1,6 @@
 package net.wetheGoverned.ui.community
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -119,8 +120,10 @@ fun CommunityBoardScreen(
 
 @Composable
 private fun PostCard(post: CommunityPost) {
-    Card(
+    OutlinedCard(
         modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(containerColor = androidx.compose.ui.graphics.Color.White)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(

@@ -25,19 +25,24 @@ object CivicEventKind {
     const val METRIC_REPORT          = 30_400
     const val RESIDENT_PROFILE       = 30_500
     const val COMMUNITY_POST         = 30_600
+    const val VERIFICATION_REQUEST   = 30_700
 }
 
 @Serializable
 data class District(
     val id: String,
+    val level: DistrictLevel = DistrictLevel.FEDERAL_HOUSE,
     val state: String,
-    val districtNumber: Int,
+    val districtNumber: Int? = null,
+    val name: String,
     val displayName: String,
-    val representativeId: String? = null,
+    val representativeName: String? = null,
+    val representativeParty: String? = null,
+    val geoBoundaries: String? = null, // GeoJSON or similar
 )
 
 enum class VerificationTier {
-    UNVERIFIED, TIER_1, TIER_2, TIER_3,
+    OBSERVER, VERIFIED,
 }
 
 @Serializable
@@ -60,14 +65,36 @@ data class CivicVote(
 enum class ConflictStatus { NONE, FLAGGED, DISPUTED, RESOLVED }
 
 enum class PollStatus { ACTIVE, CLOSED, ARCHIVED }
-enum class PollScope { FEDERAL, STATE, DISTRICT, LOCAL }
+
+enum class PollScope {
+    DASHBOARD, // For the "My Dashboard" view
+    FEDERAL, 
+    STATE, 
+    DISTRICT,
+    LOCAL,
+    ALL_POLLS,
+    REPRESENTATIVES,
+    RESULTS
+}
+
+enum class DistrictLevel {
+    FEDERAL_HOUSE,
+    FEDERAL_SENATE,
+    STATE_SENATE,
+    STATE_HOUSE,
+    COUNTY,
+    CITY,
+    SCHOOL_BOARD,
+    SPECIAL
+}
+
 typealias CivicScope = PollScope
 
 @Serializable
 data class RepresentativeScorecard(
     val representativePubKey: String,
     val districtId: String,
-    val scope: CivicScope = CivicScope.DISTRICT,
+    val scope: CivicScope = CivicScope.STATE,
     val name: String,
     val party: String,
     val overallScore: Int,
@@ -88,7 +115,7 @@ data class CandidateManifesto(
     val id: String,
     val candidatePubKey: String,
     val districtId: String,
-    val scope: CivicScope = CivicScope.DISTRICT,
+    val scope: CivicScope = CivicScope.STATE,
     val title: String,
     val body: String,
     val publishedAt: Long,
@@ -151,3 +178,21 @@ data class AddressResolution(
     val sources: List<String> = emptyList(),
     val timestamp: Long = System.currentTimeMillis()
 )
+
+@Serializable
+data class VerificationRequest(
+    val id: String,
+    val requesterPubKey: String,
+    val requesterDisplayName: String,
+    val email: String,
+    val districtId: String,
+    val stateId: String,
+    val address: String,
+    val createdAt: Long = System.currentTimeMillis(),
+    val status: VerificationRequestStatus = VerificationRequestStatus.PENDING,
+    val handledByPubKey: String? = null
+)
+
+enum class VerificationRequestStatus {
+    PENDING, VERIFIED, CLOSED
+}

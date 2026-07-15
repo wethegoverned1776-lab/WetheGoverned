@@ -53,7 +53,7 @@ open class MetricsViewModel(
             val pubKey = sessionManager.currentPubKey ?: return@launch
             residentRepository.getProfile(pubKey)
                 .onSuccess { profile ->
-                    _uiState.update { it.copy(canReport = profile.tier == VerificationTier.TIER_3) }
+                    _uiState.update { it.copy(canReport = profile.tier == VerificationTier.VERIFIED) }
                 }
         }
     }

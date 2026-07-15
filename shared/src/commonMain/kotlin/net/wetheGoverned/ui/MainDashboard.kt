@@ -15,6 +15,7 @@ fun MainDashboard(
     onNavigateToMetrics: () -> Unit,
     onNavigateToProfile: (String) -> Unit,
     onNavigateToCommunityHub: () -> Unit,
+    onNavigateToVerification: () -> Unit,
     onCreatePoll: () -> Unit,
     onLogout: () -> Unit
 ) {
@@ -26,6 +27,7 @@ fun MainDashboard(
         onNavigateToMetrics = onNavigateToMetrics,
         onNavigateToProfile = onNavigateToProfile,
         onNavigateToCommunityHub = onNavigateToCommunityHub,
+        onNavigateToVerification = onNavigateToVerification,
         onCreatePoll = onCreatePoll,
         onLogout = onLogout
     )

@@ -25,8 +25,8 @@ fun VerifiedNetworkApp() {
         residentRepository = entryPoint.residentRepository(),
         manifestoRepository = entryPoint.manifestoRepository(),
         scorecardRepository = entryPoint.scorecardRepository(),
-        districtRepository = entryPoint.districtRepository(),
         communityRepository = entryPoint.communityRepository(),
+        requestRepository = entryPoint.requestRepository(),
         sessionManager = entryPoint.sessionManager(),
         civicApi = entryPoint.civicApi(),
         backendApi = entryPoint.wtgBackendApi(),
@@ -45,6 +45,7 @@ interface AppEntryPoint {
     fun scorecardRepository(): ScorecardRepository
     fun districtRepository(): DistrictRepository
     fun communityRepository(): CommunityRepository
+    fun requestRepository(): VerificationRequestRepository
     fun sessionManager(): SessionManager
     fun civicApi(): CivicApi
     fun wtgBackendApi(): WtgBackendApi

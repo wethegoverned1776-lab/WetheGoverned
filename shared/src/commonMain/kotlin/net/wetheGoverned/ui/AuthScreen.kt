@@ -55,9 +55,13 @@ fun AuthContent(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(uiState.isAuthenticated) {
+    LaunchedEffect(uiState.isAuthenticated, uiState.requiresPasswordChange) {
         if (uiState.isAuthenticated) {
-            onAuthenticated()
+            if (uiState.requiresPasswordChange) {
+                onNavigateToChangePassword()
+            } else {
+                onAuthenticated()
+            }
         }
     }
 

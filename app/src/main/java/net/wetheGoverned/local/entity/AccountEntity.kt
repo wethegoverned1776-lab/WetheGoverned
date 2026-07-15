@@ -11,4 +11,5 @@ data class AccountEntity(
     val privateKey: String,
     val districtId: String?,
     val createdAt: Long = System.currentTimeMillis(),
+    val requiresPasswordChange: Boolean = false,
 )

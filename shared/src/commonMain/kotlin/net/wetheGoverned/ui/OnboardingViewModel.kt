@@ -113,7 +113,7 @@ open class OnboardingViewModel(
                 pubKeyHex     = pubKey,
                 privateKeyHex = privKey,
                 districtId    = null,
-                tier          = VerificationTier.UNVERIFIED,
+                tier          = VerificationTier.OBSERVER,
                 displayName   = pubKey.take(8),
             )
         }

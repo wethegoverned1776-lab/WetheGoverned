@@ -55,7 +55,14 @@ class NetworkRegistrationViewModel(
             val generatedPassword = "temp_" + (100000..999999).random().toString()
             
             val keyPair = Secp256k1KeyManager.generateKeyPair()
-            val account = UserAccount(generatedUsername, generatedPassword, keyPair.pubKeyHex, keyPair.privateKeyHex, null)
+            val account = UserAccount(
+                username = generatedUsername, 
+                password = generatedPassword, 
+                pubKey = keyPair.pubKeyHex, 
+                privateKey = keyPair.privateKeyHex, 
+                districtId = null,
+                requiresPasswordChange = true
+            )
             
             val accResult = accountRepository.register(account)
             if (accResult.isSuccess) {
@@ -63,7 +70,7 @@ class NetworkRegistrationViewModel(
                     pubKey = keyPair.pubKeyHex,
                     displayName = displayName,
                     districtId = "us-${stateAbbr.lowercase()}-$cleanDist",
-                    tier = VerificationTier.TIER_1,
+                    tier = VerificationTier.VERIFIED,
                     joinedAt = System.currentTimeMillis(),
                     verifiedByPubKey = verifierPubKey,
                     address = address,

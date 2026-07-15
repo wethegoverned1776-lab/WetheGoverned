@@ -49,7 +49,7 @@ fun Route.setupWebDashboard(
         .error-msg { color: var(--danger); background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 8px; margin-bottom: 1rem; text-align: center; }
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
         .badge-verified { background: rgba(34, 197, 94, 0.2); color: var(--accent); }
-        .badge-unverified { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .badge-observer { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
     """.trimIndent()
 
     fun template(title: String, activeTab: String, content: String, showNav: Boolean = true): String {
@@ -220,9 +220,9 @@ fun Route.setupWebDashboard(
             <h1>My Node Profile</h1>
             <div class="card">
                 <h3>Identity: $user</h3>
-                <p>Status: <span class="badge badge-unverified">Tier 1 - Basic Access</span></p>
+                <p>Status: <span class="badge badge-observer">Observer - Basic Access</span></p>
                 <hr style="border:0; border-top:1px solid var(--border); margin:1.5rem 0;">
-                <h4>Upgrade to Tier 2</h4>
+                <h4>Get Verified</h4>
                 <p style="font-size:0.9rem; color:var(--text-dim);">Verify your district address to participate in official polls.</p>
                 <form action="/api/verify" method="post">
                     <label>Street Address</label><input type="text" name="address" required>
@@ -250,7 +250,7 @@ fun Route.setupWebDashboard(
         val fingerprint = AddressUtils.generateFingerprint(street, city, zip)
         val user = call.request.cookies["user"] ?: "admin"
         
-        residentRepository.upgradeTierFull(user, VerificationTier.TIER_2, fingerprint)
+        residentRepository.upgradeTierFull(user, VerificationTier.VERIFIED, fingerprint)
         call.respondRedirect("/profile")
     }
 }

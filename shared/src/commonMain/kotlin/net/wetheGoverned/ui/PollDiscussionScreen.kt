@@ -1,5 +1,6 @@
 package net.wetheGoverned.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,8 +41,10 @@ fun PollDiscussionScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { viewModel.setShowAddDialog(true) }) {
-                Icon(Icons.Default.Add, contentDescription = "Add Post")
+            if (uiState.canComment) {
+                FloatingActionButton(onClick = { viewModel.setShowAddDialog(true) }) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Post")
+                }
             }
         }
     ) { padding ->
@@ -76,10 +79,12 @@ fun PostItem(
     onVote: (Int) -> Unit,
     onClick: () -> Unit
 ) {
-    Card(
+    OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),

@@ -49,6 +49,7 @@ open class ScorecardViewModel(
             CivicScope.STATE -> state.stateId ?: state.districtId ?: "us-fl"
             CivicScope.DISTRICT -> state.districtId ?: "us-fl-06"
             CivicScope.LOCAL -> state.districtId ?: "us-fl-06"
+            else -> state.districtId ?: "us-fl-06"
         }
 
         scorecardRepository
@@ -76,6 +77,7 @@ open class ScorecardViewModel(
             CivicScope.STATE -> state.stateId ?: state.districtId ?: "us-fl"
             CivicScope.DISTRICT -> state.districtId ?: "us-fl-06"
             CivicScope.LOCAL -> state.districtId ?: "us-fl-06"
+            else -> state.districtId ?: "us-fl-06"
         }
         
         viewModelScope.launch {

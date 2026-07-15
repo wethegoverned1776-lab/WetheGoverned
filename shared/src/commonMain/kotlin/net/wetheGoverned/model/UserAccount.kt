@@ -11,5 +11,6 @@ data class UserAccount(
     val districtId: String? = null,
     // Loop 75 Fix: Post-Quantum Identity Extension
     val quantumPubKey: String? = null,
-    val quantumPrivateKey: String? = null
+    val quantumPrivateKey: String? = null,
+    val requiresPasswordChange: Boolean = false
 )

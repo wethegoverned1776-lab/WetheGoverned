@@ -50,11 +50,9 @@ string scorecard_official_label
 string scorecard_overall
 string scorecard_resident_label
 string scorecard_title
-string tier_1
-string tier_2
-string tier_3
-string tier_unverified
+string tier_observer
 string tier_upgrade_cta
+string tier_verified
 style Theme.App.Starting
 style Theme.WeTheGoverned
 xml backup_rules

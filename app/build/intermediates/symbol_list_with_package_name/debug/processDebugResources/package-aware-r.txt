@@ -3561,6 +3561,7 @@ integer m3_sys_shape_corner_full_corner_family
 integer m3_sys_shape_corner_large_corner_family
 integer m3_sys_shape_corner_medium_corner_family
 integer m3_sys_shape_corner_small_corner_family
+integer m3c_window_layout_in_display_cutout_mode
 integer material_motion_duration_long_1
 integer material_motion_duration_long_2
 integer material_motion_duration_medium_1
@@ -3844,6 +3845,7 @@ string m3c_date_range_picker_title
 string m3c_dialog
 string m3c_dropdown_menu_collapsed
 string m3c_dropdown_menu_expanded
+string m3c_dropdown_menu_toggle
 string m3c_search_bar_search
 string m3c_snackbar_dismiss
 string m3c_suggestions_available
@@ -3996,11 +3998,9 @@ string status_bar_notification_info_overflow
 string switch_role
 string tab
 string template_percent
-string tier_1
-string tier_2
-string tier_3
-string tier_unverified
+string tier_observer
 string tier_upgrade_cta
+string tier_verified
 string tooltip_description
 string tooltip_label
 style AlertDialog_AppCompat
@@ -4301,6 +4301,8 @@ style CardView
 style CardView_Dark
 style CardView_Light
 style DialogWindowTheme
+style EdgeToEdgeFloatingDialogTheme
+style EdgeToEdgeFloatingDialogWindowTheme
 style FloatingDialogTheme
 style FloatingDialogWindowTheme
 style MaterialAlertDialog_Material3

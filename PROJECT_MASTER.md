@@ -2,7 +2,7 @@
 
 **Project Name:** WeTheGoverned (WETHEGOVERNED)
 **Package Name:** net.wetheGoverned
-**Last Updated:** <!-- DATE_START -->2026-07-08<!-- DATE_END -->
+**Last Updated:** <!-- DATE_START -->2024-03-21<!-- DATE_END -->
 **Target SDK / Compile SDK:** 35
 **Min SDK:** 24
 **Architecture:** MVVM / Clean Architecture / Multiplatform (KMP)
@@ -12,7 +12,7 @@
 - **Main Purpose:** A decentralized civic platform designed to empower citizens through participating in district-level polls, tracking representative performance (Scorecards), and managing a localized network of trust. It uses the Nostr protocol for decentralized identity and P2P data synchronization.
 - **Key Features:**
     - **Decentralized Identity:** Uses Secp256k1 keypairs (Nostr) for user identity without central authority.
-    - **Verified Network of Trust:** Invitation-only registration system where verified users can vouch for and add new residents.
+    - **Verified Network of Trust:** Invitation-only registration system where verified users can vouch for and add new residents. Observers can also send verification requests to local verifiers.
     - **Geographical Usernames:** Automatically generates IDs based on location (e.g., FL064321).
     - **Civic Governance:** Multi-level polling (Federal, State, District, Local) with weighted voting logic.
     - **P2P Sync Engine:** Real-time data synchronization across nodes using Nostr relays.
@@ -40,6 +40,7 @@ flowchart TD
     E --> F4[Community Hub]
     E --> F5[User Profile]
     F5 --> G[Invite & Verify New User]
+    G2[Observer Verification Request] --> F5
     F1 --> H[Cast Vote & Discuss]
     E --> I[P2P Node: Nostr Sync Engine]
 ```
@@ -49,7 +50,7 @@ flowchart TD
 2. **First Login:** Users with temporary passwords (`temp_` prefix) are prompted to use the **Change Password** flow.
 3. **Identity Setup:** Onboarding generates or imports Nostr keys (nsec/npub). No address/MFA check required for initial access.
 4. **Dashboard:** Home displays active polls and navigation to key features.
-5. **Network Expansion:** Verified users access a "Register New User" screen from their profile to manually add residents using name, address, and district info.
+5. **Network Expansion:** Verified users access a "Register New User" screen from their profile to manually add residents using name, address, and district info. Observers can use the "Find a Verifier" feature to submit their details to local verified users.
 6. **Data Sync:** All votes, polls, and profiles are synced via `P2PSyncEngine` across global relays.
 
 ## 3. Project Structure
@@ -90,8 +91,8 @@ WETHEGOVERNED/
 | Package | Responsibility | Key Classes |
 | :--- | :--- | :--- |
 | `net.wetheGoverned.ui` | Main UI Screens & Shared ViewModels | `AuthViewModel`, `ResidentProfileViewModel`, `ManifestoViewModel` |
-| `net.wetheGoverned.model` | Core data structures for the civic domain | `CivicPoll`, `ResidentProfile`, `UserAccount` |
-| `net.wetheGoverned.repository`| Data access abstraction | `ResidentRepository`, `PollRepository`, `AccountRepository` |
+| `net.wetheGoverned.model` | Core data structures for the civic domain | `CivicPoll`, `ResidentProfile`, `UserAccount`, `VerificationRequest` |
+| `net.wetheGoverned.repository`| Data access abstraction | `ResidentRepository`, `PollRepository`, `AccountRepository`, `VerificationRequestRepository` |
 | `net.wetheGoverned.data` | Synchronization and API layers | `P2PSyncEngine`, `NostrRelayManager`, `CivicApi` |
 | `net.wetheGoverned.session` | User session lifecycle & persistence | `SessionManager`, `UserSession`, `SessionStorage` |
 | `net.wetheGoverned.core` | Cryptography and core utilities | `Secp256k1KeyManager`, `Bech32Codec` |
@@ -116,7 +117,7 @@ WETHEGOVERNED/
 ## 8. Important Modules / Features
 - **Shared Module:** Contains 90% of the code, including UI, models, and business logic.
 - **Desktop Node:** The Desktop `Main.kt` ensures the node remains active in the system tray for relay connectivity.
-- **Verification System:** A tiered verification system (Tier 1-3) that controls voting weight and permission to invite others.
+- **Verification System:** A tiered verification system (Tier 1-2) that controls voting weight and permission to invite others. Includes a request-based discovery mechanism for Observers to find Verifiers in their district.
 
 ## 9. Build & Configuration
 <!-- BUILD_CONFIG_START -->

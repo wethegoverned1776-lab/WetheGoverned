@@ -1,0 +1,6 @@
+C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\shared\src\desktopTest\kotlin\net\wetheGoverned\repository\DesktopRepositoriesTest.kt
+C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\shared\src\commonTest\kotlin\net\wetheGoverned\util\MnemonicUtilsTest.kt
+C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\shared\src\commonTest\kotlin\net\wetheGoverned\model\CivicVoteTest.kt
+C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\shared\src\commonTest\kotlin\net\wetheGoverned\data\P2PSyncTest.kt
+C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\shared\src\commonTest\kotlin\net\wetheGoverned\util\AddressUtilsTest.kt
+C:\Users\rodne\Desktop\WE_THE_Governed\WETHEGOVERNED\shared\src\commonTest\kotlin\net\wetheGoverned\CompatibilityVerificationTest.kt

@@ -1,5 +1,6 @@
 package net.wetheGoverned.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import net.wetheGoverned.model.CandidateManifesto
 import net.wetheGoverned.model.CivicScope
+import net.wetheGoverned.model.PollScope
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -41,34 +42,16 @@ fun ManifestoListScreen(
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
             ScrollableTabRow(
-                selectedTabIndex = when(uiState.selectedScope) {
-                    CivicScope.FEDERAL -> 0
-                    CivicScope.STATE -> 1
-                    CivicScope.DISTRICT -> 2
-                    CivicScope.LOCAL -> 3
-                },
+                selectedTabIndex = PollScope.entries.indexOf(uiState.selectedScope).coerceAtLeast(0),
                 edgePadding = 16.dp
             ) {
-                Tab(
-                    selected = uiState.selectedScope == CivicScope.FEDERAL,
-                    onClick = { viewModel.setScope(CivicScope.FEDERAL) },
-                    text = { Text("Federal") }
-                )
-                Tab(
-                    selected = uiState.selectedScope == CivicScope.STATE,
-                    onClick = { viewModel.setScope(CivicScope.STATE) },
-                    text = { Text("State") }
-                )
-                Tab(
-                    selected = uiState.selectedScope == CivicScope.DISTRICT,
-                    onClick = { viewModel.setScope(CivicScope.DISTRICT) },
-                    text = { Text("District") }
-                )
-                Tab(
-                    selected = uiState.selectedScope == CivicScope.LOCAL,
-                    onClick = { viewModel.setScope(CivicScope.LOCAL) },
-                    text = { Text("Local") }
-                )
+                for (scope in PollScope.entries) {
+                    Tab(
+                        selected = uiState.selectedScope == scope,
+                        onClick = { viewModel.setScope(scope) },
+                        text = { Text(scope.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                    )
+                }
             }
 
             val manifestos = uiState.filteredManifestos
@@ -88,7 +71,11 @@ fun ManifestoListScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     items(manifestos, key = { it.id }) { manifesto ->
-                        Card(onClick = { onManifestoClick(manifesto.id) }, modifier = Modifier.fillMaxWidth()) {
+                        OutlinedCard(
+                            onClick = { onManifestoClick(manifesto.id) }, 
+                            modifier = Modifier.fillMaxWidth(),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                        ) {
                             Column(Modifier.padding(16.dp)) {
                                 Text(manifesto.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                                 Spacer(Modifier.height(4.dp))

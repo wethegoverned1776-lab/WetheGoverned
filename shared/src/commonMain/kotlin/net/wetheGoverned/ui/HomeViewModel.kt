@@ -11,23 +11,38 @@ import net.wetheGoverned.repository.PollRepository
 import net.wetheGoverned.repository.ResidentRepository
 import net.wetheGoverned.session.SessionManager
 
+data class ElectedOfficial(
+    val office: String,
+    val name: String,
+    val party: String,
+    val nextElection: String,
+    val photoUrl: String? = null
+)
+
 data class HomeUiState(
     val federalId: String = "us",
     val stateId: String? = null,
-    val districtId: String? = null,
-    val stateUpperId: String? = null,
-    val stateLowerId: String? = null,
-    val localId: String? = null,
+    val federalHouseId: String? = null,
+    val stateSenateId: String? = null,
+    val stateHouseId: String? = null,
+    val countyId: String? = null,
+    val cityId: String? = null,
+    val schoolBoardId: String? = null,
+    val localId: String? = null, // Compatibility with existing UI
     val districtDisplayName: String = "No District Assigned",
     val username: String? = null,
     val polls: List<CivicPoll> = emptyList(),
     val filteredPolls: List<CivicPoll> = emptyList(),
     val groupedPolls: Map<String, List<CivicPoll>> = emptyMap(),
+    val electedOfficials: List<ElectedOfficial> = emptyList(),
     val searchQuery: String = "",
-    val selectedScope: PollScope = PollScope.DISTRICT,
+    val selectedScope: PollScope = PollScope.DASHBOARD,
     val isOtherDistrict: Boolean = false,
     val isLoading: Boolean = false,
     val isSyncing: Boolean = false, // UX: National Scale Feedback
+    val verificationTier: net.wetheGoverned.model.VerificationTier = net.wetheGoverned.model.VerificationTier.OBSERVER,
+    val districtsActive: Int = 0,
+    val pollsVoted: Int = 0,
     val error: String? = null,
 )
 
@@ -59,21 +74,40 @@ open class HomeViewModel(
 
     fun refreshSession() {
         val session = sessionManager.currentSession
-        val districtId = session?.districtId
-        val stateId = districtId?.substringBeforeLast('-') 
+        val fedHouseId = session?.districtId
+        val stateId = fedHouseId?.substringBeforeLast('-') 
         val isGuest = session?.pubKey == "guest_observer_hex"
+
+        // Mock Elected Officials for the Dashboard as requested by user
+        val mockOfficials = if (fedHouseId != null) {
+            listOf(
+                ElectedOfficial("U.S. House", "Randy Fine", "Republican", "Nov 2024"),
+                ElectedOfficial("State Senate", "Tom Leek", "Republican", "Nov 2024"),
+                ElectedOfficial("State House", "Sam Greco", "Republican", "Nov 2024"),
+                ElectedOfficial("County Commissioner", "John Doe", "Non-Partisan", "Nov 2026"),
+                ElectedOfficial("City Council", "Jane Smith", "Non-Partisan", "Nov 2025"),
+                ElectedOfficial("School Board", "District Z Rep", "Non-Partisan", "Nov 2024")
+            )
+        } else emptyList()
 
         _uiState.update { 
             it.copy(
                 username = sessionManager.currentPubKey,
                 federalId = "us",
                 stateId = stateId,
-                districtId = districtId,
-                stateUpperId = session?.stateUpperId,
-                stateLowerId = session?.stateLowerId,
+                federalHouseId = fedHouseId,
+                stateSenateId = session?.stateUpperId,
+                stateHouseId = session?.stateLowerId,
+                countyId = session?.localId,
                 localId = session?.localId,
-                districtDisplayName = if (districtId == null) (if (isGuest) "Observer Mode" else "No District Assigned") else "District $districtId",
-                isOtherDistrict = isGuest
+                cityId = null,
+                schoolBoardId = null,
+                districtDisplayName = if (fedHouseId == null) "Select District" else "District $fedHouseId",
+                isOtherDistrict = isGuest || session?.tier == net.wetheGoverned.model.VerificationTier.OBSERVER,
+                verificationTier = session?.tier ?: net.wetheGoverned.model.VerificationTier.OBSERVER,
+                electedOfficials = mockOfficials,
+                districtsActive = if (fedHouseId != null) 6 else 0,
+                pollsVoted = 12 // Mock data
             )
         }
         observePolls()
@@ -82,10 +116,10 @@ open class HomeViewModel(
     private fun observePolls() {
         pollsJob?.cancel()
         val state = _uiState.value
-        val hierarchyIds = if (state.districtId == null) {
+        val hierarchyIds = if (state.federalHouseId == null) {
             listOf("us")
         } else {
-            listOfNotNull("us", state.stateId, state.districtId, state.stateUpperId, state.stateLowerId, state.localId)
+            listOfNotNull("us", state.stateId, state.federalHouseId, state.stateSenateId, state.stateHouseId, state.countyId, state.cityId, state.schoolBoardId)
         }
 
         pollsJob = pollRepository
@@ -120,23 +154,26 @@ open class HomeViewModel(
             }
         }
 
-        val scopeFiltered = searchFiltered.filter { poll ->
-            when (currentScope) {
-                PollScope.FEDERAL -> true
-                PollScope.STATE -> poll.scope != PollScope.FEDERAL
-                PollScope.DISTRICT -> poll.scope == PollScope.DISTRICT || poll.scope == PollScope.LOCAL
-                PollScope.LOCAL -> poll.scope == PollScope.LOCAL
-            }
+        val scopeFiltered = when (currentScope) {
+            PollScope.DASHBOARD -> searchFiltered // Dashboard shows everything relevant
+            PollScope.FEDERAL -> searchFiltered.filter { it.scope == PollScope.FEDERAL }
+            PollScope.STATE -> searchFiltered.filter { it.scope == PollScope.STATE }
+            PollScope.DISTRICT -> searchFiltered.filter { it.scope == PollScope.DISTRICT }
+            PollScope.LOCAL -> searchFiltered.filter { it.scope == PollScope.LOCAL }
+            PollScope.ALL_POLLS -> searchFiltered
+            PollScope.REPRESENTATIVES -> searchFiltered.filter { it.scope == PollScope.REPRESENTATIVES }
+            PollScope.RESULTS -> searchFiltered.filter { it.scope == PollScope.RESULTS }
         }
 
         val grouped = scopeFiltered.groupBy { poll ->
             when {
                 poll.scope == PollScope.FEDERAL -> "Federal Governance"
                 poll.scope == PollScope.STATE && poll.districtId == state.stateId -> "State of ${state.stateId}"
-                poll.scope == PollScope.STATE && poll.districtId == state.stateUpperId -> "State Senate"
-                poll.scope == PollScope.STATE && poll.districtId == state.stateLowerId -> "State House"
-                poll.scope == PollScope.DISTRICT -> "Federal District ${state.districtId ?: "Unknown"}"
-                poll.scope == PollScope.LOCAL -> "Local: ${state.localId ?: "Municipality"}"
+                poll.scope == PollScope.STATE && poll.districtId == state.stateSenateId -> "State Senate"
+                poll.scope == PollScope.STATE && poll.districtId == state.stateHouseId -> "State House"
+                poll.scope == PollScope.DISTRICT -> "District Governance"
+                poll.scope == PollScope.LOCAL && poll.districtId == state.federalHouseId -> "Federal District ${state.federalHouseId}"
+                poll.scope == PollScope.LOCAL && poll.districtId == state.countyId -> "County"
                 else -> "${poll.scope} Governance"
             }
         }
@@ -145,7 +182,7 @@ open class HomeViewModel(
     }
 
     fun setScope(scope: PollScope) {
-        if (_uiState.value.districtId == null) return
+        if (_uiState.value.federalHouseId == null && scope != PollScope.FEDERAL && scope != PollScope.ALL_POLLS) return
         _uiState.update { it.copy(selectedScope = scope, isLoading = true) }
         observePolls()
     }
@@ -157,11 +194,11 @@ open class HomeViewModel(
         
         _uiState.update { 
             it.copy(
-                districtId = id, 
+                federalHouseId = id, 
                 stateId = stateId,
                 districtDisplayName = displayName, 
                 isOtherDistrict = isOther,
-                selectedScope = if (isOther) PollScope.DISTRICT else it.selectedScope,
+                selectedScope = if (isOther) PollScope.LOCAL else it.selectedScope,
                 isLoading = true 
             ) 
         }
@@ -176,7 +213,7 @@ open class HomeViewModel(
 
     fun onImportanceVote(pollId: String, delta: Int) {
         val pubKey = sessionManager.currentPubKey ?: return
-        if (_uiState.value.isOtherDistrict || _uiState.value.districtId == null || pubKey.startsWith("guest_")) return
+        if (_uiState.value.isOtherDistrict || _uiState.value.federalHouseId == null || pubKey.startsWith("guest_")) return
 
         viewModelScope.launch {
             pollRepository.voteImportance(pollId, delta, pubKey)

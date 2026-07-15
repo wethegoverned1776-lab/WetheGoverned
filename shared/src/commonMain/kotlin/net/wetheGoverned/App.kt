@@ -61,8 +61,8 @@ fun App(
     residentRepository: ResidentRepository,
     manifestoRepository: ManifestoRepository,
     scorecardRepository: ScorecardRepository,
-    districtRepository: DistrictRepository,
     communityRepository: CommunityRepository,
+    requestRepository: VerificationRequestRepository,
     sessionManager: SessionManager,
     civicApi: CivicApi,
     backendApi: WtgBackendApi,
@@ -76,7 +76,7 @@ fun App(
     val homeViewModel = remember { HomeViewModel(pollRepository, residentRepository, sessionManager, relayManager) }
     val pollDetailViewModel = remember { PollDetailViewModel(pollRepository, residentRepository, sessionManager) }
     val manifestoViewModel = remember { ManifestoViewModel(manifestoRepository, pollRepository, sessionManager) }
-    val profileViewModel = remember { ResidentProfileViewModel(residentRepository, accountRepository, sessionManager) }
+    val profileViewModel = remember { ResidentProfileViewModel(residentRepository, accountRepository, sessionManager, requestRepository) }
     val pollViewModel = remember { PollViewModel(pollRepository, sessionManager) }
     val scorecardViewModel = remember { ScorecardViewModel(scorecardRepository, sessionManager) }
     val discussionViewModel = remember { PollDiscussionViewModel(pollRepository, sessionManager) }
@@ -115,20 +115,25 @@ fun App(
 
     MaterialTheme(
         colorScheme = lightColorScheme(
-            primary = Color(0xFF0061A4),
+            primary = Color.Black,
             onPrimary = Color.White,
             background = Color.White,
             onBackground = Color.Black,
             surface = Color.White,
             onSurface = Color.Black,
+            outline = Color(0xFFCFD9DE), // Dark grey borders (X style)
+            surfaceVariant = Color.White,
+            onSurfaceVariant = Color(0xFF536471), // Dimmer grey for secondary text
+            secondary = Color(0xFF536471),
+            tertiary = Color(0xFF1D9BF0), // Classic X Blue for links/actions
         ),
     ) {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = Color.Transparent, // Allow flag to show through
+            color = Color.White,
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                USFlagBackground(alpha = 0.15f) // Slightly more visible but still subtle
+                // USFlagBackground(alpha = 0.15f) // Disabled for clean X-style look
 
                 NavHost(
                     navController = navController,
@@ -209,6 +214,7 @@ fun App(
                             onNavigateToMetrics = { navController.navigate(SharedRoutes.METRICS) },
                             onNavigateToProfile = { pubKey -> navController.navigate(SharedRoutes.profile(pubKey)) },
                             onNavigateToCommunityHub = { navController.navigate(SharedRoutes.COMMUNITY_HUB) },
+                            onNavigateToVerification = { navController.navigate(SharedRoutes.VERIFICATION) },
                             onCreatePoll = { navController.navigate(SharedRoutes.CREATE_POLL) },
                             onLogout = {
                                 authViewModel.reset()

@@ -61,7 +61,20 @@ abstract class FileBasedRepository(val typeName: String) {
         return if (segment.exists()) json.decodeFromString(serializer, segment.readText()) else null
     }
 
-    protected fun listIds(): List<String> = dataDir.list { _, name -> name.endsWith(".json") || name.startsWith("segment_") }?.map { it.removeSuffix(".json") } ?: emptyList()
+    protected fun listIds(): List<String> {
+        val ids = mutableListOf<String>()
+        // Root items
+        dataDir.listFiles { _, name -> name.endsWith(".json") || name.startsWith("segment_") }?.forEach { 
+             ids.add(it.name.removeSuffix(".json").removePrefix("segment_"))
+        }
+        // Sharded items (recursive)
+        dataDir.walk().forEach { file ->
+            if (file.isFile && file.name.startsWith("id_") && file.name.endsWith(".bin")) {
+                ids.add(file.name.removePrefix("id_").removeSuffix(".bin"))
+            }
+        }
+        return ids.distinct()
+    }
 
     protected suspend fun addToIndex(indexName: String, key: String, id: String) = indexMutex.withLock {
         val idxFile = File(indexDir, "${indexName}_$key.idx")
@@ -146,6 +159,7 @@ class DesktopPollRepository : PollRepository, FileBasedRepository("polls") {
         val newPoll = CivicPoll(id = id, scope = scope, districtId = districtId, localId = localId, authorPubKey = "admin", question = question, options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) }, status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = closesAt ?: (System.currentTimeMillis() + 86400000), totalVotes = 0)
         save(id, newPoll, CivicPoll.serializer())
         addToIndex("district", districtId, id)
+        localId?.let { addToIndex("district", it, id) } // NATIONAL SCALE FIX: Index by localId for county/city browsing
         _pollsFlow.emit(Unit)
         return Result.success(newPoll)
     }
@@ -180,7 +194,12 @@ class DesktopPollRepository : PollRepository, FileBasedRepository("polls") {
     override suspend fun getPost(postId: String): Result<PollPost> = Result.failure(Exception("Stub"))
     override suspend fun getAllPolls(): List<CivicPoll> = listIds().mapNotNull { runBlocking { load(it, CivicPoll.serializer()) } }
     override suspend fun getPollsForJurisdictions(jurisdictionIds: List<String>, since: Long): List<CivicPoll> = getAllPolls().filter { (it.districtId in jurisdictionIds || it.localId in jurisdictionIds) && it.createdAt > since }
-    override suspend fun syncPoll(poll: CivicPoll) { save(poll.id, poll, CivicPoll.serializer()); addToIndex("district", poll.districtId, poll.id); _pollsFlow.emit(Unit) }
+    override suspend fun syncPoll(poll: CivicPoll) { 
+        save(poll.id, poll, CivicPoll.serializer())
+        addToIndex("district", poll.districtId, poll.id)
+        poll.localId?.let { addToIndex("district", it, poll.id) }
+        _pollsFlow.emit(Unit) 
+    }
 }
 
 class DesktopResidentRepository : ResidentRepository, FileBasedRepository("residents") {
@@ -190,7 +209,7 @@ class DesktopResidentRepository : ResidentRepository, FileBasedRepository("resid
     init {
         runBlocking {
             if (load("pub_admin", ResidentProfile.serializer()) == null) {
-                val admin = ResidentProfile(pubKey = "pub_admin", displayName = "Admin", districtId = "us-fl-06", tier = VerificationTier.TIER_3, joinedAt = System.currentTimeMillis(), address = "172 beech wood lane palm coast fl 32137", isVerified = true)
+                val admin = ResidentProfile(pubKey = "pub_admin", displayName = "Admin", districtId = "us-fl-06", tier = VerificationTier.VERIFIED, joinedAt = System.currentTimeMillis(), address = "172 beech wood lane palm coast fl 32137", isVerified = true)
                 save(admin.pubKey, admin, ResidentProfile.serializer())
             }
         }
@@ -278,12 +297,29 @@ class DesktopCivicApi(private val httpClient: HttpClient) : CivicApi {
     override suspend fun fetchManifesto(manifestoId: String): CandidateManifesto = throw Exception("Not implemented")
     override suspend fun fetchProfile(pubKey: String): ResidentProfile = throw Exception("Not implemented")
     override suspend fun upgradeTier(pubKey: String, proofToken: String, targetTier: VerificationTier): ResidentProfile = throw Exception("Not implemented")
-    override suspend fun fetchDistrict(districtId: String): District = District(districtId, "US", 0, "District $districtId")
+    override suspend fun fetchDistrict(districtId: String): District = District(
+        id = districtId,
+        level = DistrictLevel.FEDERAL_HOUSE,
+        state = "US",
+        districtNumber = 0,
+        name = "District $districtId",
+        displayName = "District $districtId"
+    )
     override suspend fun detectDistrict(latitude: Double, longitude: Double): District = fetchDistrict("us-wa-07")
     override suspend fun refreshDistrictRegistry() {}
     override suspend fun getDistrictFromAddress(address: String): District? = resolveAddress(address).federalDistrict
     override suspend fun verifyVoterRolls(firstName: String, lastName: String, address: String, districtId: String): Boolean = true
-    override suspend fun resolveAddress(address: String): AddressResolution = AddressResolution(address, District("us-wa-07", "WA", 7, "WA District 7"))
+    override suspend fun resolveAddress(address: String): AddressResolution = AddressResolution(
+        address = address,
+        federalDistrict = District(
+            id = "us-wa-07",
+            level = DistrictLevel.FEDERAL_HOUSE,
+            state = "WA",
+            districtNumber = 7,
+            name = "WA District 7",
+            displayName = "WA District 7"
+        )
+    )
 }
 
 class DesktopSessionStorage : SessionStorage {
@@ -291,7 +327,16 @@ class DesktopSessionStorage : SessionStorage {
     override fun saveSession(session: UserSession) { prefs.put("pubKey", session.pubKey); prefs.put("displayName", session.displayName); prefs.put("districtId", session.districtId ?: ""); prefs.put("tier", session.tier.name); prefs.put("privateKey", session.privateKey ?: ""); prefs.flush() }
     override fun getSession(): UserSession? {
         val pk = prefs.get("pubKey", null) ?: return null
-        return UserSession(pk, prefs.get("displayName", ""), prefs.get("districtId", "").ifBlank { null }, tier = VerificationTier.valueOf(prefs.get("tier", "UNVERIFIED")), privateKey = prefs.get("privateKey", ""))
+        val tierString = prefs.get("tier", VerificationTier.OBSERVER.name) ?: VerificationTier.OBSERVER.name
+        val tier = try {
+            VerificationTier.valueOf(tierString)
+        } catch (e: IllegalArgumentException) {
+            when (tierString) {
+                "TIER_2", "TIER_3" -> VerificationTier.VERIFIED
+                else -> VerificationTier.OBSERVER
+            }
+        }
+        return UserSession(pk, prefs.get("displayName", ""), prefs.get("districtId", "").ifBlank { null }, tier = tier, privateKey = prefs.get("privateKey", ""))
     }
     override fun clearSession() { prefs.remove("pubKey"); prefs.remove("displayName"); prefs.remove("districtId"); prefs.remove("tier"); prefs.remove("privateKey"); prefs.flush() }
     override fun savePrivateKeySecurely(key: String) { prefs.put("secure_key", key); prefs.flush() }
@@ -315,5 +360,38 @@ class DesktopAccountRepository : AccountRepository, FileBasedRepository("account
     override suspend fun updateDistrict(username: String, districtId: String) {
         val acc = load(username, UserAccount.serializer()) ?: return
         save(username, acc.copy(districtId = districtId), UserAccount.serializer())
+    }
+}
+
+class DesktopVerificationRequestRepository : VerificationRequestRepository, FileBasedRepository("verification_requests") {
+    private val _updates = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+
+    override fun observeRequestsForDistrict(districtId: String): Flow<List<VerificationRequest>> = _updates.flatMapLatest {
+        flow { 
+            emit(listIds().mapNotNull { load(it, VerificationRequest.serializer()) }.filter { it.districtId == districtId })
+        }
+    }
+
+    override fun observeRequestsForState(stateId: String): Flow<List<VerificationRequest>> = _updates.flatMapLatest {
+        flow { 
+            emit(listIds().mapNotNull { load(it, VerificationRequest.serializer()) }.filter { it.stateId == stateId })
+        }
+    }
+
+    override suspend fun createRequest(request: VerificationRequest): Result<Unit> {
+        save(request.id, request, VerificationRequest.serializer())
+        _updates.emit(Unit)
+        return Result.success(Unit)
+    }
+
+    override suspend fun updateRequestStatus(requestId: String, status: VerificationRequestStatus, handledBy: String): Result<Unit> {
+        val request = load(requestId, VerificationRequest.serializer()) ?: return Result.failure(Exception("Not found"))
+        save(requestId, request.copy(status = status, handledByPubKey = handledBy), VerificationRequest.serializer())
+        _updates.emit(Unit)
+        return Result.success(Unit)
+    }
+
+    override suspend fun getRequest(requestId: String): Result<VerificationRequest> {
+        return load(requestId, VerificationRequest.serializer())?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
     }
 }

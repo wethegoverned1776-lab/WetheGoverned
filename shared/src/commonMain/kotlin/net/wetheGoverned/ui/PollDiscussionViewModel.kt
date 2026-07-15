@@ -12,7 +12,8 @@ data class DiscussionUiState(
     val posts: List<PollPost> = emptyList(),
     val optionLabel: String = "",
     val isLoading: Boolean = false,
-    val showAddDialog: Boolean = false
+    val showAddDialog: Boolean = false,
+    val canComment: Boolean = false,
 )
 
 open class PollDiscussionViewModel(
@@ -37,16 +38,19 @@ open class PollDiscussionViewModel(
 
         repository.observeOptionPosts(pollId, optionId)
             .onEach { posts ->
-                _uiState.update { it.copy(posts = posts) }
+                val canComment = sessionManager.currentSession?.tier == net.wetheGoverned.model.VerificationTier.VERIFIED
+                _uiState.update { it.copy(posts = posts, canComment = canComment) }
             }
             .launchIn(viewModelScope)
     }
 
     fun setShowAddDialog(show: Boolean) {
+        if (show && !_uiState.value.canComment) return
         _uiState.update { it.copy(showAddDialog = show) }
     }
 
     fun createPost(headline: String, content: String) {
+        if (!_uiState.value.canComment) return
         if (headline.isBlank() || content.isBlank()) return
         val pubKey = sessionManager.currentPubKey ?: return
         if (pubKey == "guest_observer_hex") return
@@ -59,6 +63,7 @@ open class PollDiscussionViewModel(
     }
 
     fun vote(postId: String, delta: Int) {
+        if (!_uiState.value.canComment) return
         if (sessionManager.currentPubKey == "guest_observer_hex") return
         viewModelScope.launch {
             repository.voteOnPost(postId, delta)

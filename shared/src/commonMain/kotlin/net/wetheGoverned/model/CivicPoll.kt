@@ -6,7 +6,9 @@ import kotlinx.serialization.Serializable
 data class CivicPoll(
     val id: String,
     val scope: CivicScope,
-    val districtId: String,
+    val districtId: String, // Primary district
+    val targetDistricts: List<String> = emptyList(), // Multi-district support as requested
+    val level: DistrictLevel? = null,
     val localId: String? = null,
     val authorPubKey: String,
     val question: String,

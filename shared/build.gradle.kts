@@ -10,6 +10,7 @@ plugins {
 }
 
 kotlin {
+    applyDefaultHierarchyTemplate()
     androidTarget {
         compilations.all {
             kotlinOptions {
@@ -19,6 +20,16 @@ kotlin {
     }
     
     jvm("desktop")
+
+    wasmJs {
+        moduleName = "shared"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "shared.js"
+            }
+        }
+        binaries.executable()
+    }
 
     iosX64()
     iosArm64()
@@ -36,9 +47,9 @@ kotlin {
     }
     
     sourceSets {
-        val ktorVersion = "2.3.12"
+        val ktorVersion = "3.0.0-rc-1"
         val jupnpVersion = "3.0.4"
-        val lifecycleVersion = "2.8.2"
+        val lifecycleVersion = "2.8.0"
         val navigationVersion = "2.8.0-alpha10"
         
         val commonMain by getting {
@@ -56,9 +67,7 @@ kotlin {
                 // Jetpack Multiplatform Lifecycle
                 api("androidx.lifecycle:lifecycle-viewmodel:$lifecycleVersion")
 
-                // Ktor Client
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("io.ktor:ktor-client-websockets:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 
@@ -66,9 +75,6 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
                 implementation("javax.inject:javax.inject:1")
-                
-                // QR Code Generation
-                implementation("io.github.g0dkar:qrcode-kotlin:4.1.1")
             }
         }
 
@@ -84,6 +90,7 @@ kotlin {
                 api("androidx.appcompat:appcompat:1.7.0")
                 api("androidx.activity:activity-compose:1.9.0")
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+                implementation("io.ktor:ktor-client-websockets:$ktorVersion")
                 implementation("com.google.accompanist:accompanist-permissions:0.34.0")
                 
                 // SMTP support for Android
@@ -96,19 +103,20 @@ kotlin {
                 implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
                 implementation("org.web3j:core:4.11.0")
                 api("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
+                
+                // QR Code Generation
+                implementation("io.github.g0dkar:qrcode-kotlin:4.1.1")
             }
         }
 
-        val iosMain by creating {
-            dependsOn(commonMain)
+        val iosMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+                implementation("io.ktor:ktor-client-websockets:$ktorVersion")
+                // QR Code Generation
+                implementation("io.github.g0dkar:qrcode-kotlin:4.1.1")
             }
         }
-        
-        val iosX64Main by getting { dependsOn(iosMain) }
-        val iosArm64Main by getting { dependsOn(iosMain) }
-        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
         
         val desktopMain by getting {
             dependencies {
@@ -117,6 +125,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.1")
                 implementation("io.ktor:ktor-server-html-builder:$ktorVersion")
                 implementation("io.ktor:ktor-client-cio:$ktorVersion")
+                implementation("io.ktor:ktor-client-websockets:$ktorVersion")
                 implementation("ch.qos.logback:logback-classic:1.5.6")
                 
                 implementation("org.jupnp:org.jupnp:$jupnpVersion")
@@ -132,6 +141,21 @@ kotlin {
                 implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
                 implementation("org.web3j:core:4.11.0")
                 api("androidx.lifecycle:lifecycle-runtime-compose:$lifecycleVersion")
+                // QR Code Generation
+                implementation("io.github.g0dkar:qrcode-kotlin:4.1.1")
+            }
+        }
+
+        val wasmJsMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                // Wasm specific Ktor
+                implementation("io.ktor:ktor-client-js:$ktorVersion")
+                implementation("io.ktor:ktor-client-websockets:$ktorVersion")
             }
         }
     }

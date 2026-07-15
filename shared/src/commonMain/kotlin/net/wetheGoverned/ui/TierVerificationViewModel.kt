@@ -123,11 +123,11 @@ open class TierVerificationViewModel(
 
         residentRepository.upgradeTierFull(
             pubKey = pubKey,
-            newTier = VerificationTier.TIER_2,
+            newTier = VerificationTier.VERIFIED,
             fingerprint = fingerprint,
             verifiedBy = vouchedBy
         ).onSuccess {
-            sessionManager.upgradeTier(VerificationTier.TIER_2)
+            sessionManager.upgradeTier(VerificationTier.VERIFIED)
             _uiState.update { it.copy(state = VerificationState.SUCCESS) }
         }.onFailure { e ->
             _uiState.update { it.copy(state = VerificationState.FAILED, error = "Finalization Error: ${e.message}") }

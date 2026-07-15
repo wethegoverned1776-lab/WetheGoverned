@@ -52,6 +52,7 @@ object CivicDatabaseModule {
     @Provides @Singleton fun providePendingDao(db: CivicDatabase)   = db.pendingEventDao()
     @Provides @Singleton fun provideAccountDao(db: CivicDatabase)   = db.accountDao()
     @Provides @Singleton fun provideCommunityDao(db: CivicDatabase) = db.communityPostDao()
+    @Provides @Singleton fun provideVerificationRequestDao(db: CivicDatabase) = db.verificationRequestDao()
 }
 
 @Module
@@ -128,6 +129,7 @@ interface CivicRepositoryBindingModule {
     @Binds @Singleton fun bindVoteRepository(impl: VoteRepositoryImpl): VoteRepository
     @Binds @Singleton fun bindDistrictRepository(impl: DistrictRepositoryImpl): DistrictRepository
     @Binds @Singleton fun bindCommunityRepository(impl: CommunityRepositoryImpl): CommunityRepository
+    @Binds @Singleton fun bindVerificationRequestRepository(impl: VerificationRequestRepositoryImpl): VerificationRequestRepository
     @Binds @Singleton fun bindDispatcherProvider(impl: DefaultDispatcherProvider): DispatcherProvider
     @Binds @Singleton fun bindZkProver(impl: NativeZkProver): ZkProver
     @Binds @Singleton fun bindPendingEventQueue(impl: AndroidPendingEventQueue): PendingEventQueue

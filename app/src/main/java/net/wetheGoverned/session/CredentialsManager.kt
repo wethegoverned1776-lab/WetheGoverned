@@ -45,12 +45,23 @@ class CredentialsManager @Inject constructor(
 
     override fun getSession(): UserSession? {
         val pubKey = prefs.getString("pubKey", null) ?: return null
+        val tierString = prefs.getString("tier", VerificationTier.OBSERVER.name) ?: VerificationTier.OBSERVER.name
+        val tier = try {
+            VerificationTier.valueOf(tierString)
+        } catch (e: IllegalArgumentException) {
+            // Migration for renamed/removed tiers
+            when (tierString) {
+                "TIER_2", "TIER_3" -> VerificationTier.VERIFIED
+                else -> VerificationTier.OBSERVER
+            }
+        }
+
         return UserSession(
             pubKey = pubKey,
             displayName = prefs.getString("displayName", "") ?: "",
             districtId = prefs.getString("districtId", null),
             localId = prefs.getString("localId", null),
-            tier = VerificationTier.valueOf(prefs.getString("tier", VerificationTier.UNVERIFIED.name)!!),
+            tier = tier,
             privateKey = prefs.getString("privateKey", null)
         )
     }

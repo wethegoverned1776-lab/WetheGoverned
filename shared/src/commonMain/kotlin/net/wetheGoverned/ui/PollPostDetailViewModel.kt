@@ -38,10 +38,10 @@ open class PollPostDetailViewModel(
     fun submitReply(content: String) {
         val parentPost = _uiState.value.post ?: return
         if (content.isBlank()) return
-        val pubKey = sessionManager.currentPubKey ?: return
-        if (pubKey == "guest_observer_hex") return
+        val session = sessionManager.currentSession ?: return
+        if (session.tier != net.wetheGoverned.model.VerificationTier.VERIFIED) return
         
-        val author = pubKey.take(12)
+        val author = session.pubKey.take(12)
         
         viewModelScope.launch {
             repository.createPost(
@@ -55,7 +55,7 @@ open class PollPostDetailViewModel(
     }
 
     fun voteOnReply(postId: String, delta: Int) {
-        if (sessionManager.currentPubKey == "guest_observer_hex") return
+        if (sessionManager.currentSession?.tier != net.wetheGoverned.model.VerificationTier.VERIFIED) return
         viewModelScope.launch {
             repository.voteOnPost(postId, delta)
         }

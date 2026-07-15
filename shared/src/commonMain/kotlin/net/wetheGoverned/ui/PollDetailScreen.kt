@@ -1,5 +1,6 @@
 package net.wetheGoverned.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,10 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import net.wetheGoverned.model.CivicPoll
-import net.wetheGoverned.model.PollOption
-import net.wetheGoverned.model.PollStatus
-import net.wetheGoverned.model.PollPost
+import net.wetheGoverned.model.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,11 +86,12 @@ private fun PollDetailContent(
             Text(poll.question, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         }
 
-        if (poll.scope == net.wetheGoverned.model.CivicScope.STATE || poll.scope == net.wetheGoverned.model.CivicScope.FEDERAL) {
+        if (poll.scope == PollScope.STATE || poll.scope == PollScope.FEDERAL) {
             item {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f)),
-                    modifier = Modifier.fillMaxWidth()
+                OutlinedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                    colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFF7F9F9))
                 ) {
                     Column(Modifier.padding(12.dp)) {
                         Text(
@@ -191,9 +190,10 @@ private fun PollDetailContent(
 
 @Composable
 fun DiscussionItem(post: PollPost) {
-    Card(
+    OutlinedCard(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
     ) {
         Column(Modifier.padding(12.dp)) {
             Text(post.authorName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.labelLarge)
@@ -216,7 +216,7 @@ private fun PollOptionRow(
     onSelect: () -> Unit,
     onDiscussionClick: () -> Unit
 ) {
-    Card(
+    OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
             .selectable(
@@ -224,15 +224,15 @@ private fun PollOptionRow(
                 onClick = onSelect,
                 role = Role.RadioButton,
             ),
-        border = if (isSelected || isVoted)
-            CardDefaults.outlinedCardBorder().copy(
-                width = 2.dp,
-            ) else null,
-        colors = CardDefaults.cardColors(
+        border = BorderStroke(
+            width = if (isSelected || isVoted) 2.dp else 1.dp,
+            color = if (isSelected || isVoted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+        ),
+        colors = CardDefaults.outlinedCardColors(
             containerColor = when {
-                isVoted    -> MaterialTheme.colorScheme.primaryContainer
-                isSelected -> MaterialTheme.colorScheme.secondaryContainer
-                else       -> MaterialTheme.colorScheme.surface
+                isVoted    -> Color(0xFFF7F9F9)
+                isSelected -> Color(0xFFF7F9F9)
+                else       -> Color.White
             },
         ),
     ) {

@@ -36,19 +36,17 @@
     <string name="poll_closed_badge">Closed</string>
     <string name="poll_live_badge">LIVE</string>
     <string name="poll_submitting">Submitting…</string>
-    <string name="poll_tier_gate_body">Verify your district address in your profile to participate in polls.</string>
-    <string name="poll_tier_gate_title">Tier 2 verification required to vote</string>
+    <string name="poll_tier_gate_body">Get verified in your profile to participate in polls.</string>
+    <string name="poll_tier_gate_title">Verification required to vote</string>
     <string name="poll_votes_count">%1$d votes</string>
     <string name="scorecard_category_breakdown">Category Breakdown</string>
     <string name="scorecard_official_label">Official</string>
     <string name="scorecard_overall">Overall Score</string>
     <string name="scorecard_resident_label">Resident</string>
     <string name="scorecard_title">Representative Scorecard</string>
-    <string name="tier_1">Tier 1 – Email Verified</string>
-    <string name="tier_2">Tier 2 – Address Verified</string>
-    <string name="tier_3">Tier 3 – Identity Verified</string>
-    <string name="tier_unverified">Unverified</string>
-    <string name="tier_upgrade_cta">Increase Your Impact</string>
+    <string name="tier_observer">Observer</string>
+    <string name="tier_upgrade_cta">Get Verified</string>
+    <string name="tier_verified">Verified Resident</string>
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         
         <item name="windowSplashScreenBackground">@color/white</item>

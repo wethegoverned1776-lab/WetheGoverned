@@ -1,5 +1,6 @@
 package net.wetheGoverned.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.icons.Icons
@@ -30,6 +31,7 @@ fun ScorecardScreen(
                     CivicScope.STATE -> 1
                     CivicScope.DISTRICT -> 2
                     CivicScope.LOCAL -> 3
+                    else -> 0
                 },
                 edgePadding = 16.dp
             ) {
@@ -82,10 +84,10 @@ private fun ScorecardContent(scorecard: RepresentativeScorecard) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Card(
+            OutlinedCard(
                 modifier = Modifier.fillMaxWidth(),
-                colors   = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
             ) {
                 Row(
                     Modifier.padding(16.dp),
@@ -94,20 +96,20 @@ private fun ScorecardContent(scorecard: RepresentativeScorecard) {
                 ) {
                     Surface(
                         shape    = MaterialTheme.shapes.extraLarge,
-                        color    = MaterialTheme.colorScheme.primary,
+                        color    = Color.Black,
                         modifier = Modifier.size(56.dp),
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Text(
                                 scorecard.name.firstOrNull()?.uppercase() ?: "R",
                                 style = MaterialTheme.typography.headlineSmall,
-                                color = MaterialTheme.colorScheme.onPrimary,
+                                color = Color.White,
                             )
                         }
                     }
                     Column {
                         Text(scorecard.name,  style = MaterialTheme.typography.titleLarge)
-                        Text(scorecard.party, style = MaterialTheme.typography.bodySmall)
+                        Text(scorecard.party, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
                         Text(scorecard.districtId.uppercase(),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary)
@@ -137,9 +139,10 @@ private fun ScorecardContent(scorecard: RepresentativeScorecard) {
 private fun OverallScoreCard(score: Int) {
     val grade = gradeFor(score)
     val color = gradeColor(grade)
-    Card(
+    OutlinedCard(
         modifier = Modifier.fillMaxWidth(),
-        colors   = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(containerColor = color.copy(alpha = 0.05f)),
     ) {
         Column(Modifier.padding(16.dp)) {
             Row(
@@ -174,7 +177,11 @@ private fun OverallScoreCard(score: Int) {
 
 @Composable
 private fun CategoryCard(cat: ScorecardCategory) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    OutlinedCard(
+        modifier = Modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.White)
+    ) {
         Column(Modifier.padding(14.dp)) {
             Row(
                 Modifier.fillMaxWidth(),
