@@ -22,7 +22,6 @@ import net.wetheGoverned.data.*
 import net.wetheGoverned.repository.*
 import net.wetheGoverned.session.SessionManager
 import net.wetheGoverned.remote.api.WtgBackendApi
-import net.wetheGoverned.ui.location.LocationHelper
 import java.io.File
 import androidx.compose.ui.res.painterResource
 
@@ -38,6 +37,7 @@ fun main() {
         val manifestoRepository = remember { DesktopManifestoRepository() }
         val scorecardRepository = remember { DesktopScorecardRepository() }
         val communityRepository = remember { DesktopCommunityRepository() }
+        val districtRepository = remember { DesktopDistrictRepository() } // Added
         val accountRepository = remember { DesktopAccountRepository() }
         val requestRepository = remember { DesktopVerificationRequestRepository() }
         val sessionStorage = remember { DesktopSessionStorage() }
@@ -95,6 +95,7 @@ fun main() {
                     residentRepository = residentRepository,
                     manifestoRepository = manifestoRepository,
                     scorecardRepository = scorecardRepository,
+                    districtRepository = districtRepository, // Added
                     communityRepository = communityRepository,
                     requestRepository = requestRepository,
                     sessionManager = sessionManager,
