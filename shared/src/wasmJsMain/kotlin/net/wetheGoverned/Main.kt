@@ -1,7 +1,8 @@
 package net.wetheGoverned
 
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.window.CanvasBasedWindow
+import androidx.compose.ui.window.ComposeViewport
+import kotlinx.browser.document
 import net.wetheGoverned.App
 import net.wetheGoverned.repository.*
 import net.wetheGoverned.session.SessionManager
@@ -37,7 +38,7 @@ fun main() {
     val relayUrls = listOf("wss://nos.lol", "wss://relay.damus.io")
     val relayManager = NostrRelayManager(relayUrls)
 
-    CanvasBasedWindow("WeTheGoverned") {
+    ComposeViewport(document.getElementById("compose-target")!!) {
         App(
             pollRepository = pollRepository,
             accountRepository = accountRepository,

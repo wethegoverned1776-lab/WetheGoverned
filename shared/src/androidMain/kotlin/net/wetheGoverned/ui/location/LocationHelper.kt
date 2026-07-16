@@ -1,9 +1,12 @@
 package net.wetheGoverned.ui.location
 
-import android.content.Context
-import net.wetheGoverned.data.MeshDiscoveryManager
+import android.annotation.SuppressLint
+import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.tasks.await
 
-actual class LocationHelper(private val context: Context) {
+actual class LocationHelper() {
+    // In Android, we'll need a way to provide context. 
+    // For now, returning null to satisfy the interface until we add context injection.
     actual suspend fun getCurrentLocation(): Location? = null
     actual suspend fun getLastKnownLocation(): Location? = null
 }
