@@ -11,7 +11,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #000; /* Dark background while loading */
+            background-color: #000;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -27,24 +27,12 @@
 <body>
     <div id="loading-text">Loading WeTheGoverned...</div>
     <div id="compose-target"></div>
-
     <script>
-        // Helpful error logging for GitHub Pages
         window.onerror = function(msg, url, line, col, error) {
             document.getElementById('loading-text').innerText = "Error: " + msg + "\nAt: " + url + ":" + line;
             return false;
         };
     </script>
-
-    <!-- Use relative path for GitHub Pages subfolder compatibility -->
     <script src="./shared.js"></script>
-
-    <script>
-        // Remove loading text once Wasm starts (usually takes a few seconds)
-        setTimeout(() => {
-            const loading = document.getElementById('loading-text');
-            if (loading) loading.style.display = 'none';
-        }, 5000);
-    </script>
 </body>
 </html>
