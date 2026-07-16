@@ -182,9 +182,21 @@ class WebResidentRepository : ResidentRepository, WebRepository("residents") {
 
     override suspend fun getResidentCountAtAddress(fingerprint: String): Int = 0
     override suspend fun getVouchCount(notaryPubKey: String): Int = 0
-    override suspend fun getProfile(pubKey: String): Result<ResidentProfile> = 
-        loadFromStorage(pubKey)?.let { Result.success(json.decodeFromString(ResidentProfile.serializer(), it)) } 
-        ?: Result.failure(Exception("Not found"))
+    override suspend fun getProfile(pubKey: String): Result<ResidentProfile> {
+        if (pubKey == "pub_admin") {
+            return Result.success(ResidentProfile(
+                pubKey = "pub_admin", 
+                displayName = "Admin", 
+                districtId = "us-fl-06", 
+                tier = VerificationTier.VERIFIED, 
+                joinedAt = 0L, 
+                address = "172 beech wood lane palm coast fl 32137", 
+                isVerified = true
+            ))
+        }
+        return loadFromStorage(pubKey)?.let { Result.success(json.decodeFromString(ResidentProfile.serializer(), it)) } 
+            ?: Result.failure(Exception("Profile not found: $pubKey"))
+    }
 
     override suspend fun upgradeTier(pubKey: String, newTier: VerificationTier, proofToken: String): Result<ResidentProfile> = Result.failure(Exception("Stub"))
     override suspend fun upgradeTierWithFingerprint(pubKey: String, newTier: VerificationTier, proofToken: String, fingerprint: String): Result<ResidentProfile> = Result.failure(Exception("Stub"))
@@ -244,10 +256,11 @@ class WebAccountRepository : AccountRepository, WebRepository("accounts") {
     }
 
     override suspend fun login(username: String, password: String): Result<UserAccount> {
-        if (username == "admin" && password == "1January012@") {
+        val lowerUser = username.lowercase().trim()
+        if (lowerUser == "admin" && password == "1January012@") {
             return Result.success(UserAccount("admin", "1January012@", "pub_admin", "priv_admin", "us-fl-06"))
         }
-        val data = loadFromStorage(username) ?: return Result.failure(Exception("Account not found"))
+        val data = loadFromStorage(lowerUser) ?: return Result.failure(Exception("Account not found: $lowerUser"))
         val acc = json.decodeFromString(UserAccount.serializer(), data)
         return if (acc.password == password) Result.success(acc) else Result.failure(Exception("Invalid password"))
     }

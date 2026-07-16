@@ -135,10 +135,10 @@ private fun PollDetailContent(
                 isVoted = option.id == poll.residentVoteOption,
                 isSelected = option.id == selectedOption,
                 showResults = poll.residentVoteOption != null || poll.status == PollStatus.CLOSED,
-                canVote = canVote && poll.status == PollStatus.ACTIVE,
+                canVote = canVote,
                 discussionCount = optionDiscussions.size,
                 displayPercentage = displayPercentage,
-                onSelect = { onSelectOption(option.id) },
+                onSelect = { if (canVote && poll.status == PollStatus.ACTIVE && poll.residentVoteOption == null) onSelectOption(option.id) },
                 onDiscussionClick = { onNavigateToDiscussion(option.id) }
             )
         }
@@ -219,10 +219,14 @@ private fun PollOptionRow(
     OutlinedCard(
         modifier = Modifier
             .fillMaxWidth()
-            .selectable(
-                selected = isSelected,
-                onClick = onSelect,
-                role = Role.RadioButton,
+            .then(
+                if (canVote && !showResults) {
+                    Modifier.selectable(
+                        selected = isSelected,
+                        onClick = onSelect,
+                        role = Role.RadioButton,
+                    )
+                } else Modifier
             ),
         border = BorderStroke(
             width = if (isSelected || isVoted) 2.dp else 1.dp,

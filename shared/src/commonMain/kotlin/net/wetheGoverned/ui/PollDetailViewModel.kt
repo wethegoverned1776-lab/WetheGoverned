@@ -15,7 +15,7 @@ data class PollDetailUiState(
     val isLoading: Boolean = true,
     val isSubmitting: Boolean = false,
     val pendingSelection: String? = null,
-    val canVote: Boolean = true, 
+    val canVote: Boolean = false,
     val isReadOnly: Boolean = false,
     val error: String? = null,
 )
@@ -66,7 +66,7 @@ open class PollDetailViewModel(
 
     fun onSubmitVote() {
         val pubKey = sessionManager.currentPubKey ?: return
-        if (_uiState.value.isReadOnly || pubKey == "guest_observer_hex") return
+        if (_uiState.value.isReadOnly || pubKey == "guest_observer_hex" || !_uiState.value.canVote) return
         
         val poll = _uiState.value.poll ?: return
         val option = _uiState.value.pendingSelection ?: return
