@@ -184,6 +184,7 @@ export async function instantiate(imports={}, runInitializer=true) {
         'org.w3c.dom.__convertKotlinClosureToJsClosure_((Double)->Unit)' : (f) => getCachedJsObject(f, (p0) => wasmExports['__callFunction_((Double)->Unit)'](f, p0)),
         'org.w3c.dom.matchMedia_$external_fun' : (_this, p0) => _this.matchMedia(p0),
         'org.w3c.dom.clearTimeout_$external_fun' : (_this, p0, isDefault0) => _this.clearTimeout(isDefault0 ? undefined : p0, ),
+        'org.w3c.dom.localStorage_$external_prop_getter' : (_this) => _this.localStorage,
         'org.w3c.dom.body_$external_prop_getter' : (_this) => _this.body,
         'org.w3c.dom.createElement_$external_fun' : (_this, p0, p1, isDefault0) => _this.createElement(p0, isDefault0 ? undefined : p1, ),
         'org.w3c.dom.hasFocus_$external_fun' : (_this, ) => _this.hasFocus(),
@@ -195,6 +196,11 @@ export async function instantiate(imports={}, runInitializer=true) {
         'org.w3c.dom.matches_$external_prop_getter' : (_this) => _this.matches,
         'org.w3c.dom.addListener_$external_fun' : (_this, p0) => _this.addListener(p0),
         'org.w3c.dom.data_$external_prop_getter' : (_this) => _this.data,
+        'org.w3c.dom.length_$external_prop_getter_1' : (_this) => _this.length,
+        'org.w3c.dom.key_$external_fun' : (_this, p0) => _this.key(p0),
+        'org.w3c.dom.removeItem_$external_fun' : (_this, p0) => _this.removeItem(p0),
+        'org.w3c.dom.getItem_$external_fun' : (_this, p0) => _this.getItem(p0),
+        'org.w3c.dom.setItem_$external_fun' : (_this, p0, p1) => _this.setItem(p0, p1),
         'org.w3c.dom.appendChild_$external_fun' : (_this, p0) => _this.appendChild(p0),
         'org.w3c.dom.focus_$external_fun' : (_this, ) => _this.focus(),
         'org.w3c.dom.blur_$external_fun' : (_this, ) => _this.blur(),
@@ -457,10 +463,7 @@ export async function instantiate(imports={}, runInitializer=true) {
         'io.ktor.client.utils.makeJsNew' : (ctor) => new ctor(),
         'io.ktor.client.utils.makeJsCall' : (func, arg) => func.apply(null, arg),
         'io.ktor.client.utils.setObjectField' : (obj, name, value) => obj[name]=value,
-        'io.ktor.client.utils.toJsArrayImpl' : (x) => new Uint8Array(x),
-        'net.wetheGoverned.repository.localStorageGet' : (key) => window.localStorage.getItem(key),
-        'net.wetheGoverned.repository.localStorageSet' : (key, value) => window.localStorage.setItem(key, value),
-        'net.wetheGoverned.repository.localStorageRemove' : (key) => window.localStorage.removeItem(key)
+        'io.ktor.client.utils.toJsArrayImpl' : (x) => new Uint8Array(x)
     }
     
     // Placed here to give access to it from externals (js_code)

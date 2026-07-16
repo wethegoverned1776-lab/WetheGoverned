@@ -6,7 +6,6 @@ import kotlinx.browser.document
 import net.wetheGoverned.App
 import net.wetheGoverned.repository.*
 import net.wetheGoverned.session.SessionManager
-import net.wetheGoverned.ui.location.LocationHelper
 import net.wetheGoverned.data.NostrRelayManager
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*

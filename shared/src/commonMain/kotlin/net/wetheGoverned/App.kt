@@ -20,7 +20,6 @@ import net.wetheGoverned.ui.*
 import net.wetheGoverned.ui.home.HomeScreen
 import net.wetheGoverned.remote.api.CivicApi
 import net.wetheGoverned.remote.api.WtgBackendApi
-import net.wetheGoverned.ui.location.LocationHelper
 import net.wetheGoverned.ui.components.USFlagBackground
 import net.wetheGoverned.ui.WelcomeScreen
 import androidx.compose.foundation.layout.Box

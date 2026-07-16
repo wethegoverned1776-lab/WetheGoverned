@@ -10,7 +10,7 @@ import net.wetheGoverned.model.*
 import net.wetheGoverned.remote.api.CivicApi
 import net.wetheGoverned.remote.api.WtgBackendApi
 import net.wetheGoverned.session.SessionManager
-import net.wetheGoverned.ui.location.LocationHelper
+import net.wetheGoverned.LocationHelper
 
 enum class OnboardingStep { WELCOME, KEY_SETUP, COMPLETE }
 
