@@ -25,6 +25,7 @@ fun VerifiedNetworkApp() {
         residentRepository = entryPoint.residentRepository(),
         manifestoRepository = entryPoint.manifestoRepository(),
         scorecardRepository = entryPoint.scorecardRepository(),
+        districtRepository = entryPoint.districtRepository(),
         communityRepository = entryPoint.communityRepository(),
         requestRepository = entryPoint.requestRepository(),
         sessionManager = entryPoint.sessionManager(),

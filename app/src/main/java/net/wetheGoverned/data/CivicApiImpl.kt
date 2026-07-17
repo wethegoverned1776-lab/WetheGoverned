@@ -17,10 +17,49 @@ class CivicApiImpl @Inject constructor() : CivicApi {
     override suspend fun fetchManifesto(manifestoId: String): CandidateManifesto = throw Exception("Stub")
     override suspend fun fetchProfile(pubKey: String): ResidentProfile = throw Exception("Stub")
     override suspend fun upgradeTier(pubKey: String, proofToken: String, targetTier: VerificationTier): ResidentProfile = throw Exception("Stub")
-    override suspend fun fetchDistrict(districtId: String): District = District(districtId, DistrictLevel.FEDERAL_HOUSE, "US", 0, "District $districtId", "District $districtId")
-    override suspend fun detectDistrict(latitude: Double, longitude: Double): District = fetchDistrict("us-wa-07")
+    
+    override suspend fun fetchDistrict(districtId: String): District = District(
+        id = districtId,
+        level = DistrictLevel.FEDERAL_HOUSE,
+        state = "US",
+        districtNumber = 0,
+        name = "District $districtId",
+        displayName = "District $districtId"
+    )
+
+    override suspend fun detectDistrict(latitude: Double, longitude: Double): District = fetchDistrict("us-fl-06")
     override suspend fun refreshDistrictRegistry() {}
-    override suspend fun getDistrictFromAddress(address: String): District? = null
+    
+    override suspend fun getDistrictFromAddress(address: String): District? = resolveAddress(address).federalDistrict
+    
     override suspend fun verifyVoterRolls(firstName: String, lastName: String, address: String, districtId: String): Boolean = true
-    override suspend fun resolveAddress(address: String): AddressResolution = AddressResolution(address, District("us-wa-07", DistrictLevel.FEDERAL_HOUSE, "WA", 7, "WA District 7", "WA District 7"))
+    
+    override suspend fun resolveAddress(address: String): AddressResolution = AddressResolution(
+        address = address,
+        federalDistrict = District(
+            id = "us-fl-06",
+            level = DistrictLevel.FEDERAL_HOUSE,
+            state = "FL",
+            districtNumber = 6,
+            name = "Florida's 6th District",
+            displayName = "FL-06"
+        ),
+        stateUpperDistrict = District(
+            id = "us-fl-senate-07",
+            level = DistrictLevel.STATE_SENATE,
+            state = "FL",
+            districtNumber = 7,
+            name = "Florida State Senate District 7",
+            displayName = "FL State Senate 7"
+        ),
+        stateLowerDistrict = District(
+            id = "us-fl-house-19",
+            level = DistrictLevel.STATE_HOUSE,
+            state = "FL",
+            districtNumber = 19,
+            name = "Florida State House District 19",
+            displayName = "FL State House 19"
+        ),
+        localJurisdiction = "flagler-county"
+    )
 }

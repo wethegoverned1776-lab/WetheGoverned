@@ -5,8 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import net.wetheGoverned.model.CivicPoll
-import net.wetheGoverned.model.PollScope
+import net.wetheGoverned.model.*
 import net.wetheGoverned.repository.PollRepository
 import net.wetheGoverned.repository.ResidentRepository
 import net.wetheGoverned.session.SessionManager
@@ -16,6 +15,7 @@ data class ElectedOfficial(
     val name: String,
     val party: String,
     val nextElection: String,
+    val districtId: String? = null,
     val photoUrl: String? = null
 )
 
@@ -28,7 +28,13 @@ data class HomeUiState(
     val countyId: String? = null,
     val cityId: String? = null,
     val schoolBoardId: String? = null,
-    val localId: String? = null, // Compatibility with existing UI
+    val federalHouseName: String = "US House District 6",
+    val stateSenateName: String = "State Senate District 7",
+    val stateHouseName: String = "State House District 19",
+    val countyName: String = "Flagler County",
+    val cityName: String = "Palm Coast",
+    val schoolBoardName: String = "Flagler School Board",
+    val localId: String? = null,
     val districtDisplayName: String = "No District Assigned",
     val username: String? = null,
     val polls: List<CivicPoll> = emptyList(),
@@ -39,8 +45,8 @@ data class HomeUiState(
     val selectedScope: PollScope = PollScope.DASHBOARD,
     val isOtherDistrict: Boolean = false,
     val isLoading: Boolean = false,
-    val isSyncing: Boolean = false, // UX: National Scale Feedback
-    val verificationTier: net.wetheGoverned.model.VerificationTier = net.wetheGoverned.model.VerificationTier.OBSERVER,
+    val isSyncing: Boolean = false,
+    val verificationTier: VerificationTier = VerificationTier.OBSERVER,
     val districtsActive: Int = 0,
     val pollsVoted: Int = 0,
     val error: String? = null,
@@ -75,18 +81,17 @@ open class HomeViewModel(
     fun refreshSession() {
         val session = sessionManager.currentSession
         val fedHouseId = session?.districtId
-        val stateId = fedHouseId?.substringBeforeLast('-') 
+        val stateId = fedHouseId?.substringBeforeLast('-', "us") 
         val isGuest = session?.pubKey == "guest_observer_hex"
 
-        // Mock Elected Officials for the Dashboard as requested by user
         val mockOfficials = if (fedHouseId != null) {
             listOf(
-                ElectedOfficial("U.S. House", "Randy Fine", "Republican", "Nov 2024"),
-                ElectedOfficial("State Senate", "Tom Leek", "Republican", "Nov 2024"),
-                ElectedOfficial("State House", "Sam Greco", "Republican", "Nov 2024"),
-                ElectedOfficial("County Commissioner", "John Doe", "Non-Partisan", "Nov 2026"),
-                ElectedOfficial("City Council", "Jane Smith", "Non-Partisan", "Nov 2025"),
-                ElectedOfficial("School Board", "District Z Rep", "Non-Partisan", "Nov 2024")
+                ElectedOfficial("U.S. House (FL-06)", "Randy Fine", "Republican", "Nov 2024", fedHouseId),
+                ElectedOfficial("State Senate (Dist 7)", "Tom Leek", "Republican", "Nov 2024", session.stateUpperId),
+                ElectedOfficial("State House (Dist 19)", "Sam Greco", "Republican", "Nov 2024", session.stateLowerId),
+                ElectedOfficial("County Commissioner", "John Doe", "Non-Partisan", "Nov 2026", session.localId),
+                ElectedOfficial("City Council", "Jane Smith", "Non-Partisan", "Nov 2025", session.cityId),
+                ElectedOfficial("School Board", "District Z Rep", "Non-Partisan", "Nov 2024", session.schoolBoardId)
             )
         } else emptyList()
 
@@ -100,14 +105,14 @@ open class HomeViewModel(
                 stateHouseId = session?.stateLowerId,
                 countyId = session?.localId,
                 localId = session?.localId,
-                cityId = null,
-                schoolBoardId = null,
+                cityId = session?.cityId,
+                schoolBoardId = session?.schoolBoardId,
                 districtDisplayName = if (fedHouseId == null) "Select District" else "District $fedHouseId",
-                isOtherDistrict = isGuest || session?.tier == net.wetheGoverned.model.VerificationTier.OBSERVER,
-                verificationTier = session?.tier ?: net.wetheGoverned.model.VerificationTier.OBSERVER,
+                isOtherDistrict = isGuest || session?.tier == VerificationTier.OBSERVER,
+                verificationTier = session?.tier ?: VerificationTier.OBSERVER,
                 electedOfficials = mockOfficials,
                 districtsActive = if (fedHouseId != null) 6 else 0,
-                pollsVoted = 12 // Mock data
+                pollsVoted = 12
             )
         }
         observePolls()
@@ -154,31 +159,55 @@ open class HomeViewModel(
             }
         }
 
+        if (currentScope == PollScope.REPRESENTATIVES) {
+            _uiState.update { it.copy(filteredPolls = emptyList(), groupedPolls = emptyMap()) }
+            return
+        }
+
         val scopeFiltered = when (currentScope) {
-            PollScope.DASHBOARD -> searchFiltered // Dashboard shows everything relevant
-            PollScope.FEDERAL -> searchFiltered.filter { it.scope == PollScope.FEDERAL }
-            PollScope.STATE -> searchFiltered.filter { it.scope == PollScope.STATE }
-            PollScope.DISTRICT -> searchFiltered.filter { it.scope == PollScope.DISTRICT }
-            PollScope.LOCAL -> searchFiltered.filter { it.scope == PollScope.LOCAL }
-            PollScope.ALL_POLLS -> searchFiltered
-            PollScope.REPRESENTATIVES -> searchFiltered.filter { it.scope == PollScope.REPRESENTATIVES }
-            PollScope.RESULTS -> searchFiltered.filter { it.scope == PollScope.RESULTS }
-        }
-
-        val grouped = scopeFiltered.groupBy { poll ->
-            when {
-                poll.scope == PollScope.FEDERAL -> "Federal Governance"
-                poll.scope == PollScope.STATE && poll.districtId == state.stateId -> "State of ${state.stateId}"
-                poll.scope == PollScope.STATE && poll.districtId == state.stateSenateId -> "State Senate"
-                poll.scope == PollScope.STATE && poll.districtId == state.stateHouseId -> "State House"
-                poll.scope == PollScope.DISTRICT -> "District Governance"
-                poll.scope == PollScope.LOCAL && poll.districtId == state.federalHouseId -> "Federal District ${state.federalHouseId}"
-                poll.scope == PollScope.LOCAL && poll.districtId == state.countyId -> "County"
-                else -> "${poll.scope} Governance"
+            PollScope.DASHBOARD -> searchFiltered
+            PollScope.FEDERAL -> searchFiltered.filter { 
+                it.scope == PollScope.FEDERAL || it.districtId == state.federalHouseId 
             }
+            PollScope.STATE -> searchFiltered.filter { 
+                it.scope == PollScope.STATE || it.districtId == state.stateSenateId || it.districtId == state.stateHouseId
+            }
+            PollScope.DISTRICT -> searchFiltered.filter { it.scope == PollScope.DISTRICT }
+            PollScope.LOCAL -> searchFiltered.filter { 
+                it.scope == PollScope.LOCAL || it.districtId == state.countyId || it.districtId == state.cityId || it.districtId == state.schoolBoardId
+            }
+            PollScope.ALL_POLLS -> searchFiltered
+            PollScope.RESULTS -> searchFiltered.filter { it.status == PollStatus.CLOSED }
+            else -> searchFiltered
         }
 
-        _uiState.update { it.copy(filteredPolls = scopeFiltered, groupedPolls = grouped) }
+        val hierarchy = linkedMapOf(
+            "Federal Governance" to mutableListOf<CivicPoll>(),
+            "State Governance" to mutableListOf<CivicPoll>(),
+            state.stateSenateName to mutableListOf<CivicPoll>(),
+            state.stateHouseName to mutableListOf<CivicPoll>(),
+            state.countyName to mutableListOf<CivicPoll>(),
+            state.cityName to mutableListOf<CivicPoll>(),
+            state.schoolBoardName to mutableListOf<CivicPoll>(),
+            "Other Districts" to mutableListOf<CivicPoll>()
+        )
+
+        scopeFiltered.forEach { poll ->
+            val key = when {
+                poll.scope == PollScope.FEDERAL || poll.districtId == state.federalHouseId -> "Federal Governance"
+                poll.scope == PollScope.STATE && poll.districtId == state.stateId -> "State Governance"
+                poll.districtId == state.stateSenateId -> state.stateSenateName
+                poll.districtId == state.stateHouseId -> state.stateHouseName
+                poll.districtId == state.countyId -> state.countyName
+                poll.districtId == state.cityId -> state.cityName
+                poll.districtId == state.schoolBoardId -> state.schoolBoardName
+                else -> "Other Districts"
+            }
+            hierarchy.getOrPut(key) { mutableListOf() }.add(poll)
+        }
+
+        val finalGrouped = hierarchy.filter { it.value.isNotEmpty() }
+        _uiState.update { it.copy(filteredPolls = scopeFiltered, groupedPolls = finalGrouped) }
     }
 
     fun setScope(scope: PollScope) {
@@ -190,7 +219,7 @@ open class HomeViewModel(
     fun selectDistrict(id: String, displayName: String) {
         val homeDistrict = sessionManager.currentSession?.districtId
         val isOther = homeDistrict != null && homeDistrict != id
-        val stateId = id.substringBeforeLast('-')
+        val stateId = id.substringBeforeLast('-', "us")
         
         _uiState.update { 
             it.copy(
