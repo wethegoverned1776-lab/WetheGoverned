@@ -16,86 +16,53 @@ import jakarta.mail.internet.*
 import java.util.Properties
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.Clock
 
-/**
- * Scaled File-based Repository.
- * Handles simulated 334M users with MMap I/O and Merkle Proofs.
- */
-abstract class FileBasedRepository(val typeName: String) {
-    protected val dataDir = File(System.getProperty("user.home"), ".wtg/data/$typeName").apply { mkdirs() }
-    protected val indexDir = File(dataDir, "_indices").apply { mkdirs() }
-    protected val json = Json { ignoreUnknownKeys = true; prettyPrint = false }
+abstract class FileBasedRepository(private val type: String) {
+    protected val baseDir = File(System.getProperty("user.home"), ".wethegoverned/$type").apply { mkdirs() }
+    private val indexFile = File(baseDir, "index.json")
     private val indexMutex = Mutex()
-    private var stateRootHash: String = ""
-    private var updatesSinceSnapshot = 0
 
-    protected fun getSegmentFile(id: String): File {
-        // High-entropy sharding for 334M user distribution
-        val hash = id.hashCode()
-        val shard = (hash.and(0xFFFF)).toString(16).padStart(4, '0')
-        val shardDir = File(dataDir, shard).apply { mkdirs() }
-        return File(shardDir, "id_$id.bin")
+    protected suspend fun <T> save(id: String, data: T, serializer: kotlinx.serialization.KSerializer<T>) {
+        val file = File(baseDir, "$id.json")
+        file.writeText(Json.encodeToString(serializer, data))
     }
 
-    protected suspend fun <T> save(id: String, data: T, serializer: kotlinx.serialization.KSerializer<T>) = indexMutex.withLock {
-        val segment = getSegmentFile(id)
-        val content = json.encodeToString(serializer, data)
+    protected fun <T> load(id: String, serializer: kotlinx.serialization.KSerializer<T>): T? {
+        val file = File(baseDir, "$id.json")
+        return if (file.exists()) Json.decodeFromString(serializer, file.readText()) else null
+    }
 
-        // NATIONAL SCALE FIX: Use MMap-style atomic write for low-latency mass voting
-        val tempFile = File(segment.parentFile, "tmp_${id}.bin")
-        tempFile.writeText(content)
-        tempFile.renameTo(segment)
+    protected fun listIds(): List<String> = baseDir.listFiles { f -> f.extension == "json" && f.name != "index.json" }?.map { it.nameWithoutExtension } ?: emptyList()
 
-        stateRootHash = (stateRootHash + id + content).hashCode().toString()
-        // ...
+    protected suspend fun addToIndex(key: String, value: String, id: String) = indexMutex.withLock {
+        val index = loadIndex()
+        val keyIndex = index.getOrPut(key) { mutableMapOf() }
+        val valueSet = keyIndex.getOrPut(value) { mutableSetOf() }
+        valueSet.add(id)
+        saveIndex(index)
+    }
 
-        updatesSinceSnapshot++
-        if (updatesSinceSnapshot >= 10000) {
-            updatesSinceSnapshot = 0
-            println("🏛 State Snapshot Triggered: $stateRootHash")
+    protected fun getFromIndexPaged(key: String, value: String, limit: Int, offset: Int): List<String> {
+        val index = runBlocking { loadIndex() }
+        return index[key]?.get(value)?.toList()?.drop(offset)?.take(limit) ?: emptyList()
+    }
+
+    private fun loadIndex(): MutableMap<String, MutableMap<String, MutableSet<String>>> {
+        if (!indexFile.exists()) return mutableMapOf()
+        return try {
+            Json.decodeFromString(indexFile.readText())
+        } catch (e: Exception) {
+            mutableMapOf()
         }
     }
 
-    protected suspend fun <T> load(id: String, serializer: kotlinx.serialization.KSerializer<T>): T? {
-        val segment = getSegmentFile(id)
-        return if (segment.exists()) json.decodeFromString(serializer, segment.readText()) else null
-    }
-
-    protected fun listIds(): List<String> {
-        val ids = mutableListOf<String>()
-        // Root items
-        dataDir.listFiles { _, name -> name.endsWith(".json") || name.startsWith("segment_") }?.forEach {
-             ids.add(it.name.removeSuffix(".json").removePrefix("segment_"))
-        }
-        // Sharded items (recursive)
-        dataDir.walk().forEach { file ->
-            if (file.isFile && file.name.startsWith("id_") && file.name.endsWith(".bin")) {
-                ids.add(file.name.removePrefix("id_").removeSuffix(".bin"))
-            }
-        }
-        return ids.distinct()
-    }
-
-    protected suspend fun addToIndex(indexName: String, key: String, id: String) = indexMutex.withLock {
-        val idxFile = File(indexDir, "${indexName}_$key.idx")
-        idxFile.appendText("$id\n")
-    }
-
-    protected suspend fun getFromIndexPaged(indexName: String, key: String, limit: Int, offset: Int): List<String> = indexMutex.withLock {
-        val idxFile = File(indexDir, "${indexName}_$key.idx")
-        if (!idxFile.exists()) return emptyList()
-        idxFile.useLines { lines -> lines.drop(offset).take(limit).toList() }
-    }
-
-    fun pruneOldData(maxAgeDays: Int) {
-        val cutOff = System.currentTimeMillis() - (maxAgeDays * 24 * 60 * 60 * 1000L)
-        dataDir.listFiles { _, name -> name.startsWith("segment_") }?.forEach { file ->
-            if (file.lastModified() < cutOff) file.delete()
-        }
+    private fun saveIndex(index: Map<String, Map<String, Set<String>>>) {
+        indexFile.writeText(Json.encodeToString(index))
     }
 }
 
-class DesktopVoteRepository : VoteRepository, FileBasedRepository("votes") {
+class DesktopVoteRepository(private val publisher: CivicPublisher? = null) : VoteRepository, FileBasedRepository("votes") {
     override fun observeAllVotes(): Flow<List<CivicVote>> = flow {
         emit(listIds().mapNotNull { load(it, CivicVote.serializer()) })
     }
@@ -108,7 +75,7 @@ class DesktopVoteRepository : VoteRepository, FileBasedRepository("votes") {
     override suspend fun syncVote(vote: CivicVote) { save(vote.id, vote, CivicVote.serializer()) }
 }
 
-class DesktopPollRepository : PollRepository, FileBasedRepository("polls") {
+class DesktopPollRepository(private val publisher: CivicPublisher? = null) : PollRepository, FileBasedRepository("polls") {
     private val _pollsFlow = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     private val samplingPollsFlow = _pollsFlow.sample(200L)
 
@@ -167,7 +134,19 @@ class DesktopPollRepository : PollRepository, FileBasedRepository("polls") {
         val newPoll = CivicPoll(id = id, scope = scope, districtId = districtId, localId = localId, authorPubKey = "admin", question = question, options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) }, status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = closesAt ?: (System.currentTimeMillis() + 86400000), totalVotes = 0)
         save(id, newPoll, CivicPoll.serializer())
         addToIndex("district", districtId, id)
-        localId?.let { addToIndex("district", it, id) } // NATIONAL SCALE FIX: Index by localId for county/city browsing
+        localId?.let { addToIndex("district", it, id) }
+        
+        publisher?.signPublishImportCivicEvent(
+            kind = when(scope) {
+                PollScope.FEDERAL -> CivicEventKind.FEDERAL_POLL
+                PollScope.STATE -> CivicEventKind.STATE_POLL
+                else -> CivicEventKind.DISTRICT_POLL
+            },
+            tags = listOf("d", districtId),
+            content = Json.encodeToString(CivicPoll.serializer(), newPoll),
+            pubKey = "admin"
+        )
+        
         _pollsFlow.emit(Unit)
         return Result.success(newPoll)
     }
@@ -178,6 +157,24 @@ class DesktopPollRepository : PollRepository, FileBasedRepository("polls") {
         val newTotal = poll.totalVotes + 1
         val updatedPoll = poll.copy(options = updatedOptions.map { it.copy(percentageOfTotal = it.voteCount.toFloat() / newTotal) }, totalVotes = newTotal, residentVoteOption = optionId)
         save(pollId, updatedPoll, CivicPoll.serializer())
+        
+        val vote = CivicVote(
+            id = "vote_${pollId}_$voterPubKey",
+            pollId = pollId,
+            optionId = optionId,
+            voterPubKey = voterPubKey,
+            voterName = "Resident",
+            timestamp = Clock.System.now().toEpochMilliseconds(),
+            nonce = 0L,
+            createdAt = Clock.System.now().toEpochMilliseconds()
+        )
+        publisher?.signPublishImportCivicEvent(
+            kind = CivicEventKind.POLL_VOTE,
+            tags = listOf("d", pollId),
+            content = Json.encodeToString(CivicVote.serializer(), vote),
+            pubKey = voterPubKey
+        )
+        
         _pollsFlow.emit(Unit)
         return Result.success(Unit)
     }
@@ -202,6 +199,7 @@ class DesktopPollRepository : PollRepository, FileBasedRepository("polls") {
     override suspend fun getPost(postId: String): Result<PollPost> = Result.failure(Exception("Stub"))
     override suspend fun getAllPolls(): List<CivicPoll> = listIds().mapNotNull { runBlocking { load(it, CivicPoll.serializer()) } }
     override suspend fun getPollsForJurisdictions(jurisdictionIds: List<String>, since: Long): List<CivicPoll> = getAllPolls().filter { (it.districtId in jurisdictionIds || it.localId in jurisdictionIds) && it.createdAt > since }
+    
     override suspend fun syncPoll(poll: CivicPoll) {
         save(poll.id, poll, CivicPoll.serializer())
         addToIndex("district", poll.districtId, poll.id)
@@ -249,8 +247,7 @@ class DesktopResidentRepository : ResidentRepository, FileBasedRepository("resid
 
     override suspend fun getResidentCountAtAddress(fingerprint: String): Int = 0
     override suspend fun getVouchCount(notaryPubKey: String): Int = 0
-    override suspend fun getProfile(pubKey: String): Result<ResidentProfile> = load(pubKey, ResidentProfile.serializer())?.let { Result.success(it) }
-?: Result.failure(Exception("Not found"))
+    override suspend fun getProfile(pubKey: String): Result<ResidentProfile> = load(pubKey, ResidentProfile.serializer())?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
     override suspend fun upgradeTier(pubKey: String, newTier: VerificationTier, proofToken: String): Result<ResidentProfile> = Result.failure(Exception("Not implemented"))
     override suspend fun upgradeTierWithFingerprint(pubKey: String, newTier: VerificationTier, proofToken: String, fingerprint: String): Result<ResidentProfile> = Result.failure(Exception("Not implemented"))
     override suspend fun upgradeTierFull(pubKey: String, newTier: VerificationTier, fingerprint: String, verifiedBy: String?): Result<Unit> = Result.success(Unit)
@@ -295,14 +292,35 @@ class DesktopDistrictRepository : DistrictRepository {
     override suspend fun refreshMetrics(districtId: String): Result<List<DistrictMetric>> = Result.success(emptyList())
 }
 
-class DesktopCommunityRepository : CommunityRepository {
+class DesktopCommunityRepository(private val publisher: CivicPublisher? = null) : CommunityRepository {
     private val _posts = MutableStateFlow<List<CommunityPost>>(emptyList())
     override fun observePosts(districtId: String, kind: CommunityPostKind?): Flow<List<CommunityPost>> = _posts.map { list -> list.filter { it.districtId == districtId && (kind == null || it.kind == kind) } }
     override suspend fun getPost(postId: String): Result<CommunityPost> = _posts.value.find { it.id == postId }?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
-    override suspend fun createPost(districtId: String, authorPubKey: String, kind: CommunityPostKind, title: String, description: String, price: Double?, location: String?, contactInfo: String?): Result<CommunityPost> = Result.failure(Exception("Not implemented"))
+    override suspend fun createPost(districtId: String, authorPubKey: String, kind: CommunityPostKind, title: String, description: String, price: Double?, location: String?, contactInfo: String?): Result<CommunityPost> {
+        val post = CommunityPost(
+            id = "post_${System.currentTimeMillis()}",
+            districtId = districtId,
+            authorPubKey = authorPubKey,
+            kind = kind,
+            title = title,
+            description = description,
+            price = price,
+            location = location,
+            contactInfo = contactInfo,
+            createdAt = System.currentTimeMillis()
+        )
+        _posts.update { it + post }
+        publisher?.signPublishImportCivicEvent(
+            kind = CivicEventKind.COMMUNITY_POST,
+            tags = listOf("d", districtId),
+            content = Json.encodeToString(CommunityPost.serializer(), post),
+            pubKey = authorPubKey
+        )
+        return Result.success(post)
+    }
     override suspend fun deletePost(postId: String): Result<Unit> = runCatching { _posts.update { it.filter { p -> p.id != postId } } }
     override suspend fun getAllPosts(): List<CommunityPost> = _posts.value
-    override suspend fun syncPost(post: CommunityPost) { _posts.update { it + post } }
+    override suspend fun syncPost(post: CommunityPost) { _posts.update { if (it.none { p -> p.id == post.id }) it + post else it } }
 }
 
 class DesktopWtgBackendApi : WtgBackendApi(baseUrl = "https://sim.wetheGoverned.net", httpClient = io.ktor.client.HttpClient()) {
@@ -348,126 +366,17 @@ class DesktopCivicApi(private val httpClient: HttpClient) : CivicApi {
             level = DistrictLevel.STATE_SENATE,
             state = "FL",
             districtNumber = 7,
-            name = "Florida State Senate District 7",
-            displayName = "FL State Senate 7"
+            name = "Florida Senate District 7",
+            displayName = "FL Senate-07"
         ),
         stateLowerDistrict = District(
             id = "us-fl-house-19",
             level = DistrictLevel.STATE_HOUSE,
             state = "FL",
             districtNumber = 19,
-            name = "Florida State House District 19",
-            displayName = "FL State House 19"
+            name = "Florida House District 19",
+            displayName = "FL House-19"
         ),
-        localJurisdiction = "flagler-county"
+        localJurisdiction = "Palm Coast, Flagler County"
     )
-}
-
-class DesktopSessionStorage : SessionStorage {
-    private val prefs = Preferences.userNodeForPackage(DesktopSessionStorage::class.java)
-    override fun saveSession(session: UserSession) {
-        prefs.put("pubKey", session.pubKey)
-        prefs.put("displayName", session.displayName)
-        prefs.put("districtId", session.districtId ?: "")
-        prefs.put("stateUpperId", session.stateUpperId ?: "")
-        prefs.put("stateLowerId", session.stateLowerId ?: "")
-        prefs.put("localId", session.localId ?: "")
-        prefs.put("cityId", session.cityId ?: "")
-        prefs.put("schoolBoardId", session.schoolBoardId ?: "")
-        prefs.put("tier", session.tier.name)
-        prefs.put("privateKey", session.privateKey ?: "")
-        prefs.flush()
-    }
-    override fun getSession(): UserSession? {
-        val pk = prefs.get("pubKey", null) ?: return null
-        val tierString = prefs.get("tier", VerificationTier.OBSERVER.name) ?: VerificationTier.OBSERVER.name
-        val tier = try {
-            VerificationTier.valueOf(tierString)
-        } catch (e: IllegalArgumentException) {
-            when (tierString) {
-                "TIER_2", "TIER_3" -> VerificationTier.VERIFIED
-                else -> VerificationTier.OBSERVER
-            }
-        }
-        return UserSession(
-            pk,
-            prefs.get("displayName", ""),
-            prefs.get("districtId", "").ifBlank { null },
-            stateUpperId = prefs.get("stateUpperId", "").ifBlank { null },
-            stateLowerId = prefs.get("stateLowerId", "").ifBlank { null },
-            localId = prefs.get("localId", "").ifBlank { null },
-            cityId = prefs.get("cityId", "").ifBlank { null },
-            schoolBoardId = prefs.get("schoolBoardId", "").ifBlank { null },
-            tier = tier,
-            privateKey = prefs.get("privateKey", "")
-        )
-    }
-    override fun clearSession() {
-        prefs.remove("pubKey")
-        prefs.remove("displayName")
-        prefs.remove("districtId")
-        prefs.remove("stateUpperId")
-        prefs.remove("stateLowerId")
-        prefs.remove("localId")
-        prefs.remove("cityId")
-        prefs.remove("schoolBoardId")
-        prefs.remove("tier")
-        prefs.remove("privateKey")
-        prefs.flush()
-    }
-    override fun savePrivateKeySecurely(key: String) { prefs.put("secure_key", key); prefs.flush() }
-    override fun getPrivateKeySecurely(): String? = prefs.get("secure_key", null)
-}
-
-class DesktopAccountRepository : AccountRepository, FileBasedRepository("accounts") {
-    override suspend fun register(account: UserAccount): Result<Unit> {
-        if (load(account.username, UserAccount.serializer()) != null) return Result.failure(Exception("Exists"))
-        save(account.username, account, UserAccount.serializer()); return Result.success(Unit)
-    }
-    override suspend fun login(username: String, password: String): Result<UserAccount> {
-        if (username == "admin" && password == "1January012@") return Result.success(UserAccount("admin", "1January012@", "pub_admin", "priv_admin", "us-fl-06"))
-        val acc = load(username, UserAccount.serializer()) ?: return Result.failure(Exception("Invalid"))
-        return if (acc.password == password) Result.success(acc) else Result.failure(Exception("Invalid"))
-    }
-    override suspend fun changePassword(username: String, newPassword: String): Result<Unit> {
-        val acc = load(username, UserAccount.serializer()) ?: return Result.failure(Exception("Not found"))
-        save(username, acc.copy(password = newPassword), UserAccount.serializer()); return Result.success(Unit)
-    }
-    override suspend fun updateDistrict(username: String, districtId: String) {
-        val acc = load(username, UserAccount.serializer()) ?: return
-        save(username, acc.copy(districtId = districtId), UserAccount.serializer())
-    }
-}
-
-class DesktopVerificationRequestRepository : VerificationRequestRepository, FileBasedRepository("verification_requests") {
-    private val _updates = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
-
-    override fun observeRequestsForDistrict(districtId: String): Flow<List<VerificationRequest>> = _updates.flatMapLatest {
-        flow {
-            emit(listIds().mapNotNull { load(it, VerificationRequest.serializer()) }.filter { it.districtId == districtId })
-        }
-    }
-
-    override fun observeRequestsForState(stateId: String): Flow<List<VerificationRequest>> = _updates.flatMapLatest {
-        flow {
-            emit(listIds().mapNotNull { load(it, VerificationRequest.serializer()) }.filter { it.stateId == stateId })
-        }
-    }
-
-    override suspend fun createRequest(request: VerificationRequest): Result<Unit> {
-        save(request.id, request, VerificationRequest.serializer())
-        _updates.emit(Unit)
-        return Result.success(Unit)
-    }
-
-    override suspend fun updateRequestStatus(requestId: String, status: VerificationRequestStatus, handledBy: String): Result<Unit> {
-        val request = load(requestId, VerificationRequest.serializer()) ?: return Result.failure(Exception("Not found"))
-        save(requestId, request.copy(status = status, handledByPubKey = handledBy), VerificationRequest.serializer())
-        _updates.emit(Unit)
-        return Result.success(Unit)
-    }
-
-    override suspend fun getRequest(requestId: String): Result<VerificationRequest> {
-        return load(requestId, VerificationRequest.serializer())?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
-    }
 }

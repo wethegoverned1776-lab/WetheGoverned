@@ -11,12 +11,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
 import io.ktor.http.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import net.wetheGoverned.App
 import net.wetheGoverned.data.*
 import net.wetheGoverned.repository.*
@@ -24,25 +19,16 @@ import net.wetheGoverned.session.SessionManager
 import net.wetheGoverned.remote.api.WtgBackendApi
 import java.io.File
 import androidx.compose.ui.res.painterResource
+import kotlinx.coroutines.flow.flowOf
 
 fun main() {
     application {
         var isWindowVisible by remember { mutableStateOf(true) }
         val trayState = rememberTrayState()
         
-        // Core Repositories (Stay active in background as a node)
-        val voteRepository = remember { DesktopVoteRepository() }
-        val pollRepository = remember { DesktopPollRepository() }
-        val residentRepository = remember { DesktopResidentRepository() }
-        val manifestoRepository = remember { DesktopManifestoRepository() }
-        val scorecardRepository = remember { DesktopScorecardRepository() }
-        val communityRepository = remember { DesktopCommunityRepository() }
-        val districtRepository = remember { DesktopDistrictRepository() } // Added
-        val accountRepository = remember { DesktopAccountRepository() }
-        val requestRepository = remember { DesktopVerificationRequestRepository() }
         val sessionStorage = remember { DesktopSessionStorage() }
         val sessionManager = remember { SessionManager(sessionStorage) }
-        
+
         val httpClient = remember { 
             HttpClient(CIO) {
                 install(ContentNegotiation) { 
@@ -56,20 +42,45 @@ fun main() {
         
         val relayUrls = listOf("wss://nos.lol", "wss://relay.damus.io")
         val relayManager = remember { NostrRelayManager(relayUrls) }
+        
+        val publisher = remember {
+            WsCivicPublisher(
+                relayManager, sessionManager, 
+                object : net.wetheGoverned.session.PendingEventQueue {
+                    override suspend fun enqueue(kind: Int, contentJson: String, sig: String) {}
+                    override suspend fun getAllPending(): List<net.wetheGoverned.session.PendingEvent> = emptyList()
+                    override suspend fun dequeue(eventId: String) {}
+                },
+                object : net.wetheGoverned.zk.ZkProver {
+                    override suspend fun generateProof(circuitName: String, inputs: Map<String, Any>): net.wetheGoverned.zk.ZkProofResult = 
+                        net.wetheGoverned.zk.ZkProofResult(emptyList(), emptyList())
+                }
+            )
+        }
+
+        // Core Repositories
+        val voteRepository = remember { DesktopVoteRepository(publisher) }
+        val pollRepository = remember { DesktopPollRepository(publisher) }
+        val residentRepository = remember { DesktopResidentRepository() }
+        val manifestoRepository = remember { DesktopManifestoRepository() }
+        val scorecardRepository = remember { DesktopScorecardRepository() }
+        val communityRepository = remember { DesktopCommunityRepository(publisher) }
+        val districtRepository = remember { DesktopDistrictRepository() }
+        val accountRepository = remember { DesktopAccountRepository() }
+        val requestRepository = remember { DesktopVerificationRequestRepository() }
+        
         val p2pSyncEngine = remember {
             P2PSyncEngine(
                 pollRepository, residentRepository, voteRepository,
-                manifestoRepository, accountRepository, sessionManager,
+                manifestoRepository, communityRepository, accountRepository, sessionManager,
                 relayManager
             )
         }
 
-        // Start the P2P node immediately - stays active even if window is closed
         LaunchedEffect(Unit) {
             p2pSyncEngine.start()
         }
 
-        // SYSTEM TRAY: Keeps the app active as a background node
         Tray(
             state = trayState,
             icon = painterResource("icon.png"),
@@ -95,7 +106,7 @@ fun main() {
                     residentRepository = residentRepository,
                     manifestoRepository = manifestoRepository,
                     scorecardRepository = scorecardRepository,
-                    districtRepository = districtRepository, // Added
+                    districtRepository = districtRepository,
                     communityRepository = communityRepository,
                     requestRepository = requestRepository,
                     sessionManager = sessionManager,
