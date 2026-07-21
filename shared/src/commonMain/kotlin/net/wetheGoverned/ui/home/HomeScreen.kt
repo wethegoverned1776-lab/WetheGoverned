@@ -512,7 +512,7 @@ fun PollImportanceCard(
             .padding(bottom = 12.dp),
         colors = CardDefaults.outlinedCardColors(
             containerColor = if (hasVoted) 
-                Color(0xFFF7F9F9)
+                MaterialTheme.colorScheme.surfaceVariant
             else 
                 Color.White
         ),
@@ -533,10 +533,15 @@ fun PollImportanceCard(
                     Icon(
                         Icons.Default.KeyboardArrowUp,
                         null,
-                        tint = if (poll.userImportanceVote > 0) Color.Green else Color.Gray
+                        tint = if (poll.userImportanceVote > 0) Color(0xFF1D9BF0) else Color.Gray
                     )
                 }
-                Text(poll.importanceScore.toString(), fontWeight = FontWeight.Bold)
+                Text(
+                    text = poll.importanceScore.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (poll.userImportanceVote != 0) MaterialTheme.colorScheme.tertiary else Color.Unspecified
+                )
                 IconButton(
                     onClick = { onImportanceVote(-1) },
                     enabled = !isReadOnly
@@ -544,7 +549,7 @@ fun PollImportanceCard(
                     Icon(
                         Icons.Default.KeyboardArrowDown,
                         null,
-                        tint = if (poll.userImportanceVote < 0) Color.Red else Color.Gray
+                        tint = if (poll.userImportanceVote < 0) Color(0xFFF4212E) else Color.Gray
                     )
                 }
             }
@@ -553,12 +558,17 @@ fun PollImportanceCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(text = poll.question, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    Text(
+                        text = poll.question, 
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.weight(1f)
+                    )
                     if (hasVoted) {
                         Icon(
                             Icons.Default.CheckCircle, 
                             "Voted", 
-                            tint = MaterialTheme.colorScheme.primary, 
+                            tint = MaterialTheme.colorScheme.tertiary, 
                             modifier = Modifier.size(20.dp).padding(start = 4.dp)
                         )
                     }
@@ -566,23 +576,45 @@ fun PollImportanceCard(
                 Spacer(Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "${poll.totalVotes} votes", style = MaterialTheme.typography.bodySmall)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${poll.totalVotes} votes", 
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        if (poll.status != PollStatus.ACTIVE) {
+                            Text(
+                                text = " • ${poll.status.name}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
+                        }
+                    }
+                    
                     Surface(
                         color = when(poll.scope) {
-                            PollScope.FEDERAL -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.9f)
-                            PollScope.STATE -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.9f)
-                            PollScope.DISTRICT -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.9f)
-                            PollScope.LOCAL -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
-                            else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
+                            PollScope.FEDERAL -> MaterialTheme.colorScheme.tertiaryContainer
+                            PollScope.STATE -> MaterialTheme.colorScheme.secondaryContainer
+                            PollScope.DISTRICT -> MaterialTheme.colorScheme.primaryContainer
+                            else -> MaterialTheme.colorScheme.surfaceVariant
                         },
                         shape = MaterialTheme.shapes.extraSmall
                     ) {
                         Text(
                             text = poll.scope.name,
                             style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            color = when(poll.scope) {
+                                PollScope.FEDERAL -> MaterialTheme.colorScheme.onTertiaryContainer
+                                PollScope.STATE -> MaterialTheme.colorScheme.onSecondaryContainer
+                                PollScope.DISTRICT -> MaterialTheme.colorScheme.onPrimaryContainer
+                                else -> MaterialTheme.colorScheme.onSurfaceVariant
+                            }
                         )
                     }
                 }

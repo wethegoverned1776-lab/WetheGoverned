@@ -118,15 +118,22 @@ fun App(
         colorScheme = lightColorScheme(
             primary = Color.Black,
             onPrimary = Color.White,
+            primaryContainer = Color(0xFFF0F0F0), // Subtle light grey for focus
+            onPrimaryContainer = Color.Black,
             background = Color.White,
             onBackground = Color.Black,
             surface = Color.White,
             onSurface = Color.Black,
-            outline = Color(0xFFCFD9DE), // Dark grey borders (X style)
-            surfaceVariant = Color.White,
+            surfaceVariant = Color(0xFFF7F9F9), // Lightest grey for card backgrounds
             onSurfaceVariant = Color(0xFF536471), // Dimmer grey for secondary text
+            outline = Color(0xFFCFD9DE), // Dark grey borders (X style)
             secondary = Color(0xFF536471),
+            secondaryContainer = Color(0xFFEFF3F4), // Slightly darker grey for state/local cards
+            onSecondaryContainer = Color(0xFF0F1419),
             tertiary = Color(0xFF1D9BF0), // Classic X Blue for links/actions
+            tertiaryContainer = Color(0xFFD6EBF7), // Very light blue for federal highlights
+            onTertiaryContainer = Color(0xFF001D35),
+            error = Color(0xFFF4212E), // Red for alerts/errors
         ),
     ) {
         Surface(

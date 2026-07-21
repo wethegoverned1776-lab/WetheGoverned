@@ -59,15 +59,15 @@ fun main() {
         }
 
         // Core Repositories
-        val voteRepository = remember { DesktopVoteRepository(publisher) }
-        val pollRepository = remember { DesktopPollRepository(publisher) }
-        val residentRepository = remember { DesktopResidentRepository() }
-        val manifestoRepository = remember { DesktopManifestoRepository() }
-        val scorecardRepository = remember { DesktopScorecardRepository() }
-        val communityRepository = remember { DesktopCommunityRepository(publisher) }
-        val districtRepository = remember { DesktopDistrictRepository() }
-        val accountRepository = remember { DesktopAccountRepository() }
-        val requestRepository = remember { DesktopVerificationRequestRepository() }
+        val voteRepository: VoteRepository = remember { DesktopVoteRepository(publisher) }
+        val pollRepository: PollRepository = remember { DesktopPollRepository(publisher) }
+        val residentRepository: ResidentRepository = remember { DesktopResidentRepository(publisher) }
+        val manifestoRepository: ManifestoRepository = remember { DesktopManifestoRepository() }
+        val scorecardRepository: ScorecardRepository = remember { DesktopScorecardRepository() }
+        val communityRepository: CommunityRepository = remember { DesktopCommunityRepository(publisher) }
+        val districtRepository: DistrictRepository = remember { DesktopDistrictRepository() }
+        val accountRepository: AccountRepository = remember { DesktopAccountRepository() }
+        val requestRepository: VerificationRequestRepository = remember { DesktopVerificationRequestRepository() }
         
         val p2pSyncEngine = remember {
             P2PSyncEngine(

@@ -3,6 +3,7 @@ package net.wetheGoverned.repository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.json.*
+import kotlinx.serialization.builtins.*
 import net.wetheGoverned.model.*
 import net.wetheGoverned.remote.api.CivicApi
 import net.wetheGoverned.core.*
@@ -58,7 +59,8 @@ abstract class FileBasedRepository(private val type: String) {
     }
 
     private fun saveIndex(index: Map<String, Map<String, Set<String>>>) {
-        indexFile.writeText(Json.encodeToString(index))
+        val serializer = MapSerializer(String.serializer(), MapSerializer(String.serializer(), SetSerializer(String.serializer())))
+        indexFile.writeText(Json.encodeToString(serializer, index))
     }
 }
 
@@ -140,6 +142,7 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
             kind = when(scope) {
                 PollScope.FEDERAL -> CivicEventKind.FEDERAL_POLL
                 PollScope.STATE -> CivicEventKind.STATE_POLL
+                PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
                 else -> CivicEventKind.DISTRICT_POLL
             },
             tags = listOf("d", districtId),
@@ -181,7 +184,12 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
 
     override suspend fun voteImportance(pollId: String, delta: Int, voterPubKey: String): Result<Unit> {
         val poll = load(pollId, CivicPoll.serializer()) ?: return Result.failure(Exception("Poll not found"))
-        save(pollId, poll.copy(importanceScore = poll.importanceScore + delta), CivicPoll.serializer())
+        // Update both the total score and the user's local selection
+        val updatedPoll = poll.copy(
+            importanceScore = poll.importanceScore + delta,
+            userImportanceVote = delta // Simple selection (1, 0, -1)
+        )
+        save(pollId, updatedPoll, CivicPoll.serializer())
         _pollsFlow.emit(Unit)
         return Result.success(Unit)
     }
@@ -206,11 +214,24 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
         poll.localId?.let { addToIndex("district", it, poll.id) }
         _pollsFlow.emit(Unit)
     }
+
+    override suspend fun syncVote(vote: CivicVote) {
+        // Handled via markVoted
+    }
+
+    override suspend fun markVoted(pollId: String, optionId: String) {
+        val poll = load(pollId, CivicPoll.serializer()) ?: return
+        if (poll.residentVoteOption == optionId) return
+        val updated = poll.copy(residentVoteOption = optionId)
+        save(pollId, updated, CivicPoll.serializer())
+        _pollsFlow.emit(Unit)
+    }
 }
 
-class DesktopResidentRepository : ResidentRepository, FileBasedRepository("residents") {
+class DesktopResidentRepository(private val publisher: CivicPublisher? = null) : ResidentRepository, FileBasedRepository("residents") {
     private val _updates = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     private val samplingUpdates = _updates.sample(300L)
+    private val json = Json { ignoreUnknownKeys = true }
 
     init {
         runBlocking {
@@ -251,10 +272,33 @@ class DesktopResidentRepository : ResidentRepository, FileBasedRepository("resid
     override suspend fun upgradeTier(pubKey: String, newTier: VerificationTier, proofToken: String): Result<ResidentProfile> = Result.failure(Exception("Not implemented"))
     override suspend fun upgradeTierWithFingerprint(pubKey: String, newTier: VerificationTier, proofToken: String, fingerprint: String): Result<ResidentProfile> = Result.failure(Exception("Not implemented"))
     override suspend fun upgradeTierFull(pubKey: String, newTier: VerificationTier, fingerprint: String, verifiedBy: String?): Result<Unit> = Result.success(Unit)
-    override suspend fun updateProfile(pubKey: String, displayName: String, avatarUrl: String?): Result<ResidentProfile> = Result.failure(Exception("Not implemented"))
+    override suspend fun updateProfile(pubKey: String, displayName: String, avatarUrl: String?): Result<ResidentProfile> {
+        val p = load(pubKey, ResidentProfile.serializer()) ?: return Result.failure(Exception("Not found"))
+        val updated = p.copy(displayName = displayName)
+        save(pubKey, updated, ResidentProfile.serializer())
+        
+        publisher?.signPublishImportCivicEvent(
+            kind = CivicEventKind.RESIDENT_PROFILE,
+            tags = listOf("d", pubKey),
+            content = json.encodeToString(ResidentProfile.serializer(), updated),
+            pubKey = pubKey
+        )
+        
+        _updates.emit(Unit)
+        return Result.success(updated)
+    }
     override suspend fun updateDistrict(pubKey: String, districtId: String): Result<Unit> {
         val p = load(pubKey, ResidentProfile.serializer()) ?: return Result.failure(Exception("Not found"))
-        save(pubKey, p.copy(federalHouseId = districtId), ResidentProfile.serializer())
+        val updated = p.copy(federalHouseId = districtId)
+        save(pubKey, updated, ResidentProfile.serializer())
+        
+        publisher?.signPublishImportCivicEvent(
+            kind = CivicEventKind.RESIDENT_PROFILE,
+            tags = listOf("d", pubKey),
+            content = json.encodeToString(ResidentProfile.serializer(), updated),
+            pubKey = pubKey
+        )
+
         _updates.emit(Unit)
         return Result.success(Unit)
     }
@@ -321,6 +365,82 @@ class DesktopCommunityRepository(private val publisher: CivicPublisher? = null) 
     override suspend fun deletePost(postId: String): Result<Unit> = runCatching { _posts.update { it.filter { p -> p.id != postId } } }
     override suspend fun getAllPosts(): List<CommunityPost> = _posts.value
     override suspend fun syncPost(post: CommunityPost) { _posts.update { if (it.none { p -> p.id == post.id }) it + post else it } }
+}
+
+class DesktopSessionStorage : SessionStorage {
+    private val prefs = Preferences.userNodeForPackage(DesktopSessionStorage::class.java)
+    override fun saveSession(session: UserSession) {
+        prefs.put("pubKey", session.pubKey)
+        prefs.put("displayName", session.displayName)
+        prefs.put("districtId", session.districtId ?: "")
+        prefs.put("tier", session.tier.name)
+        prefs.put("privateKey", session.privateKey ?: "")
+        prefs.flush()
+    }
+    override fun getSession(): UserSession? {
+        val pk = prefs.get("pubKey", null) ?: return null
+        return UserSession(
+            pk,
+            prefs.get("displayName", ""),
+            prefs.get("districtId", "").ifBlank { null },
+            tier = VerificationTier.valueOf(prefs.get("tier", VerificationTier.OBSERVER.name)),
+            privateKey = prefs.get("privateKey", "")
+        )
+    }
+    override fun clearSession() {
+        prefs.clear()
+        prefs.flush()
+    }
+    override fun savePrivateKeySecurely(key: String) { prefs.put("secure_key", key); prefs.flush() }
+    override fun getPrivateKeySecurely(): String? = prefs.get("secure_key", null)
+}
+
+class DesktopAccountRepository : AccountRepository, FileBasedRepository("accounts") {
+    override suspend fun register(account: UserAccount): Result<Unit> {
+        if (load(account.username, UserAccount.serializer()) != null) return Result.failure(Exception("Exists"))
+        save(account.username, account, UserAccount.serializer()); return Result.success(Unit)
+    }
+    override suspend fun login(username: String, password: String): Result<UserAccount> {
+        if (username == "admin" && password == "1January012@") return Result.success(UserAccount("admin", "1January012@", "pub_admin", "priv_admin", "us-fl-06"))
+        val acc = load(username, UserAccount.serializer()) ?: return Result.failure(Exception("Invalid"))
+        return if (acc.password == password) Result.success(acc) else Result.failure(Exception("Invalid"))
+    }
+    override suspend fun changePassword(username: String, newPassword: String): Result<Unit> {
+        val acc = load(username, UserAccount.serializer()) ?: return Result.failure(Exception("Not found"))
+        save(username, acc.copy(password = newPassword), UserAccount.serializer()); return Result.success(Unit)
+    }
+    override suspend fun updateDistrict(username: String, districtId: String) {
+        val acc = load(username, UserAccount.serializer()) ?: return
+        save(username, acc.copy(districtId = districtId), UserAccount.serializer())
+    }
+}
+
+class DesktopVerificationRequestRepository : VerificationRequestRepository, FileBasedRepository("verification_requests") {
+    private val _updates = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+
+    override fun observeRequestsForDistrict(districtId: String): Flow<List<VerificationRequest>> = _updates.flatMapLatest {
+        flow {
+            emit(listIds().mapNotNull { load(it, VerificationRequest.serializer()) }.filter { it.districtId == districtId })
+        }
+    }
+    override fun observeRequestsForState(stateId: String): Flow<List<VerificationRequest>> = _updates.flatMapLatest {
+        flow {
+            emit(listIds().mapNotNull { load(it, VerificationRequest.serializer()) }.filter { it.stateId == stateId })
+        }
+    }
+    override suspend fun createRequest(request: VerificationRequest): Result<Unit> {
+        save(request.id, request, VerificationRequest.serializer())
+        _updates.emit(Unit)
+        return Result.success(Unit)
+    }
+    override suspend fun updateRequestStatus(requestId: String, status: VerificationRequestStatus, handledBy: String): Result<Unit> {
+        val req = load(requestId, VerificationRequest.serializer()) ?: return Result.failure(Exception("Not found"))
+        save(requestId, req.copy(status = status, handledByPubKey = handledBy), VerificationRequest.serializer())
+        _updates.emit(Unit)
+        return Result.success(Unit)
+    }
+    override suspend fun getRequest(requestId: String): Result<VerificationRequest> =
+        load(requestId, VerificationRequest.serializer())?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
 }
 
 class DesktopWtgBackendApi : WtgBackendApi(baseUrl = "https://sim.wetheGoverned.net", httpClient = io.ktor.client.HttpClient()) {

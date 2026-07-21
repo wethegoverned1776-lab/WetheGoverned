@@ -166,42 +166,28 @@ open class HomeViewModel(
 
         val scopeFiltered = when (currentScope) {
             PollScope.DASHBOARD -> searchFiltered
-            PollScope.FEDERAL -> searchFiltered.filter { 
-                it.scope == PollScope.FEDERAL || it.districtId == state.federalHouseId 
-            }
-            PollScope.STATE -> searchFiltered.filter { 
-                it.scope == PollScope.STATE || it.districtId == state.stateSenateId || it.districtId == state.stateHouseId
-            }
+            PollScope.FEDERAL -> searchFiltered.filter { it.scope == PollScope.FEDERAL }
+            PollScope.STATE -> searchFiltered.filter { it.scope == PollScope.STATE }
             PollScope.DISTRICT -> searchFiltered.filter { it.scope == PollScope.DISTRICT }
-            PollScope.LOCAL -> searchFiltered.filter { 
-                it.scope == PollScope.LOCAL || it.districtId == state.countyId || it.districtId == state.cityId || it.districtId == state.schoolBoardId
-            }
+            PollScope.LOCAL -> searchFiltered.filter { it.scope == PollScope.LOCAL }
             PollScope.ALL_POLLS -> searchFiltered
             PollScope.RESULTS -> searchFiltered.filter { it.status == PollStatus.CLOSED }
             else -> searchFiltered
         }
 
-        val hierarchy = linkedMapOf(
-            "Federal Governance" to mutableListOf<CivicPoll>(),
-            "State Governance" to mutableListOf<CivicPoll>(),
-            state.stateSenateName to mutableListOf<CivicPoll>(),
-            state.stateHouseName to mutableListOf<CivicPoll>(),
-            state.countyName to mutableListOf<CivicPoll>(),
-            state.cityName to mutableListOf<CivicPoll>(),
-            state.schoolBoardName to mutableListOf<CivicPoll>(),
-            "Other Districts" to mutableListOf<CivicPoll>()
-        )
+        val hierarchy = linkedMapOf<String, MutableList<CivicPoll>>()
 
         scopeFiltered.forEach { poll ->
             val key = when {
-                poll.scope == PollScope.FEDERAL || poll.districtId == state.federalHouseId -> "Federal Governance"
-                poll.scope == PollScope.STATE && poll.districtId == state.stateId -> "State Governance"
+                poll.scope == PollScope.FEDERAL -> "Federal Governance"
+                poll.scope == PollScope.STATE -> "State Governance"
+                poll.districtId == state.federalHouseId -> state.federalHouseName
                 poll.districtId == state.stateSenateId -> state.stateSenateName
                 poll.districtId == state.stateHouseId -> state.stateHouseName
                 poll.districtId == state.countyId -> state.countyName
                 poll.districtId == state.cityId -> state.cityName
                 poll.districtId == state.schoolBoardId -> state.schoolBoardName
-                else -> "Other Districts"
+                else -> "Regional & Local"
             }
             hierarchy.getOrPut(key) { mutableListOf() }.add(poll)
         }

@@ -84,6 +84,8 @@ class InMemoryPollRepository : PollRepository {
     override suspend fun getAllPolls() = polls
     override suspend fun getPollsForJurisdictions(jurisdictionIds: List<String>, since: Long) = polls.filter { it.districtId in jurisdictionIds }
     override suspend fun syncPoll(poll: CivicPoll) { polls.add(poll) }
+    override suspend fun syncVote(vote: CivicVote) {}
+    override suspend fun markVoted(pollId: String, optionId: String) {}
 }
 
 class InMemoryResidentRepository : ResidentRepository {

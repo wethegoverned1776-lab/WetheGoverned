@@ -59,19 +59,38 @@ class WebVoteRepository(private val publisher: CivicPublisher? = null) : VoteRep
 class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRepository, WebRepository("polls") {
     private val _pollsFlow = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
 
+    init {
+        // Seed default polls to match PC version "Locked State"
+        if (listIdsFromStorage().isEmpty()) {
+            val adminPoll = CivicPoll(id = "poll_fed_1", scope = PollScope.FEDERAL, districtId = "us", authorPubKey = "admin", question = "Should the US implement term limits for Congress?", options = listOf(PollOption("opt_1", "Yes, 12 years", 5000, 0.9f)), status = PollStatus.ACTIVE, createdAt = Clock.System.now().toEpochMilliseconds(), closesAt = Clock.System.now().toEpochMilliseconds() + 86400000 * 30, totalVotes = 5500)
+            saveToStorage(adminPoll.id, adminPoll, CivicPoll.serializer())
+
+            val poll1 = CivicPoll(id = "poll_1", scope = PollScope.DISTRICT, districtId = "us-fl-06", authorPubKey = "admin", question = "Should the district support the A1A reinforcement bill?", options = listOf(PollOption("opt_0", "Yes, immediate action", 120, 0.8f), PollOption("opt_1", "No, too expensive", 30, 0.2f)), status = PollStatus.ACTIVE, createdAt = Clock.System.now().toEpochMilliseconds(), closesAt = Clock.System.now().toEpochMilliseconds() + 86400000, totalVotes = 150, importanceScore = 45)
+            saveToStorage(poll1.id, poll1, CivicPoll.serializer())
+
+            val poll2 = CivicPoll(id = "poll_2", scope = PollScope.STATE, districtId = "us-fl", authorPubKey = "admin", question = "Florida Statewide: Increase solar subsidies?", options = listOf(PollOption("opt_0", "Yes", 1000, 0.6f), PollOption("opt_1", "No", 400, 0.4f)), status = PollStatus.ACTIVE, createdAt = Clock.System.now().toEpochMilliseconds(), closesAt = Clock.System.now().toEpochMilliseconds() + 86400000 * 5, totalVotes = 1400, importanceScore = 80)
+            saveToStorage(poll2.id, poll2, CivicPoll.serializer())
+        }
+    }
+
     override fun observeDistrictPolls(districtId: String): Flow<List<CivicPoll>> = _pollsFlow.onStart { emit(Unit) }.map {
         listIdsFromStorage().mapNotNull { id -> loadFromStorage(id, CivicPoll.serializer()) }
-            .filter { it.districtId == districtId || it.districtId == "us" }
+            .filter { 
+                it.districtId == districtId || 
+                it.districtId == "us" || 
+                it.districtId == districtId.substringBeforeLast('-', "us") ||
+                it.localId == districtId
+            }
     }
 
     override fun observePollsByIds(districtIds: List<String>): Flow<List<CivicPoll>> = _pollsFlow.onStart { emit(Unit) }.map {
         listIdsFromStorage().mapNotNull { id -> loadFromStorage(id, CivicPoll.serializer()) }
-            .filter { it.districtId in districtIds }
+            .filter { it.districtId in districtIds || (it.localId != null && it.localId in districtIds) }
     }
 
     override fun observePollsByScope(scope: PollScope, districtId: String): Flow<List<CivicPoll>> = _pollsFlow.onStart { emit(Unit) }.map {
         listIdsFromStorage().mapNotNull { id -> loadFromStorage(id, CivicPoll.serializer()) }
-            .filter { it.scope == scope && (it.districtId == districtId || it.districtId == "us") }
+            .filter { it.scope == scope && (it.districtId == districtId || it.districtId == "us" || it.districtId == districtId.substringBeforeLast('-', "us") || it.localId == districtId) }
     }
 
     override suspend fun getPoll(pollId: String): Result<CivicPoll> = 
@@ -92,6 +111,7 @@ class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRep
             kind = when(scope) {
                 PollScope.FEDERAL -> CivicEventKind.FEDERAL_POLL
                 PollScope.STATE -> CivicEventKind.STATE_POLL
+                PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
                 else -> CivicEventKind.DISTRICT_POLL
             },
             tags = listOf("d", districtId),
@@ -133,7 +153,11 @@ class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRep
 
     override suspend fun voteImportance(pollId: String, delta: Int, voterPubKey: String): Result<Unit> {
         val poll = loadFromStorage(pollId, CivicPoll.serializer()) ?: return Result.failure(Exception("Poll not found"))
-        saveToStorage(pollId, poll.copy(importanceScore = poll.importanceScore + delta), CivicPoll.serializer())
+        val updatedPoll = poll.copy(
+            importanceScore = poll.importanceScore + delta,
+            userImportanceVote = delta
+        )
+        saveToStorage(pollId, updatedPoll, CivicPoll.serializer())
         _pollsFlow.emit(Unit)
         return Result.success(Unit)
     }
@@ -156,10 +180,44 @@ class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRep
         saveToStorage(poll.id, poll, CivicPoll.serializer())
         _pollsFlow.emit(Unit)
     }
+
+    override suspend fun syncVote(vote: CivicVote) {
+        // ... handled via P2PSyncEngine calling markVoted if needed
+    }
+
+    override suspend fun markVoted(pollId: String, optionId: String) {
+        val poll = loadFromStorage(pollId, CivicPoll.serializer()) ?: return
+        if (poll.residentVoteOption == optionId) return
+        val updated = poll.copy(residentVoteOption = optionId)
+        saveToStorage(pollId, updated, CivicPoll.serializer())
+        _pollsFlow.emit(Unit)
+    }
 }
 
-class WebResidentRepository : ResidentRepository, WebRepository("residents") {
+class WebResidentRepository(private val publisher: CivicPublisher? = null) : ResidentRepository, WebRepository("residents") {
     private val _updates = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+
+    init {
+        // Seed Admin Profile for Web
+        if (loadFromStorage("pub_admin", ResidentProfile.serializer()) == null) {
+            val admin = ResidentProfile(
+                pubKey = "pub_admin",
+                displayName = "Admin",
+                federalHouseId = "us-fl-06",
+                federalSenateId = "us-senate",
+                stateSenateId = "us-fl-senate-07",
+                stateHouseId = "us-fl-house-19",
+                countyId = "flagler-county",
+                cityId = "palm-coast",
+                schoolBoardId = "flagler-school-board",
+                tier = VerificationTier.VERIFIED,
+                joinedAt = Clock.System.now().toEpochMilliseconds(),
+                address = "172 beech wood lane palm coast fl 32137",
+                isVerified = true
+            )
+            saveToStorage(admin.pubKey, admin, ResidentProfile.serializer())
+        }
+    }
 
     override fun observeProfile(pubKey: String): Flow<ResidentProfile?> = _updates.onStart { emit(Unit) }.map {
         loadFromStorage(pubKey, ResidentProfile.serializer())
@@ -177,10 +235,33 @@ class WebResidentRepository : ResidentRepository, WebRepository("residents") {
     override suspend fun upgradeTier(pubKey: String, newTier: VerificationTier, proofToken: String): Result<ResidentProfile> = Result.failure(Exception("Not implemented"))
     override suspend fun upgradeTierWithFingerprint(pubKey: String, newTier: VerificationTier, proofToken: String, fingerprint: String): Result<ResidentProfile> = Result.failure(Exception("Not implemented"))
     override suspend fun upgradeTierFull(pubKey: String, newTier: VerificationTier, fingerprint: String, verifiedBy: String?): Result<Unit> = Result.success(Unit)
-    override suspend fun updateProfile(pubKey: String, displayName: String, avatarUrl: String?): Result<ResidentProfile> = Result.failure(Exception("Not implemented"))
+    override suspend fun updateProfile(pubKey: String, displayName: String, avatarUrl: String?): Result<ResidentProfile> {
+        val p = loadFromStorage(pubKey, ResidentProfile.serializer()) ?: return Result.failure(Exception("Not found"))
+        val updated = p.copy(displayName = displayName)
+        saveToStorage(pubKey, updated, ResidentProfile.serializer())
+        
+        publisher?.signPublishImportCivicEvent(
+            kind = CivicEventKind.RESIDENT_PROFILE,
+            tags = listOf("d", pubKey),
+            content = json.encodeToString(ResidentProfile.serializer(), updated),
+            pubKey = pubKey
+        )
+        
+        _updates.emit(Unit)
+        return Result.success(updated)
+    }
     override suspend fun updateDistrict(pubKey: String, districtId: String): Result<Unit> {
         val p = loadFromStorage(pubKey, ResidentProfile.serializer()) ?: return Result.failure(Exception("Not found"))
-        saveToStorage(pubKey, p.copy(federalHouseId = districtId), ResidentProfile.serializer())
+        val updated = p.copy(federalHouseId = districtId)
+        saveToStorage(pubKey, updated, ResidentProfile.serializer())
+        
+        publisher?.signPublishImportCivicEvent(
+            kind = CivicEventKind.RESIDENT_PROFILE,
+            tags = listOf("d", pubKey),
+            content = json.encodeToString(ResidentProfile.serializer(), updated),
+            pubKey = pubKey
+        )
+
         _updates.emit(Unit)
         return Result.success(Unit)
     }

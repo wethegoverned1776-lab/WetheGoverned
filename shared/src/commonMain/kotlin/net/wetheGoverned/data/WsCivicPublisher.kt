@@ -23,17 +23,22 @@ class WsCivicPublisher(
         content: String,
         pubKey: String
     ) {
-        val finalTags = if (kind == CivicEventKind.POLL_VOTE) {
+        val nostrTags = mutableListOf<List<String>>()
+        
+        // Handle primary 'd' tag
+        if (tags.size >= 2 && tags[0] == "d") {
+            nostrTags.add(listOf("d", tags[1]))
+        } else if (tags.isNotEmpty()) {
+            nostrTags.add(tags)
+        }
+
+        if (kind == CivicEventKind.POLL_VOTE) {
             val proofResult = zkProver.generateProof(
                 circuitName = "voter_nostr",
                 inputs = mapOf("nostrPubKey" to pubKey, "secret" to "STUB_SECRET")
             )
-            tags.toMutableList().apply {
-                add("zk_proof:${proofResult.proof.joinToString(",")}")
-                add("nullifier:${proofResult.publicSignals[0]}")
-            }
-        } else {
-            tags
+            nostrTags.add(listOf("zk_proof", proofResult.proof.joinToString(",")))
+            nostrTags.add(listOf("nullifier", proofResult.publicSignals[0].toString()))
         }
 
         val event = CivicEvent(
@@ -41,7 +46,7 @@ class WsCivicPublisher(
             pubKey = pubKey,
             createdAt = Clock.System.now().toEpochMilliseconds() / 1000,
             kind = kind,
-            tags = finalTags,
+            tags = nostrTags,
             content = content,
             sig = "STUB_SIGNATURE"
         )

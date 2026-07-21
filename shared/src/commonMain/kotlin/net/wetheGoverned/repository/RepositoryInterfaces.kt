@@ -35,6 +35,8 @@ interface PollRepository {
     suspend fun getAllPolls(): List<CivicPoll>
     suspend fun getPollsForJurisdictions(jurisdictionIds: List<String>, since: Long): List<CivicPoll>
     suspend fun syncPoll(poll: CivicPoll)
+    suspend fun syncVote(vote: CivicVote)
+    suspend fun markVoted(pollId: String, optionId: String)
 }
 
 interface ResidentRepository {

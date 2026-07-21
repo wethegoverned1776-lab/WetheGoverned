@@ -10,7 +10,7 @@ data class CivicEvent(
     @SerialName("pubkey") val pubKey: String,
     @SerialName("created_at") val createdAt: Long,
     val kind: Int,
-    val tags: List<String> = emptyList(),
+    val tags: List<List<String>> = emptyList(),
     val content: String,
     val sig: String,
 )

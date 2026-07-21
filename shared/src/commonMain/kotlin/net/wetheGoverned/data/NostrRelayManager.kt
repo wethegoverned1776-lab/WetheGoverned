@@ -35,7 +35,7 @@ class NostrRelayManager(
 
     private val activeSessions = mutableMapOf<String, DefaultClientWebSocketSession>()
     private val retryDelays = mutableMapOf<String, Long>()
-    private val activeSubscriptions = mutableMapOf<String, JsonObject>()
+    private val activeSubscriptions = mutableMapOf<String, List<JsonObject>>()
     
     // ERR_V5_02 FIX: Relay Health Scoring
     private val relayHealth = mutableMapOf<String, Int>() 
@@ -69,8 +69,8 @@ class NostrRelayManager(
                     retryDelays[url] = 1000L
                     relayHealth[url] = 100
                     
-                    activeSubscriptions.forEach { (id, filter) ->
-                        sendSubscriptionRequest(this, id, filter)
+                    activeSubscriptions.forEach { (id, filters) ->
+                        sendSubscriptionRequest(this, id, filters)
                     }
 
                     println("CONNECTED TO RELAY: $url")
@@ -121,33 +121,35 @@ class NostrRelayManager(
         } catch (ignore: Exception) {}
     }
 
-    suspend fun subscribe(subscriptionId: String, filters: JsonObject) {
-        activeSubscriptions[subscriptionId] = filters
+    suspend fun subscribe(subscriptionId: String, vararg filters: JsonObject) {
+        val filterList = filters.toList()
+        activeSubscriptions[subscriptionId] = filterList
         
         // ERR_X9 FIX: Filter Sharding
-        val dTags = filters["#d"]?.jsonArray ?: return sendSubscriptionRequestRaw(subscriptionId, filters)
+        val firstFilter = filterList.firstOrNull() ?: return
+        val dTags = firstFilter["#d"]?.jsonArray
         
-        if (dTags.size > 10) {
+        if (dTags != null && dTags.size > 10) {
             dTags.chunked(10).forEachIndexed { index, chunk ->
                 val shardedFilter = buildJsonObject {
-                    filters.forEach { (k, v) -> if (k == "#d") put(k, JsonArray(chunk)) else put(k, v) }
+                    firstFilter.forEach { (k, v) -> if (k == "#d") put(k, JsonArray(chunk)) else put(k, v) }
                 }
-                activeSessions.values.forEach { sendSubscriptionRequest(it, "${subscriptionId}_$index", shardedFilter) }
+                activeSessions.values.forEach { sendSubscriptionRequest(it, "${subscriptionId}_$index", listOf(shardedFilter)) }
             }
         } else {
-            activeSessions.values.forEach { sendSubscriptionRequest(it, subscriptionId, filters) }
+            activeSessions.values.forEach { sendSubscriptionRequest(it, subscriptionId, filterList) }
         }
     }
 
-    private suspend fun sendSubscriptionRequestRaw(id: String, filters: JsonObject) {
+    private suspend fun sendSubscriptionRequestRaw(id: String, filters: List<JsonObject>) {
         activeSessions.values.forEach { sendSubscriptionRequest(it, id, filters) }
     }
     
-    private suspend fun sendSubscriptionRequest(session: DefaultClientWebSocketSession, id: String, filters: JsonObject) {
+    private suspend fun sendSubscriptionRequest(session: DefaultClientWebSocketSession, id: String, filters: List<JsonObject>) {
         val request = buildJsonArray {
             add("REQ")
             add(id)
-            add(filters)
+            filters.forEach { add(it) }
         }.toString()
         try {
             session.send(Frame.Text(request))

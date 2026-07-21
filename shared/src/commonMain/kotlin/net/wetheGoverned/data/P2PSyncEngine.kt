@@ -25,6 +25,7 @@ class P2PSyncEngine(
     private val sessionManager: SessionManager,
     private val relayManager: NostrRelayManager,
 ) {
+    private val json = Json { ignoreUnknownKeys = true }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val eventQueue = Channel<CivicEvent>(capacity = 10000)
     private val verificationQueue = Channel<CivicEvent>(capacity = 5000)
@@ -67,27 +68,44 @@ class P2PSyncEngine(
         }
 
         // Subscribe to relevant events
-        scope.launch {
-            val session = sessionManager.currentSession
-            val myDistrictId = session?.districtId ?: "us"
-            
-            val filter = buildJsonObject {
-                put("kinds", buildJsonArray { 
-                    add(CivicEventKind.FEDERAL_POLL)
-                    add(CivicEventKind.STATE_POLL)
-                    add(CivicEventKind.DISTRICT_POLL)
-                    add(CivicEventKind.POLL_VOTE)
-                    add(CivicEventKind.COMMUNITY_POST)
-                    add(CivicEventKind.RESIDENT_PROFILE)
-                })
-                put("#d", buildJsonArray { 
-                    add(myDistrictId)
-                    add("us") // Always listen for federal
-                })
+        sessionManager.session
+            .onEach { session ->
+                val myDistrictId = session?.districtId ?: "us"
+                val myPubKey = session?.pubKey
+                
+                val districtFilter = buildJsonObject {
+                    put("kinds", buildJsonArray { 
+                        add(CivicEventKind.FEDERAL_POLL)
+                        add(CivicEventKind.STATE_POLL)
+                        add(CivicEventKind.DISTRICT_POLL)
+                        add(CivicEventKind.LOCAL_POLL)
+                        add(CivicEventKind.COMMUNITY_POST)
+                    })
+                    put("#d", buildJsonArray { 
+                        add(myDistrictId)
+                        add("us") // Always listen for federal
+                    })
+                }
+
+                // Global user sync filter (to catch my own votes/profile on other devices)
+                val userFilter = if (myPubKey != null) {
+                    buildJsonObject {
+                        put("kinds", buildJsonArray {
+                            add(CivicEventKind.POLL_VOTE)
+                            add(CivicEventKind.RESIDENT_PROFILE)
+                            add(CivicEventKind.COMMUNITY_POST)
+                        })
+                        put("authors", buildJsonArray { add(JsonPrimitive(myPubKey)) })
+                    }
+                } else null
+                
+                if (userFilter != null) {
+                    relayManager.subscribe("wtg_sync_$myDistrictId", districtFilter, userFilter)
+                } else {
+                    relayManager.subscribe("wtg_sync_$myDistrictId", districtFilter)
+                }
             }
-            
-            relayManager.subscribe("wtg_sync_$myDistrictId", filter)
-        }
+            .launchIn(scope)
 
         // Listen for incoming events from the relay and push to queue
         relayManager.events
@@ -121,20 +139,27 @@ class P2PSyncEngine(
             when (event.kind) {
                 CivicEventKind.FEDERAL_POLL,
                 CivicEventKind.STATE_POLL,
-                CivicEventKind.DISTRICT_POLL -> {
-                    val poll = Json.decodeFromString<CivicPoll>(event.content)
+                CivicEventKind.DISTRICT_POLL,
+                CivicEventKind.LOCAL_POLL -> {
+                    val poll = json.decodeFromString<CivicPoll>(event.content)
                     pollRepository.syncPoll(poll)
                 }
                 CivicEventKind.POLL_VOTE -> {
-                    val vote = Json.decodeFromString<CivicVote>(event.content)
+                    val vote = json.decodeFromString<CivicVote>(event.content)
                     voteRepository.syncVote(vote)
+                    
+                    // Cross-device Sync: If this is the current user's vote from another device, 
+                    // mark the poll as voted locally.
+                    if (vote.voterPubKey == sessionManager.currentPubKey) {
+                        pollRepository.markVoted(vote.pollId, vote.optionId)
+                    }
                 }
                 CivicEventKind.COMMUNITY_POST -> {
-                    val post = Json.decodeFromString<CommunityPost>(event.content)
+                    val post = json.decodeFromString<CommunityPost>(event.content)
                     communityRepository.syncPost(post)
                 }
                 CivicEventKind.RESIDENT_PROFILE -> {
-                    val profile = Json.decodeFromString<ResidentProfile>(event.content)
+                    val profile = json.decodeFromString<ResidentProfile>(event.content)
                     residentRepository.createProfile(profile)
                 }
             }

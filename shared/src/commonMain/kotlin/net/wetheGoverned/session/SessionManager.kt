@@ -3,6 +3,9 @@ package net.wetheGoverned.session
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import net.wetheGoverned.model.VerificationTier
 
 sealed class SessionEvent {
@@ -32,17 +35,14 @@ interface SessionStorage {
 }
 
 class SessionManager(private val storage: SessionStorage? = null) {
-    var currentPubKey: String? = null
-    var currentSession: UserSession? = null
-        private set
+    private val _session = MutableStateFlow<UserSession?>(storage?.getSession())
+    val session: StateFlow<UserSession?> = _session.asStateFlow()
+
+    var currentPubKey: String? = _session.value?.pubKey
+    val currentSession: UserSession? get() = _session.value
 
     private val _events = MutableSharedFlow<SessionEvent>()
     val events: SharedFlow<SessionEvent> = _events.asSharedFlow()
-
-    init {
-        currentSession = storage?.getSession()
-        currentPubKey = currentSession?.pubKey
-    }
 
     fun login(
         pubKeyHex: String,
@@ -61,36 +61,42 @@ class SessionManager(private val storage: SessionStorage? = null) {
             localId, cityId, schoolBoardId, tier, privateKeyHex
         )
         currentPubKey = pubKeyHex
-        currentSession = session
+        _session.value = session
         storage?.saveSession(session)
     }
 
     fun logout() {
         currentPubKey = null
-        currentSession = null
+        _session.value = null
         storage?.clearSession()
     }
 
     fun setDistrict(districtId: String) {
-        currentSession = currentSession?.copy(districtId = districtId)?.also {
-            storage?.saveSession(it)
+        val updated = _session.value?.copy(districtId = districtId)
+        if (updated != null) {
+            _session.value = updated
+            storage?.saveSession(updated)
         }
     }
 
     fun setJurisdictions(federalId: String, upperId: String?, lowerId: String?, localId: String?) {
-        currentSession = currentSession?.copy(
+        val updated = _session.value?.copy(
             districtId = federalId,
             stateUpperId = upperId,
             stateLowerId = lowerId,
             localId = localId
-        )?.also {
-            storage?.saveSession(it)
+        )
+        if (updated != null) {
+            _session.value = updated
+            storage?.saveSession(updated)
         }
     }
 
     fun upgradeTier(newTier: VerificationTier) {
-        currentSession = currentSession?.copy(tier = newTier)?.also {
-            storage?.saveSession(it)
+        val updated = _session.value?.copy(tier = newTier)
+        if (updated != null) {
+            _session.value = updated
+            storage?.saveSession(updated)
         }
     }
 

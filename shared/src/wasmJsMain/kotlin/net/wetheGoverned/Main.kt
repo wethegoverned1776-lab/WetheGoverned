@@ -53,7 +53,7 @@ fun main() {
 
         val pollRepository = remember { WebPollRepository(publisher) }
         val accountRepository = remember { WebAccountRepository() }
-        val residentRepository = remember { WebResidentRepository() }
+        val residentRepository = remember { WebResidentRepository(publisher) }
         val manifestoRepository = remember { WebManifestoRepository() }
         val scorecardRepository = remember { WebScorecardRepository() }
         val districtRepository = remember { WebDistrictRepository() }
