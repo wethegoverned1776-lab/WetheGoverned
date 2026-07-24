@@ -68,13 +68,22 @@ class WsCivicPublisher(
     }
 
     /**
-     * Minimal NIP-01 ID computation. 
+     * NIP-01 ID computation. 
      * Serializes [0, pubkey, created_at, kind, tags, content]
      */
     private fun computeNostrId(pubKey: String, createdAt: Long, kind: Int, tags: List<List<String>>, content: String): String {
-        // This is a deterministic string representation for hashing.
-        // For the lab environment, we use a consistent ID based on content.
-        val raw = "[$pubKey,$createdAt,$kind,${tags.flatten().joinToString("")},$content]"
-        return raw.hashCode().toString(16) // Fallback for common module hashing
+        // Deterministic serialization for hashing
+        val tagsJson = tags.joinToString(",", "[", "]") { tag ->
+            tag.joinToString(",", "[", "]") { "\"$it\"" }
+        }
+        val serialized = "[0,\"$pubKey\",$createdAt,$kind,$tagsJson,\"$content\"]"
+        
+        // Simple hash for lab environment that is consistent across platforms
+        // In production, use actual SHA-256
+        var h = 0L
+        for (i in 0 until serialized.length) {
+            h = 31 * h + serialized[i].code
+        }
+        return h.toString(16)
     }
 }

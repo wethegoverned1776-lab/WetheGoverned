@@ -83,16 +83,18 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
 
     init {
         runBlocking {
+            // Fixed timestamps to ensure cross-device consistency
+            val baseTime = 1735689600000L // Jan 1, 2025
             if (listIds().isEmpty()) {
-                val adminPoll = CivicPoll(id = "poll_fed_1", scope = PollScope.FEDERAL, districtId = "us", authorPubKey = "admin", question = "Should the US implement term limits for Congress?", options = listOf(PollOption("opt_1", "Yes, 12 years", 5000, 0.9f)), status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = System.currentTimeMillis() + 86400000 * 30, totalVotes = 5500)
+                val adminPoll = CivicPoll(id = "poll_fed_1", scope = PollScope.FEDERAL, districtId = "us", authorPubKey = "admin", question = "Should the US implement term limits for Congress?", options = listOf(PollOption("opt_1", "Yes, 12 years", 5000, 0.9f)), status = PollStatus.ACTIVE, createdAt = baseTime, closesAt = baseTime + 86400000 * 30, totalVotes = 5500)
                 save(adminPoll.id, adminPoll, CivicPoll.serializer())
                 addToIndex("district", "us", adminPoll.id)
 
-                val poll1 = CivicPoll(id = "poll_1", scope = PollScope.DISTRICT, districtId = "us-fl-06", authorPubKey = "admin", question = "Should the district support the A1A reinforcement bill?", options = listOf(PollOption("opt_0", "Yes, immediate action", 120, 0.8f), PollOption("opt_1", "No, too expensive", 30, 0.2f)), status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = System.currentTimeMillis() + 86400000, totalVotes = 150, importanceScore = 45)
+                val poll1 = CivicPoll(id = "poll_1", scope = PollScope.DISTRICT, districtId = "us-fl-06", authorPubKey = "admin", question = "Should the district support the A1A reinforcement bill?", options = listOf(PollOption("opt_0", "Yes, immediate action", 120, 0.8f), PollOption("opt_1", "No, too expensive", 30, 0.2f)), status = PollStatus.ACTIVE, createdAt = baseTime + 1000, closesAt = baseTime + 86400000, totalVotes = 150, importanceScore = 45)
                 save(poll1.id, poll1, CivicPoll.serializer())
                 addToIndex("district", "us-fl-06", poll1.id)
 
-                val poll2 = CivicPoll(id = "poll_2", scope = PollScope.STATE, districtId = "us-fl", authorPubKey = "admin", question = "Florida Statewide: Increase solar subsidies?", options = listOf(PollOption("opt_0", "Yes", 1000, 0.6f), PollOption("opt_1", "No", 400, 0.4f)), status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = System.currentTimeMillis() + 86400000 * 5, totalVotes = 1400, importanceScore = 80)
+                val poll2 = CivicPoll(id = "poll_2", scope = PollScope.STATE, districtId = "us-fl", authorPubKey = "admin", question = "Florida Statewide: Increase solar subsidies?", options = listOf(PollOption("opt_0", "Yes", 1000, 0.6f), PollOption("opt_1", "No", 400, 0.4f)), status = PollStatus.ACTIVE, createdAt = baseTime + 2000, closesAt = baseTime + 86400000 * 5, totalVotes = 1400, importanceScore = 80)
                 save(poll2.id, poll2, CivicPoll.serializer())
                 addToIndex("district", "us-fl", poll2.id)
             }
