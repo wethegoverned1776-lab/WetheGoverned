@@ -72,7 +72,7 @@ open class HomeViewModel(
     private fun observeSyncStatus() {
         relayManager.relayStatuses
             .onEach { statuses ->
-                val syncing = statuses.values.any { it == net.wetheGoverned.data.RelayStatus.CONNECTING }
+                val syncing = statuses.values.any { it == net.wetheGoverned.data.RelayStatus.CONNECTED }
                 _uiState.update { it.copy(isSyncing = syncing) }
             }
             .launchIn(viewModelScope)
