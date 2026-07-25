@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,33 +33,37 @@ fun PollDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Poll Details") },
-                navigationIcon = { IconButton(onClick = onBack) { Text("←") } },
+                title = { Text("Poll Details", fontWeight = FontWeight.Bold) },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
             )
         },
     ) { padding ->
-        when {
-            uiState.isLoading -> Box(
-                Modifier.padding(padding).fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator() }
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+            Box(Modifier.widthIn(max = 800.dp)) {
+                when {
+                    uiState.isLoading -> Box(
+                        Modifier.padding(padding).fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) { CircularProgressIndicator() }
 
-            uiState.poll != null -> PollDetailContent(
-                poll = uiState.poll!!,
-                canVote = uiState.canVote,
-                selectedOption = uiState.pendingSelection,
-                onSelectOption = viewModel::onSelectOption,
-                onSubmitVote = viewModel::onSubmitVote,
-                onNavigateToDiscussion = { optionId -> onNavigateToDiscussion(pollId, optionId) },
-                isSubmitting = uiState.isSubmitting,
-                discussions = uiState.discussions,
-                modifier = Modifier.padding(padding),
-            )
+                    uiState.poll != null -> PollDetailContent(
+                        poll = uiState.poll!!,
+                        canVote = uiState.canVote,
+                        selectedOption = uiState.pendingSelection,
+                        onSelectOption = viewModel::onSelectOption,
+                        onSubmitVote = viewModel::onSubmitVote,
+                        onNavigateToDiscussion = { optionId -> onNavigateToDiscussion(pollId, optionId) },
+                        isSubmitting = uiState.isSubmitting,
+                        discussions = uiState.discussions,
+                        modifier = Modifier.padding(padding),
+                    )
 
-            else -> Box(
-                Modifier.padding(padding).fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) { Text("Poll not found.") }
+                    else -> Box(
+                        Modifier.padding(padding).fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) { Text("Poll not found.") }
+                }
+            }
         }
     }
 }

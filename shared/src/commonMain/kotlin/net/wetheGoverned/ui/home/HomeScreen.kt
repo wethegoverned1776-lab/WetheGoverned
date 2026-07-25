@@ -189,42 +189,46 @@ fun HomeContent(
                     items(5) { PollSkeleton() }
                 }
             } else {
-                when (uiState.selectedScope) {
-                    PollScope.DASHBOARD -> {
-                        DashboardView(
-                            uiState = uiState,
-                            isReadOnly = isReadOnly,
-                            onImportanceVote = onImportanceVote,
-                            onNavigateToPoll = onNavigateToPoll,
-                            onNavigateToManifestos = onNavigateToManifestos,
-                            onNavigateToMetrics = onNavigateToMetrics,
-                            onNavigateToCommunityHub = onNavigateToCommunityHub
-                        )
-                    }
-                    PollScope.REPRESENTATIVES -> {
-                        RepresentativesView(uiState.electedOfficials)
-                    }
-                    else -> {
-                        if (uiState.groupedPolls.isEmpty()) {
-                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                if (isObserver && districtId == null && uiState.selectedScope != PollScope.FEDERAL) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        Text("No district selected.", style = MaterialTheme.typography.bodyMedium)
-                                        Button(onClick = onNavigateToDistrictSelection) {
-                                            Text("Select a District")
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+                    Column(Modifier.widthIn(max = 800.dp)) {
+                        when (uiState.selectedScope) {
+                            PollScope.DASHBOARD -> {
+                                DashboardView(
+                                    uiState = uiState,
+                                    isReadOnly = isReadOnly,
+                                    onImportanceVote = onImportanceVote,
+                                    onNavigateToPoll = onNavigateToPoll,
+                                    onNavigateToManifestos = onNavigateToManifestos,
+                                    onNavigateToMetrics = onNavigateToMetrics,
+                                    onNavigateToCommunityHub = onNavigateToCommunityHub
+                                )
+                            }
+                            PollScope.REPRESENTATIVES -> {
+                                RepresentativesView(uiState.electedOfficials)
+                            }
+                            else -> {
+                                if (uiState.groupedPolls.isEmpty()) {
+                                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        if (isObserver && districtId == null && uiState.selectedScope != PollScope.FEDERAL) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                Text("No district selected.", style = MaterialTheme.typography.bodyMedium)
+                                                Button(onClick = onNavigateToDistrictSelection) {
+                                                    Text("Select a District")
+                                                }
+                                            }
+                                        } else {
+                                            Text("No active polls in this scope.")
                                         }
                                     }
                                 } else {
-                                    Text("No active polls in this scope.")
+                                    PollFeed(
+                                        uiState = uiState,
+                                        isReadOnly = isReadOnly,
+                                        onImportanceVote = onImportanceVote,
+                                        onNavigateToPoll = onNavigateToPoll
+                                    )
                                 }
                             }
-                        } else {
-                            PollFeed(
-                                uiState = uiState,
-                                isReadOnly = isReadOnly,
-                                onImportanceVote = onImportanceVote,
-                                onNavigateToPoll = onNavigateToPoll
-                            )
                         }
                     }
                 }

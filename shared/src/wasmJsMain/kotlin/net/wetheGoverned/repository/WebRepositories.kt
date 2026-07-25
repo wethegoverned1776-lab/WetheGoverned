@@ -100,9 +100,10 @@ class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRep
 
     override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?): Result<CivicPoll> {
         val id = "poll_${Clock.System.now().toEpochMilliseconds()}"
+        val author = publisher?.toString()?.let { "user" } ?: "admin" // Placeholder logic
         val newPoll = CivicPoll(
             id = id, scope = scope, districtId = districtId, localId = localId,
-            authorPubKey = "web_user", question = question,
+            authorPubKey = author, question = question,
             options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) },
             status = PollStatus.ACTIVE, createdAt = Clock.System.now().toEpochMilliseconds(),
             closesAt = closesAt ?: (Clock.System.now().toEpochMilliseconds() + 86400000), totalVotes = 0
@@ -118,7 +119,7 @@ class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRep
             },
             tags = listOf("d", districtId),
             content = json.encodeToString(CivicPoll.serializer(), newPoll),
-            pubKey = "web_user"
+            pubKey = author
         )
         
         _pollsFlow.emit(Unit)
