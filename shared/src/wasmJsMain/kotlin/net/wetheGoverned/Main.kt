@@ -65,7 +65,7 @@ fun main() {
             P2PSyncEngine(
                 pollRepository, residentRepository, voteRepository,
                 manifestoRepository, communityRepository, accountRepository, sessionManager,
-                relayManager
+                relayManager, publisher
             )
         }
 

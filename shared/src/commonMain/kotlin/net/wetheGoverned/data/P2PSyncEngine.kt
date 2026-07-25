@@ -10,6 +10,8 @@ import kotlinx.serialization.json.*
 import net.wetheGoverned.model.*
 import net.wetheGoverned.repository.*
 import net.wetheGoverned.session.SessionManager
+import net.wetheGoverned.session.UserSession
+import net.wetheGoverned.core.CivicPublisher
 
 /**
  * Shared P2P Mesh Engine for both Phone and PC.
@@ -24,6 +26,7 @@ class P2PSyncEngine(
     private val accountRepository: AccountRepository,
     private val sessionManager: SessionManager,
     private val relayManager: NostrRelayManager,
+    private val publisher: CivicPublisher,
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -75,15 +78,15 @@ class P2PSyncEngine(
                 
                 val districtFilter = buildJsonObject {
                     put("kinds", buildJsonArray { 
-                        add(CivicEventKind.FEDERAL_POLL)
-                        add(CivicEventKind.STATE_POLL)
-                        add(CivicEventKind.DISTRICT_POLL)
-                        add(CivicEventKind.LOCAL_POLL)
-                        add(CivicEventKind.COMMUNITY_POST)
+                        add(JsonPrimitive(CivicEventKind.FEDERAL_POLL))
+                        add(JsonPrimitive(CivicEventKind.STATE_POLL))
+                        add(JsonPrimitive(CivicEventKind.DISTRICT_POLL))
+                        add(JsonPrimitive(CivicEventKind.LOCAL_POLL))
+                        add(JsonPrimitive(CivicEventKind.COMMUNITY_POST))
                     })
                     put("#d", buildJsonArray { 
-                        add(myDistrictId)
-                        add("us") // Always listen for federal
+                        add(JsonPrimitive(myDistrictId))
+                        add(JsonPrimitive("us")) // Always listen for federal
                     })
                 }
 
@@ -91,16 +94,18 @@ class P2PSyncEngine(
                 val userFilter = if (myPubKey != null) {
                     buildJsonObject {
                         put("kinds", buildJsonArray {
-                            add(CivicEventKind.POLL_VOTE)
-                            add(CivicEventKind.RESIDENT_PROFILE)
-                            add(CivicEventKind.COMMUNITY_POST)
+                            add(JsonPrimitive(CivicEventKind.POLL_VOTE))
+                            add(JsonPrimitive(CivicEventKind.RESIDENT_PROFILE))
+                            add(JsonPrimitive(CivicEventKind.COMMUNITY_POST))
                         })
                         put("authors", buildJsonArray { add(JsonPrimitive(myPubKey)) })
                     }
                 } else null
                 
-                if (userFilter != null) {
+                if (userFilter != null && session != null) {
                     relayManager.subscribe("wtg_sync_$myDistrictId", districtFilter, userFilter)
+                    // Trigger outbound sync for logged-in user
+                    scope.launch { pushLocalDataToRelays(session) }
                 } else {
                     relayManager.subscribe("wtg_sync_$myDistrictId", districtFilter)
                 }
@@ -115,6 +120,41 @@ class P2PSyncEngine(
             .launchIn(scope)
             
         println("📡 Global Nostr Sync Engine Active (Scaled with Parallel Processing).")
+    }
+
+    /**
+     * Requirement: "when the client logins in it uploads the polls and other information"
+     * This pushes local state to the mesh to ensure other instances see it.
+     */
+    private suspend fun pushLocalDataToRelays(session: UserSession) {
+        println("📤 Syncing local data to NOSTR relays for ${session.displayName}...")
+        
+        // 1. Sync Profile
+        residentRepository.getProfile(session.pubKey).onSuccess { profile ->
+            publisher.signPublishImportCivicEvent(
+                kind = CivicEventKind.RESIDENT_PROFILE,
+                tags = listOf("d", session.pubKey),
+                content = json.encodeToString(ResidentProfile.serializer(), profile),
+                pubKey = session.pubKey
+            )
+        }
+
+        // 2. Sync Polls authored by user or local seed polls
+        pollRepository.getAllPolls().forEach { poll ->
+            if (poll.authorPubKey == session.pubKey || poll.authorPubKey == "admin") {
+                publisher.signPublishImportCivicEvent(
+                    kind = when(poll.scope) {
+                        PollScope.FEDERAL -> CivicEventKind.FEDERAL_POLL
+                        PollScope.STATE -> CivicEventKind.STATE_POLL
+                        PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
+                        else -> CivicEventKind.DISTRICT_POLL
+                    },
+                    tags = listOf("d", poll.id),
+                    content = json.encodeToString(CivicPoll.serializer(), poll),
+                    pubKey = poll.authorPubKey
+                )
+            }
+        }
     }
 
     private fun detectAnomalies(event: CivicEvent): Boolean {
