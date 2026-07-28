@@ -86,12 +86,11 @@ class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRep
     override suspend fun getPoll(pollId: String): Result<CivicPoll> = 
         loadFromStorage(pollId, CivicPoll.serializer())?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
 
-    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?): Result<CivicPoll> {
+    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, authorPubKey: String, localId: String?): Result<CivicPoll> {
         val id = "poll_${Clock.System.now().toEpochMilliseconds()}"
-        val author = publisher?.toString()?.let { "user" } ?: "admin" // Placeholder logic
         val newPoll = CivicPoll(
             id = id, scope = scope, districtId = districtId, localId = localId,
-            authorPubKey = author, question = question,
+            authorPubKey = authorPubKey, question = question,
             options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) },
             status = PollStatus.ACTIVE, createdAt = Clock.System.now().toEpochMilliseconds(),
             closesAt = closesAt ?: (Clock.System.now().toEpochMilliseconds() + 86400000), totalVotes = 0
@@ -107,7 +106,7 @@ class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRep
             },
             tags = listOf(listOf("d", id), listOf("g", districtId)),
             content = json.encodeToString(CivicPoll.serializer(), newPoll),
-            pubKey = author
+            pubKey = authorPubKey
         )
         
         _pollsFlow.emit(Unit)
@@ -248,7 +247,7 @@ class WebResidentRepository(private val publisher: CivicPublisher? = null) : Res
         
         publisher?.signPublishImportCivicEvent(
             kind = CivicEventKind.RESIDENT_PROFILE,
-            tags = listOf(listOf("d", pubKey), listOf("g", updated.federalHouseId ?: "us")),
+            tags = listOf(listOf("d", pubKey), listOf("g", districtId)),
             content = json.encodeToString(ResidentProfile.serializer(), updated),
             pubKey = pubKey
         )
@@ -370,7 +369,7 @@ class WebWtgBackendApi(private val httpClient: HttpClient) : WtgBackendApi(baseU
 class WebCivicApi(private val httpClient: HttpClient) : CivicApi {
     override suspend fun fetchPolls(districtId: String, limit: Int, before: Long?): List<CivicPoll> = emptyList()
     override suspend fun fetchPoll(pollId: String): CivicPoll = throw Exception("Not implemented")
-    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?): CivicPoll = throw Exception("Not implemented")
+    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, authorPubKey: String, localId: String?): CivicPoll = throw Exception("Not implemented")
     override suspend fun getRepresentativeVote(legislationId: String): String? = null
     override suspend fun fetchScorecard(districtId: String): RepresentativeScorecard = throw Exception("Not implemented")
     override suspend fun fetchMetrics(districtId: String): List<DistrictMetric> = emptyList()

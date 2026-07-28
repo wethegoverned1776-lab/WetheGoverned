@@ -5,7 +5,7 @@ import net.wetheGoverned.model.*
 interface CivicApi {
     suspend fun fetchPolls(districtId: String, limit: Int = 20, before: Long? = null): List<CivicPoll>
     suspend fun fetchPoll(pollId: String): CivicPoll
-    suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?): CivicPoll
+    suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, authorPubKey: String, localId: String?): CivicPoll
     
     suspend fun getRepresentativeVote(legislationId: String): String? 
 

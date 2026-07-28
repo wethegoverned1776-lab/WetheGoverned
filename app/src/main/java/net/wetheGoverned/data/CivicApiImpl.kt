@@ -9,7 +9,7 @@ import javax.inject.Singleton
 class CivicApiImpl @Inject constructor() : CivicApi {
     override suspend fun fetchPolls(districtId: String, limit: Int, before: Long?): List<CivicPoll> = emptyList()
     override suspend fun fetchPoll(pollId: String): CivicPoll = throw Exception("Stub")
-    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?): CivicPoll = throw Exception("Stub")
+    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, authorPubKey: String, localId: String?): CivicPoll = throw Exception("Stub")
     override suspend fun getRepresentativeVote(legislationId: String): String? = null
     override suspend fun fetchScorecard(districtId: String): RepresentativeScorecard = throw Exception("Stub")
     override suspend fun fetchMetrics(districtId: String): List<DistrictMetric> = emptyList()

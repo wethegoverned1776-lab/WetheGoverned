@@ -257,7 +257,11 @@ class NostrRelayManager(
         val filterList = filters.toList()
         activeSubscriptions[subscriptionId] = filterList
         
-        activeSessions.values.forEach { sendSubscriptionRequest(it, subscriptionId, filterList) }
+        activeSessions.values.forEach { session ->
+            scope.launch {
+                sendSubscriptionRequest(session, subscriptionId, filterList)
+            }
+        }
     }
 
     private suspend fun sendSubscriptionRequest(session: DefaultClientWebSocketSession, id: String, filters: List<JsonObject>) {
@@ -267,7 +271,9 @@ class NostrRelayManager(
             filters.forEach { add(it) }
         }.toString()
         try {
-            session.send(Frame.Text(request))
+            withTimeout(5000) {
+                session.send(Frame.Text(request))
+            }
         } catch (ignore: Exception) {}
     }
 
@@ -277,10 +283,20 @@ class NostrRelayManager(
             add(json.encodeToJsonElement(event))
         }.toString()
         
-        // 1. Primary broadcast to active sessions
-        activeSessions.values.forEach { it.send(Frame.Text(request)) }
+        // 1. Concurrent broadcast to active sessions to prevent hanging on a single slow relay
+        activeSessions.values.forEach { session ->
+            scope.launch {
+                try {
+                    withTimeout(5000) {
+                        session.send(Frame.Text(request))
+                    }
+                } catch (e: Exception) {
+                    println("⚠️ Failed to publish to active relay: ${e.message}")
+                }
+            }
+        }
         
-        // 2. Broad broadcast to the rest of the pool (Rotating subset to avoid too many conns)
+        // 2. Broad broadcast to the rest of the pool (Rotating subset)
         val targets = if (preferredRelays != null) {
             preferredRelays.filter { !activeSessions.containsKey(it) }
         } else {
@@ -290,10 +306,10 @@ class NostrRelayManager(
         targets.forEach { url ->
             scope.launch {
                 try {
-                    client.webSocket(url) {
-                        send(Frame.Text(request))
-                        // Wait briefly for OK then close to save resources
-                        withTimeoutOrNull(3000) {
+                    withTimeout(10000) {
+                        client.webSocket(url) {
+                            send(Frame.Text(request))
+                            // Wait briefly for OK response
                             for (frame in incoming) {
                                 if (frame is Frame.Text && frame.readText().contains("OK")) break
                             }
