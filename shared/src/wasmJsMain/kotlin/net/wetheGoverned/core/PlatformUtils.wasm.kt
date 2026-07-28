@@ -7,3 +7,5 @@ actual fun randomUUID(): String {
         Random.nextLong().toString(16).take(8)
     }
 }
+
+actual fun sha256(input: String): String = computeSha256(input)

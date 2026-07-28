@@ -7,6 +7,6 @@ actual object AddressUtils {
 
     actual fun generateFingerprint(street: String, city: String, zip: String): String {
         val normalized = normalizeAddress(street, city, zip)
-        return "wasm_fp_" + normalized.hashCode().toString()
+        return "sha256_" + net.wetheGoverned.core.sha256(normalized)
     }
 }

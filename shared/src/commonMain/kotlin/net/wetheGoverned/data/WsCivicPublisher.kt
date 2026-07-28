@@ -87,12 +87,6 @@ class WsCivicPublisher(
         }
         val serialized = "[0,\"$pubKey\",$createdAt,$kind,$tagsJson,\"$content\"]"
         
-        // Simple hash for lab environment that is consistent across platforms
-        // In production, use actual SHA-256
-        var h = 0L
-        for (i in 0 until serialized.length) {
-            h = 31 * h + serialized[i].code
-        }
-        return h.toString(16)
+        return sha256(serialized)
     }
 }
