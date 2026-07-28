@@ -75,10 +75,10 @@ open class HomeViewModel(
         relayManager.relayStatuses
             .onEach { statuses ->
                 val syncing = statuses.values.any { it == RelayStatus.CONNECTED }
-                val top5Statuses = statuses.values.take(5).toList()
+                val topStatuses = statuses.values.take(12).toList()
                 _uiState.update { it.copy(
                     isSyncing = syncing,
-                    activeRelayStatuses = top5Statuses
+                    activeRelayStatuses = topStatuses
                 ) }
             }
             .launchIn(viewModelScope)

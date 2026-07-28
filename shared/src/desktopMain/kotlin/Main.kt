@@ -40,7 +40,20 @@ fun main() {
         val locationHelper = remember { LocationHelper() }
         val backendApi = remember { DesktopWtgBackendApi() }
         
-        val relayUrls = listOf("wss://nos.lol", "wss://relay.damus.io")
+        val relayUrls = listOf(
+            "wss://nos.lol", 
+            "wss://relay.damus.io", 
+            "wss://relay.snort.social",
+            "wss://offchain.pub",
+            "wss://relay.primal.net",
+            "wss://nostr.mom",
+            "wss://atlas.nostr.land",
+            "wss://bitcoiner.social",
+            "wss://relay.nostr.band",
+            "wss://purplepag.es",
+            "wss://relay.nostr.bg",
+            "wss://no.str.cr"
+        )
         val relayManager = remember { NostrRelayManager(relayUrls) }
         
         val publisher = remember {

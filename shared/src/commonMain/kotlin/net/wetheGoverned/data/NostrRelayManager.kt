@@ -151,15 +151,15 @@ class NostrRelayManager(
 
     private fun refreshPools() {
         val highQuality = relayMetrics.value.values
-            .filter { it.isOnline && !it.isPaid && it.score > 50 }
+            .filter { it.isOnline && !it.isPaid && it.score > 30 }
             .sortedByDescending { it.score }
 
-        // Top 5 for active subscriptions
-        val topActive = highQuality.take(5).map { it.url }
+        // Core Requirement: Always maintain connections to the shared "Governance Pool"
+        val topActive = (initialRelayUrls + highQuality.map { it.url }).distinct().take(12)
         
         // Next 15-50 for broad broadcast
         broadcastPool.clear()
-        broadcastPool.addAll(highQuality.take(50).map { it.url })
+        broadcastPool.addAll((initialRelayUrls + highQuality.map { it.url }).distinct().take(50))
 
         // Connect to new high quality relays if not already
         topActive.forEach { url ->

@@ -118,17 +118,17 @@ fun HomeContent(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(Modifier.width(8.dp))
-                                repeat(5) { index ->
+                                repeat(12) { index ->
                                     val status = uiState.activeRelayStatuses.getOrNull(index)
                                     Box(
                                         Modifier
-                                            .size(6.dp)
+                                            .size(8.dp)
                                             .background(
                                                 color = if (status == RelayStatus.CONNECTED) Color(0xFF4CAF50) else Color(0xFFF44336),
                                                 shape = CircleShape
                                             )
                                     )
-                                    if (index < 4) Spacer(Modifier.width(4.dp))
+                                    if (index < 11) Spacer(Modifier.width(4.dp))
                                 }
                             }
                         }
