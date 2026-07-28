@@ -83,6 +83,8 @@ class P2PSyncEngine(
                         add(JsonPrimitive(CivicEventKind.DISTRICT_POLL))
                         add(JsonPrimitive(CivicEventKind.LOCAL_POLL))
                         add(JsonPrimitive(CivicEventKind.COMMUNITY_POST))
+                        add(JsonPrimitive(10002)) // NIP-65
+                        add(JsonPrimitive(30066)) // NIP-66
                     })
                     put("#d", buildJsonArray { 
                         add(JsonPrimitive(myDistrictId))

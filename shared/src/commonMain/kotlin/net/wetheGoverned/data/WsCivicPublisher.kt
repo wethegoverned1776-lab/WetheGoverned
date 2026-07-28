@@ -63,7 +63,16 @@ class WsCivicPublisher(
             sig = sessionManager.currentSession?.privateKey ?: "STUB_SIG" 
         )
 
-        relayManager.publish(event)
+        // Broad broadcast for critical governance, NIP-65 for user content
+        val isCritical = kind in listOf(
+            CivicEventKind.FEDERAL_POLL, CivicEventKind.STATE_POLL, 
+            CivicEventKind.DISTRICT_POLL, CivicEventKind.LOCAL_POLL, 
+            CivicEventKind.POLL_VOTE
+        )
+
+        val preferred = if (!isCritical) relayManager.getPreferredRelays(pubKey) else null
+        relayManager.publish(event, preferred)
+
         pendingQueue.enqueue(kind, content, event.sig)
     }
 
