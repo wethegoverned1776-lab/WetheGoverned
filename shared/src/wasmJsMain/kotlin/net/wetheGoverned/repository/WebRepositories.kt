@@ -27,7 +27,7 @@ private fun localStorageKeys(): List<String> {
 }
 
 abstract class WebRepository(val typeName: String) {
-    protected val json = Json { ignoreUnknownKeys = true }
+    protected val json = CivicJson
 
     protected fun <T> saveToStorage(id: String, data: T, serializer: kotlinx.serialization.KSerializer<T>) {
         localStorageSet("${typeName}_$id", json.encodeToString(serializer, data))
@@ -104,7 +104,7 @@ class WebPollRepository(private val publisher: CivicPublisher? = null) : PollRep
                 PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
                 else -> CivicEventKind.DISTRICT_POLL
             },
-            tags = listOf(listOf("d", id), listOf("g", districtId)),
+            tags = listOf(listOf("d", id), listOf("g", districtId), listOf("t", districtId)),
             content = json.encodeToString(CivicPoll.serializer(), newPoll),
             pubKey = authorPubKey
         )

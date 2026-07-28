@@ -4,6 +4,14 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.datetime.Clock
 
+import kotlinx.serialization.json.Json
+
+val CivicJson = Json {
+    ignoreUnknownKeys = true
+    encodeDefaults = true
+    coerceInputValues = true
+}
+
 @Serializable
 data class CivicEvent(
     val id: String,

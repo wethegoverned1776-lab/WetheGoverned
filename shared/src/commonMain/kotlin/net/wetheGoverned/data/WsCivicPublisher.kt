@@ -24,6 +24,13 @@ class WsCivicPublisher(
         pubKey: String
     ) {
         val nostrTags = tags.toMutableList()
+        
+        // Add redundant 't' tag for district indexing robustness
+        tags.find { it.getOrNull(0) == "g" }?.getOrNull(1)?.let { districtId ->
+            if (nostrTags.none { it.getOrNull(0) == "t" && it.getOrNull(1) == districtId }) {
+                nostrTags.add(listOf("t", districtId))
+            }
+        }
 
         if (kind == CivicEventKind.POLL_VOTE) {
             val proofResult = zkProver.generateProof(

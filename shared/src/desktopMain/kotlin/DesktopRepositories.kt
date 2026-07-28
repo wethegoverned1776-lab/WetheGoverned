@@ -23,15 +23,16 @@ abstract class FileBasedRepository(private val type: String) {
     protected val baseDir = File(System.getProperty("user.home"), ".wethegoverned/$type").apply { mkdirs() }
     private val indexFile = File(baseDir, "index.json")
     private val indexMutex = Mutex()
+    protected val json = CivicJson
 
     protected suspend fun <T> save(id: String, data: T, serializer: kotlinx.serialization.KSerializer<T>) {
         val file = File(baseDir, "$id.json")
-        file.writeText(Json.encodeToString(serializer, data))
+        file.writeText(json.encodeToString(serializer, data))
     }
 
     protected fun <T> load(id: String, serializer: kotlinx.serialization.KSerializer<T>): T? {
         val file = File(baseDir, "$id.json")
-        return if (file.exists()) Json.decodeFromString(serializer, file.readText()) else null
+        return if (file.exists()) json.decodeFromString(serializer, file.readText()) else null
     }
 
     protected fun listIds(): List<String> = baseDir.listFiles { f -> f.extension == "json" && f.name != "index.json" }?.map { it.nameWithoutExtension } ?: emptyList()
@@ -52,7 +53,7 @@ abstract class FileBasedRepository(private val type: String) {
     private fun loadIndex(): MutableMap<String, MutableMap<String, MutableSet<String>>> {
         if (!indexFile.exists()) return mutableMapOf()
         return try {
-            Json.decodeFromString(indexFile.readText())
+            json.decodeFromString(indexFile.readText())
         } catch (e: Exception) {
             mutableMapOf()
         }
@@ -60,7 +61,7 @@ abstract class FileBasedRepository(private val type: String) {
 
     private fun saveIndex(index: Map<String, Map<String, Set<String>>>) {
         val serializer = MapSerializer(String.serializer(), MapSerializer(String.serializer(), SetSerializer(String.serializer())))
-        indexFile.writeText(Json.encodeToString(serializer, index))
+        indexFile.writeText(json.encodeToString(serializer, index))
     }
 }
 
@@ -119,9 +120,9 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
     override suspend fun getPoll(pollId: String): Result<CivicPoll> =
         load(pollId, CivicPoll.serializer())?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
 
-    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?): Result<CivicPoll> {
+    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, authorPubKey: String, localId: String?): Result<CivicPoll> {
         val id = "poll_${System.currentTimeMillis()}"
-        val newPoll = CivicPoll(id = id, scope = scope, districtId = districtId, localId = localId, authorPubKey = "admin", question = question, options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) }, status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = closesAt ?: (System.currentTimeMillis() + 86400000), totalVotes = 0)
+        val newPoll = CivicPoll(id = id, scope = scope, districtId = districtId, localId = localId, authorPubKey = authorPubKey, question = question, options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) }, status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = closesAt ?: (System.currentTimeMillis() + 86400000), totalVotes = 0)
         save(id, newPoll, CivicPoll.serializer())
         addToIndex("district", districtId, id)
         localId?.let { addToIndex("district", it, id) }
@@ -133,9 +134,9 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
                 PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
                 else -> CivicEventKind.DISTRICT_POLL
             },
-            tags = listOf(listOf("d", id), listOf("g", districtId)),
-            content = Json.encodeToString(CivicPoll.serializer(), newPoll),
-            pubKey = "admin"
+            tags = listOf(listOf("d", id), listOf("g", districtId), listOf("t", districtId)),
+            content = json.encodeToString(CivicPoll.serializer(), newPoll),
+            pubKey = authorPubKey
         )
         
         _pollsFlow.emit(Unit)
@@ -219,7 +220,6 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
 class DesktopResidentRepository(private val publisher: CivicPublisher? = null) : ResidentRepository, FileBasedRepository("residents") {
     private val _updates = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
     private val samplingUpdates = _updates.sample(300L)
-    private val json = Json { ignoreUnknownKeys = true }
 
     init {
         runBlocking {
@@ -439,7 +439,7 @@ class DesktopWtgBackendApi : WtgBackendApi(baseUrl = "https://sim.wetheGoverned.
 class DesktopCivicApi(private val httpClient: HttpClient) : CivicApi {
     override suspend fun fetchPolls(districtId: String, limit: Int, before: Long?): List<CivicPoll> = emptyList()
     override suspend fun fetchPoll(pollId: String): CivicPoll = throw Exception("Not implemented")
-    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, localId: String?): CivicPoll = throw Exception("Not implemented")
+    override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, authorPubKey: String, localId: String?): CivicPoll = throw Exception("Not implemented")
     override suspend fun getRepresentativeVote(legislationId: String): String? = null
     override suspend fun fetchScorecard(districtId: String): RepresentativeScorecard = throw Exception("Not implemented")
     override suspend fun fetchMetrics(districtId: String): List<DistrictMetric> = emptyList()

@@ -86,7 +86,7 @@ class P2PSyncEngine(
                         add(JsonPrimitive(10002)) // NIP-65
                         add(JsonPrimitive(30066)) // NIP-66
                     })
-                    put("#g", buildJsonArray {
+                    put("#t", buildJsonArray {
                         add(JsonPrimitive(myDistrictId))
                         add(JsonPrimitive("us")) // Always listen for federal
                     })
@@ -183,11 +183,13 @@ class P2PSyncEngine(
                 CivicEventKind.STATE_POLL,
                 CivicEventKind.DISTRICT_POLL,
                 CivicEventKind.LOCAL_POLL -> {
-                    val poll = json.decodeFromString<CivicPoll>(event.content)
+                    val poll = CivicJson.decodeFromString<CivicPoll>(event.content)
+                    println("📥 Received Poll via Mesh: ${poll.question} (ID: ${poll.id})")
                     pollRepository.syncPoll(poll)
                 }
                 CivicEventKind.POLL_VOTE -> {
-                    val vote = json.decodeFromString<CivicVote>(event.content)
+                    val vote = CivicJson.decodeFromString<CivicVote>(event.content)
+                    println("📥 Received Vote via Mesh for Poll: ${vote.pollId}")
                     voteRepository.syncVote(vote)
                     
                     // Cross-device Sync: If this is the current user's vote from another device, 
@@ -197,16 +199,16 @@ class P2PSyncEngine(
                     }
                 }
                 CivicEventKind.COMMUNITY_POST -> {
-                    val post = json.decodeFromString<CommunityPost>(event.content)
+                    val post = CivicJson.decodeFromString<CommunityPost>(event.content)
                     communityRepository.syncPost(post)
                 }
                 CivicEventKind.RESIDENT_PROFILE -> {
-                    val profile = json.decodeFromString<ResidentProfile>(event.content)
+                    val profile = CivicJson.decodeFromString<ResidentProfile>(event.content)
                     residentRepository.createProfile(profile)
                 }
             }
         } catch (e: Exception) {
-            println("❌ Failed to process mesh event: ${e.message}")
+            println("❌ Failed to process mesh event [Kind ${event.kind}]: ${e.message}")
         }
     }
 
