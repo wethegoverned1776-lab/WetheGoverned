@@ -133,7 +133,7 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
                 PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
                 else -> CivicEventKind.DISTRICT_POLL
             },
-            tags = listOf("d", districtId),
+            tags = listOf(listOf("d", id), listOf("g", districtId)),
             content = Json.encodeToString(CivicPoll.serializer(), newPoll),
             pubKey = "admin"
         )
@@ -161,7 +161,7 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
         )
         publisher?.signPublishImportCivicEvent(
             kind = CivicEventKind.POLL_VOTE,
-            tags = listOf("d", pollId),
+            tags = listOf(listOf("d", vote.id), listOf("g", pollId), listOf("e", pollId)),
             content = Json.encodeToString(CivicVote.serializer(), vote),
             pubKey = voterPubKey
         )
@@ -267,7 +267,7 @@ class DesktopResidentRepository(private val publisher: CivicPublisher? = null) :
         
         publisher?.signPublishImportCivicEvent(
             kind = CivicEventKind.RESIDENT_PROFILE,
-            tags = listOf("d", pubKey),
+            tags = listOf(listOf("d", pubKey), listOf("g", updated.federalHouseId ?: "us")),
             content = json.encodeToString(ResidentProfile.serializer(), updated),
             pubKey = pubKey
         )
@@ -282,7 +282,7 @@ class DesktopResidentRepository(private val publisher: CivicPublisher? = null) :
         
         publisher?.signPublishImportCivicEvent(
             kind = CivicEventKind.RESIDENT_PROFILE,
-            tags = listOf("d", pubKey),
+            tags = listOf(listOf("d", pubKey), listOf("g", districtId)),
             content = json.encodeToString(ResidentProfile.serializer(), updated),
             pubKey = pubKey
         )
@@ -344,7 +344,7 @@ class DesktopCommunityRepository(private val publisher: CivicPublisher? = null) 
         _posts.update { it + post }
         publisher?.signPublishImportCivicEvent(
             kind = CivicEventKind.COMMUNITY_POST,
-            tags = listOf("d", districtId),
+            tags = listOf(listOf("d", post.id), listOf("g", districtId)),
             content = Json.encodeToString(CommunityPost.serializer(), post),
             pubKey = authorPubKey
         )

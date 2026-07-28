@@ -40,9 +40,10 @@ class PollRepositoryImpl @Inject constructor(
             kind = when(scope) {
                 PollScope.FEDERAL -> CivicEventKind.FEDERAL_POLL
                 PollScope.STATE -> CivicEventKind.STATE_POLL
+                PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
                 else -> CivicEventKind.DISTRICT_POLL
             },
-            tags = listOf("d", districtId),
+            tags = listOf(listOf("d", id), listOf("g", districtId)),
             content = Json.encodeToString(CivicPoll.serializer(), newPoll),
             pubKey = "android_user"
         )
@@ -68,7 +69,7 @@ class PollRepositoryImpl @Inject constructor(
         )
         publisher.signPublishImportCivicEvent(
             kind = CivicEventKind.POLL_VOTE,
-            tags = listOf("d", pollId),
+            tags = listOf(listOf("d", vote.id), listOf("g", pollId), listOf("e", pollId)),
             content = Json.encodeToString(CivicVote.serializer(), vote),
             pubKey = voterPubKey
         )

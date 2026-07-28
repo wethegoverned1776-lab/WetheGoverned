@@ -19,18 +19,11 @@ class WsCivicPublisher(
 
     override suspend fun signPublishImportCivicEvent(
         kind: Int,
-        tags: List<String>,
+        tags: List<List<String>>,
         content: String,
         pubKey: String
     ) {
-        val nostrTags = mutableListOf<List<String>>()
-        
-        // Handle primary 'd' tag
-        if (tags.size >= 2 && tags[0] == "d") {
-            nostrTags.add(listOf("d", tags[1]))
-        } else if (tags.isNotEmpty()) {
-            nostrTags.add(tags)
-        }
+        val nostrTags = tags.toMutableList()
 
         if (kind == CivicEventKind.POLL_VOTE) {
             val proofResult = zkProver.generateProof(
@@ -43,8 +36,7 @@ class WsCivicPublisher(
 
         val createdAt = Clock.System.now().toEpochMilliseconds() / 1000
         
-        // NIP-01 compliant event ID calculation (simplified for common code)
-        // In a production app, use a dedicated Nostr library for SHA256 and Schnorr
+        // NIP-01 compliant event ID calculation
         val eventId = computeNostrId(
             pubKey = pubKey,
             createdAt = createdAt,

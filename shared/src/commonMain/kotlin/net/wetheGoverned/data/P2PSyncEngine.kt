@@ -86,7 +86,7 @@ class P2PSyncEngine(
                         add(JsonPrimitive(10002)) // NIP-65
                         add(JsonPrimitive(30066)) // NIP-66
                     })
-                    put("#d", buildJsonArray { 
+                    put("#g", buildJsonArray {
                         add(JsonPrimitive(myDistrictId))
                         add(JsonPrimitive("us")) // Always listen for federal
                     })
@@ -135,7 +135,7 @@ class P2PSyncEngine(
         residentRepository.getProfile(session.pubKey).onSuccess { profile ->
             publisher.signPublishImportCivicEvent(
                 kind = CivicEventKind.RESIDENT_PROFILE,
-                tags = listOf("d", session.pubKey),
+                tags = listOf(listOf("d", session.pubKey), listOf("g", session.districtId ?: "us")),
                 content = json.encodeToString(ResidentProfile.serializer(), profile),
                 pubKey = session.pubKey
             )
@@ -151,7 +151,7 @@ class P2PSyncEngine(
                         PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
                         else -> CivicEventKind.DISTRICT_POLL
                     },
-                    tags = listOf("d", poll.id),
+                    tags = listOf(listOf("d", poll.id), listOf("g", poll.districtId)),
                     content = json.encodeToString(CivicPoll.serializer(), poll),
                     pubKey = poll.authorPubKey
                 )
