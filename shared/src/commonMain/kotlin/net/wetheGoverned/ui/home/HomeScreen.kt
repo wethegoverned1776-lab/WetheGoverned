@@ -5,6 +5,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import net.wetheGoverned.model.*
+import net.wetheGoverned.data.RelayStatus
 import net.wetheGoverned.ui.HomeViewModel
 import net.wetheGoverned.ui.HomeUiState
 import net.wetheGoverned.ui.ElectedOfficial
@@ -104,13 +106,31 @@ fun HomeContent(
                                 style = MaterialTheme.typography.labelSmall,
                             )
                         }
-                        if (uiState.isSyncing) {
-                            Text(
-                                "Live Sync Active",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
+                        if (uiState.isSyncing || uiState.activeRelayStatuses.isNotEmpty()) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(top = 2.dp)
+                            ) {
+                                Text(
+                                    "Mesh Sync",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                repeat(5) { index ->
+                                    val status = uiState.activeRelayStatuses.getOrNull(index)
+                                    Box(
+                                        Modifier
+                                            .size(6.dp)
+                                            .background(
+                                                color = if (status == RelayStatus.CONNECTED) Color(0xFF4CAF50) else Color(0xFFF44336),
+                                                shape = CircleShape
+                                            )
+                                    )
+                                    if (index < 4) Spacer(Modifier.width(4.dp))
+                                }
+                            }
                         }
                     }
                 },

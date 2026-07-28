@@ -6,6 +6,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import net.wetheGoverned.model.*
+import net.wetheGoverned.data.RelayStatus
 import net.wetheGoverned.repository.PollRepository
 import net.wetheGoverned.repository.ResidentRepository
 import net.wetheGoverned.session.SessionManager
@@ -49,6 +50,7 @@ data class HomeUiState(
     val verificationTier: VerificationTier = VerificationTier.OBSERVER,
     val districtsActive: Int = 0,
     val pollsVoted: Int = 0,
+    val activeRelayStatuses: List<RelayStatus> = emptyList(),
     val error: String? = null,
 )
 
@@ -72,8 +74,12 @@ open class HomeViewModel(
     private fun observeSyncStatus() {
         relayManager.relayStatuses
             .onEach { statuses ->
-                val syncing = statuses.values.any { it == net.wetheGoverned.data.RelayStatus.CONNECTED }
-                _uiState.update { it.copy(isSyncing = syncing) }
+                val syncing = statuses.values.any { it == RelayStatus.CONNECTED }
+                val top5Statuses = statuses.values.take(5).toList()
+                _uiState.update { it.copy(
+                    isSyncing = syncing,
+                    activeRelayStatuses = top5Statuses
+                ) }
             }
             .launchIn(viewModelScope)
     }
