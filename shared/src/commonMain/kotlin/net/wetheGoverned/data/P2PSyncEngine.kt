@@ -76,19 +76,27 @@ class P2PSyncEngine(
                 val myDistrictId = session?.districtId ?: "us"
                 val myPubKey = session?.pubKey
                 
-                val districtFilter = buildJsonObject {
+                // We use multiple filters to ensure an OR operation at the relay level
+                val districtFilterG = buildJsonObject {
+                    put("kinds", buildJsonArray { 
+                        add(JsonPrimitive(CivicEventKind.FEDERAL_POLL))
+                        add(JsonPrimitive(CivicEventKind.STATE_POLL))
+                        add(JsonPrimitive(CivicEventKind.DISTRICT_POLL))
+                        add(JsonPrimitive(CivicEventKind.LOCAL_POLL))
+                    })
+                    put("#g", buildJsonArray {
+                        add(JsonPrimitive(myDistrictId))
+                        add(JsonPrimitive("us"))
+                    })
+                }
+
+                val districtFilterT = buildJsonObject {
                     put("kinds", buildJsonArray { 
                         add(JsonPrimitive(CivicEventKind.FEDERAL_POLL))
                         add(JsonPrimitive(CivicEventKind.STATE_POLL))
                         add(JsonPrimitive(CivicEventKind.DISTRICT_POLL))
                         add(JsonPrimitive(CivicEventKind.LOCAL_POLL))
                         add(JsonPrimitive(CivicEventKind.COMMUNITY_POST))
-                        add(JsonPrimitive(10002)) // NIP-65
-                        add(JsonPrimitive(30066)) // NIP-66
-                    })
-                    put("#g", buildJsonArray {
-                        add(JsonPrimitive(myDistrictId))
-                        add(JsonPrimitive("us"))
                     })
                     put("#t", buildJsonArray {
                         add(JsonPrimitive(myDistrictId))
@@ -96,24 +104,22 @@ class P2PSyncEngine(
                     })
                 }
 
-                // Global user sync filter (to catch my own votes/profile on other devices)
+                // Global user sync filter
                 val userFilter = if (myPubKey != null) {
                     buildJsonObject {
                         put("kinds", buildJsonArray {
                             add(JsonPrimitive(CivicEventKind.POLL_VOTE))
                             add(JsonPrimitive(CivicEventKind.RESIDENT_PROFILE))
-                            add(JsonPrimitive(CivicEventKind.COMMUNITY_POST))
                         })
                         put("authors", buildJsonArray { add(JsonPrimitive(myPubKey)) })
                     }
                 } else null
                 
-                if (userFilter != null && session != null) {
-                    relayManager.subscribe("wtg_sync_$myDistrictId", districtFilter, userFilter)
-                    // Trigger outbound sync for logged-in user
+                val filters = listOfNotNull(districtFilterG, districtFilterT, userFilter).toTypedArray()
+                relayManager.subscribe("wtg_sync_$myDistrictId", *filters)
+                
+                if (session != null) {
                     scope.launch { pushLocalDataToRelays(session) }
-                } else {
-                    relayManager.subscribe("wtg_sync_$myDistrictId", districtFilter)
                 }
             }
             .launchIn(scope)
