@@ -1,6 +1,6 @@
 package net.wetheGoverned.data
 
-import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.*
 import net.wetheGoverned.core.*
 import net.wetheGoverned.model.*
 import net.wetheGoverned.session.PendingEventQueue
@@ -15,7 +15,7 @@ class WsCivicPublisher(
     private val zkProver: ZkProver,
 ) : CivicPublisher {
 
-    private val json = Json { ignoreUnknownKeys = true }
+    private val json = CivicJson
 
     override suspend fun signPublishImportCivicEvent(
         kind: Int,
@@ -80,12 +80,21 @@ class WsCivicPublisher(
      * Serializes [0, pubkey, created_at, kind, tags, content]
      */
     private fun computeNostrId(pubKey: String, createdAt: Long, kind: Int, tags: List<List<String>>, content: String): String {
-        // Deterministic serialization for hashing
-        val tagsJson = tags.joinToString(",", "[", "]") { tag ->
-            tag.joinToString(",", "[", "]") { "\"$it\"" }
+        val jsonArray = buildJsonArray {
+            add(JsonPrimitive(0))
+            add(JsonPrimitive(pubKey))
+            add(JsonPrimitive(createdAt))
+            add(JsonPrimitive(kind))
+            add(buildJsonArray {
+                tags.forEach { tag ->
+                    add(buildJsonArray {
+                        tag.forEach { element -> add(JsonPrimitive(element)) }
+                    })
+                }
+            })
+            add(JsonPrimitive(content))
         }
-        val serialized = "[0,\"$pubKey\",$createdAt,$kind,$tagsJson,\"$content\"]"
         
-        return sha256(serialized)
+        return sha256(jsonArray.toString())
     }
 }

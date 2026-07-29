@@ -13,9 +13,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.*
-import net.wetheGoverned.model.CivicEvent
-import net.wetheGoverned.model.RelayInfo
-import net.wetheGoverned.model.RelayMetric
+import net.wetheGoverned.model.*
 
 enum class RelayStatus { CONNECTING, CONNECTED, ERROR, CLOSED }
 
@@ -24,7 +22,7 @@ enum class RelayStatus { CONNECTING, CONNECTED, ERROR, CLOSED }
  */
 class NostrRelayManager(
     private val initialRelayUrls: List<String>,
-    private val json: Json = Json { ignoreUnknownKeys = true }
+    private val json: Json = CivicJson
 ) {
     private val client = HttpClient {
         install(WebSockets)
@@ -213,24 +211,31 @@ class NostrRelayManager(
             
             when (type) {
                 "EVENT" -> {
-                    val eventElement = array[2]
-                    val civicEvent = json.decodeFromJsonElement<CivicEvent>(eventElement)
-                    
-                    // NIP-65/66 aggregation
-                    if (civicEvent.kind == 10002 || civicEvent.kind == 30066) {
-                        extractRelaysFromEvent(civicEvent)
+                    try {
+                        val eventElement = array[2]
+                        val civicEvent = json.decodeFromJsonElement<CivicEvent>(eventElement)
+                        
+                        // NIP-65/66 aggregation
+                        if (civicEvent.kind == 10002 || civicEvent.kind == 30066) {
+                            extractRelaysFromEvent(civicEvent)
+                        }
+                        
+                        _events.emit(civicEvent)
+                    } catch (e: Exception) {
+                        println("❌ Failed to decode Nostr event from $originUrl: ${e.message}")
+                        println("Raw event: ${array[2]}")
                     }
-                    
-                    _events.emit(civicEvent)
                 }
                 "OK" -> {
-                    // event published successfully
+                    println("✅ Event published successfully to $originUrl: ${array[1].jsonPrimitive.content}")
                 }
                 "NOTICE" -> {
                     println("🔔 NOTICE from $originUrl: ${array[1].jsonPrimitive.content}")
                 }
             }
-        } catch (ignore: Exception) {}
+        } catch (e: Exception) {
+            println("❌ Error handling message from $originUrl: ${e.message}")
+        }
     }
 
     private fun extractRelaysFromEvent(event: CivicEvent) {
