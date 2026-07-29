@@ -201,11 +201,21 @@ class P2PSyncEngine(
                     val vote = CivicJson.decodeFromString<CivicVote>(event.content)
                     println("📥 Received Vote via Mesh for Poll: ${vote.pollId}")
                     voteRepository.syncVote(vote)
+                    pollRepository.syncVote(vote) // Update poll counts
                     
                     // Cross-device Sync: If this is the current user's vote from another device, 
                     // mark the poll as voted locally.
                     if (vote.voterPubKey == sessionManager.currentPubKey) {
                         pollRepository.markVoted(vote.pollId, vote.optionId)
+                    }
+                }
+                CivicEventKind.IMPORTANCE_VOTE -> {
+                    // Logic to update local poll importance from mesh
+                    val content = event.content.split(":")
+                    if (content.size == 2) {
+                        val pollId = content[0]
+                        val delta = content[1].toIntOrNull() ?: 0
+                        pollRepository.voteImportance(pollId, delta, event.pubKey)
                     }
                 }
                 CivicEventKind.COMMUNITY_POST -> {

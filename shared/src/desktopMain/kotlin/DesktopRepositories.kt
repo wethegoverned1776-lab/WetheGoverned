@@ -179,6 +179,14 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
             userImportanceVote = delta // Simple selection (1, 0, -1)
         )
         save(pollId, updatedPoll, CivicPoll.serializer())
+        
+        publisher?.signPublishImportCivicEvent(
+            kind = CivicEventKind.IMPORTANCE_VOTE,
+            tags = listOf(listOf("d", "${pollId}_$voterPubKey"), listOf("g", poll.districtId)),
+            content = "$pollId:$delta",
+            pubKey = voterPubKey
+        )
+
         _pollsFlow.emit(Unit)
         return Result.success(Unit)
     }
@@ -205,7 +213,17 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
     }
 
     override suspend fun syncVote(vote: CivicVote) {
-        // Handled via markVoted
+        val poll = load(vote.pollId, CivicPoll.serializer()) ?: return
+        val updatedOptions = poll.options.map { opt ->
+            if (opt.id == vote.optionId) opt.copy(voteCount = opt.voteCount + 1) else opt
+        }
+        val newTotal = poll.totalVotes + 1
+        val updatedPoll = poll.copy(
+            options = updatedOptions.map { it.copy(percentageOfTotal = it.voteCount.toFloat() / newTotal) },
+            totalVotes = newTotal
+        )
+        save(vote.pollId, updatedPoll, CivicPoll.serializer())
+        _pollsFlow.emit(Unit)
     }
 
     override suspend fun markVoted(pollId: String, optionId: String) {
