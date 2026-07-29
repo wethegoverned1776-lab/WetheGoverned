@@ -86,9 +86,13 @@ class P2PSyncEngine(
                         add(JsonPrimitive(10002)) // NIP-65
                         add(JsonPrimitive(30066)) // NIP-66
                     })
+                    put("#g", buildJsonArray {
+                        add(JsonPrimitive(myDistrictId))
+                        add(JsonPrimitive("us"))
+                    })
                     put("#t", buildJsonArray {
                         add(JsonPrimitive(myDistrictId))
-                        add(JsonPrimitive("us")) // Always listen for federal
+                        add(JsonPrimitive("us"))
                     })
                 }
 
