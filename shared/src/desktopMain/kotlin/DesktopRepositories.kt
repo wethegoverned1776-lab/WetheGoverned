@@ -223,9 +223,10 @@ class DesktopResidentRepository(private val publisher: CivicPublisher? = null) :
 
     init {
         runBlocking {
-            if (load("pub_admin", ResidentProfile.serializer()) == null) {
+            val adminPubKey = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+            if (load(adminPubKey, ResidentProfile.serializer()) == null) {
                 val admin = ResidentProfile(
-                    pubKey = "pub_admin",
+                    pubKey = adminPubKey,
                     displayName = "Admin",
                     federalHouseId = "us-fl-06",
                     federalSenateId = "us-senate",
@@ -389,7 +390,13 @@ class DesktopAccountRepository : AccountRepository, FileBasedRepository("account
         save(account.username, account, UserAccount.serializer()); return Result.success(Unit)
     }
     override suspend fun login(username: String, password: String): Result<UserAccount> {
-        if (username == "admin" && password == "1January012@") return Result.success(UserAccount("admin", "1January012@", "pub_admin", "priv_admin", "us-fl-06"))
+        val adminPub = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+        val adminPriv = "0000000000000000000000000000000000000000000000000000000000000001"
+        
+        if (username == "admin" && password == "1January012@") {
+            return Result.success(UserAccount("admin", "1January012@", adminPub, adminPriv, "us-fl-06"))
+        }
+
         val acc = load(username, UserAccount.serializer()) ?: return Result.failure(Exception("Invalid"))
         return if (acc.password == password) Result.success(acc) else Result.failure(Exception("Invalid"))
     }

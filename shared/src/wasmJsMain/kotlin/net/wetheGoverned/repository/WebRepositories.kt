@@ -189,9 +189,10 @@ class WebResidentRepository(private val publisher: CivicPublisher? = null) : Res
 
     init {
         // Seed Admin Profile for Web
-        if (loadFromStorage("pub_admin", ResidentProfile.serializer()) == null) {
+        val adminPubKey = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+        if (loadFromStorage(adminPubKey, ResidentProfile.serializer()) == null) {
             val admin = ResidentProfile(
-                pubKey = "pub_admin",
+                pubKey = adminPubKey,
                 displayName = "Admin",
                 federalHouseId = "us-fl-06",
                 federalSenateId = "us-senate",
@@ -325,8 +326,17 @@ class WebVerificationRequestRepository : VerificationRequestRepository {
 class WebAccountRepository : AccountRepository {
     override suspend fun register(account: UserAccount): Result<Unit> = Result.success(Unit)
     override suspend fun login(username: String, password: String): Result<UserAccount> {
-        if (username == "admin" && password == "1January012@") return Result.success(UserAccount("admin", "1January012@", "pub_admin", "priv_admin", "us-fl-06"))
-        return Result.success(UserAccount(username, password, "pub_$username", "priv_$username", "us-fl-06"))
+        val adminPub = "79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798"
+        val adminPriv = "0000000000000000000000000000000000000000000000000000000000000001"
+        
+        if (username == "admin" && password == "1January012@") {
+            return Result.success(UserAccount("admin", "1January012@", adminPub, adminPriv, "us-fl-06"))
+        }
+        
+        // Use deterministic hex keys for testing sync even for other users
+        val mockPub = net.wetheGoverned.core.sha256(username).take(64)
+        val mockPriv = net.wetheGoverned.core.sha256(password).take(64)
+        return Result.success(UserAccount(username, password, mockPub, mockPriv, "us-fl-06"))
     }
     override suspend fun changePassword(username: String, newPassword: String): Result<Unit> = Result.success(Unit)
     override suspend fun updateDistrict(username: String, districtId: String) {}
