@@ -119,7 +119,10 @@ class P2PSyncEngine(
                 relayManager.subscribe("wtg_sync_$myDistrictId", *filters)
                 
                 if (session != null) {
-                    scope.launch { pushLocalDataToRelays(session) }
+                    scope.launch { 
+                        delay(5000) // Wait for initial connections to stabilize
+                        pushLocalDataToRelays(session) 
+                    }
                 }
             }
             .launchIn(scope)

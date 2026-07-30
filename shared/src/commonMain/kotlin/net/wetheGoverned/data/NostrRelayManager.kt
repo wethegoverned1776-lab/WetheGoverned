@@ -52,7 +52,7 @@ class NostrRelayManager(
     
     // NIP-65/66 Cache
     private val knownRelays = mutableSetOf<String>().apply { addAll(initialRelayUrls) }
-    private val broadcastPool = mutableSetOf<String>()
+    private val broadcastPool = mutableSetOf<String>().apply { addAll(initialRelayUrls) }
     private val userRelayLists = mutableMapOf<String, List<String>>() // pubkey -> preferred write relays
     
     private val retryDelays = mutableMapOf<String, Long>()
@@ -174,21 +174,26 @@ class NostrRelayManager(
         while (scope.isActive) {
             try {
                 client.webSocket(url) {
-                    _relayStatuses.update { it + (url to RelayStatus.CONNECTED) }
-                    activeSessions[url] = this
-                    retryDelays[url] = 1000L
-                    
-                    activeSubscriptions.forEach { (id, filters) ->
-                        sendSubscriptionRequest(this, id, filters)
-                    }
-
-                    println("✅ CONNECTED TO RELAY: $url")
-                    
-                    for (frame in incoming) {
-                        if (frame is Frame.Text) {
-                            val text = frame.readText()
-                            handleMessage(text, url)
+                    try {
+                        _relayStatuses.update { it + (url to RelayStatus.CONNECTED) }
+                        activeSessions[url] = this
+                        retryDelays[url] = 1000L
+                        
+                        activeSubscriptions.forEach { (id, filters) ->
+                            sendSubscriptionRequest(this, id, filters)
                         }
+
+                        println("✅ CONNECTED TO RELAY: $url")
+                        
+                        for (frame in incoming) {
+                            if (frame is Frame.Text) {
+                                val text = frame.readText()
+                                handleMessage(text, url)
+                            }
+                        }
+                    } finally {
+                        activeSessions.remove(url)
+                        _relayStatuses.update { it + (url to RelayStatus.CLOSED) }
                     }
                 }
             } catch (e: Exception) {

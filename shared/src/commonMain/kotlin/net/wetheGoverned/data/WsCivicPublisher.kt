@@ -59,7 +59,7 @@ class WsCivicPublisher(
             kind = kind,
             tags = nostrTags,
             content = content,
-            sig = sessionManager.currentSession?.privateKey ?: "STUB_SIG" 
+            sig = sessionManager.currentSession?.privateKey ?: "0000000000000000000000000000000000000000000000000000000000000000"
         )
 
         // Broad broadcast for critical governance, NIP-65 for user content

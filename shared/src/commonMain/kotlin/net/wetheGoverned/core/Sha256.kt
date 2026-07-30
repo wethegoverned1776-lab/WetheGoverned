@@ -62,7 +62,7 @@ fun computeSha256(input: String): String {
         h[0] += a; h[1] += b; h[2] += c; h[3] += d
         h[4] += e; h[5] += f; h[6] += g; h[7] += i
     }
-    return h.joinToString("") { it.toUInt().toString(16).padStart(8, '0') }
+    return h.joinToString("") { (it.toLong() and 0xFFFFFFFFL).toString(16).padStart(8, '0') }
 }
 
 private fun Int.rotateRight(n: Int): Int = (this ushr n) or (this shl (32 - n))
