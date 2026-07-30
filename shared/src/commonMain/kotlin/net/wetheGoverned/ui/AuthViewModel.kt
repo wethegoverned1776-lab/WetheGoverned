@@ -82,6 +82,28 @@ open class AuthViewModel(
     fun login(username: String, password: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
+            
+            // Requirement: Support 'Real Signatures' via nsec login
+            if (password.startsWith("nsec1")) {
+                try {
+                    val privKeyHex = net.wetheGoverned.core.Bech32Codec.decodeNsec(password)
+                    val pubKeyHex = Secp256k1KeyManager.deriveXOnlyPubKey(privKeyHex)
+                    
+                    sessionManager.login(
+                        pubKeyHex = pubKeyHex,
+                        privateKeyHex = privKeyHex,
+                        districtId = "us-fl-06", // Default for nsec login
+                        tier = VerificationTier.VERIFIED,
+                        displayName = username.ifBlank { "Nostr User" }
+                    )
+                    _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
+                    return@launch
+                } catch (e: Exception) {
+                    _uiState.update { it.copy(isLoading = false, error = "Invalid nsec: ${e.message}") }
+                    return@launch
+                }
+            }
+
             val result = accountRepository.login(username, password)
             result.onSuccess { account ->
                 // Fetch profile to determine tier

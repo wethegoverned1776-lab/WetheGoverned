@@ -119,7 +119,7 @@ fun AuthContent(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text(if (authMode == AuthMode.LOGIN) "Password" else "Current Password") },
+                    label = { Text(if (authMode == AuthMode.LOGIN) "Password or nsec" else "Current Password") },
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
