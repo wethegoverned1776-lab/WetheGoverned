@@ -75,6 +75,7 @@ class P2PSyncEngine(
             .onEach { session ->
                 val myDistrictId = (session?.districtId ?: "us").lowercase()
                 val myPubKey = session?.pubKey
+                println("📡 Sync Engine: Starting subscription for district [$myDistrictId]")
                 
                 // 1. Geographical Filter (standardized as lowercase)
                 val districtFilterG = buildJsonObject {
@@ -198,27 +199,25 @@ class P2PSyncEngine(
                 CivicEventKind.DISTRICT_POLL,
                 CivicEventKind.LOCAL_POLL -> {
                     val poll = CivicJson.decodeFromString<CivicPoll>(event.content)
-                    println("📥 Received Poll via Mesh: ${poll.question} (ID: ${poll.id})")
+                    println("📥 MESH RECEIVE: Received Poll [${poll.question}] (ID: ${event.id})")
                     pollRepository.syncPoll(poll)
                 }
                 CivicEventKind.POLL_VOTE -> {
                     val vote = CivicJson.decodeFromString<CivicVote>(event.content)
-                    println("📥 Received Vote via Mesh for Poll: ${vote.pollId}")
+                    println("📥 MESH RECEIVE: Received Vote for Poll [${vote.pollId}]")
                     voteRepository.syncVote(vote)
-                    pollRepository.syncVote(vote) // Update poll counts
+                    pollRepository.syncVote(vote)
                     
-                    // Cross-device Sync: If this is the current user's vote from another device, 
-                    // mark the poll as voted locally.
                     if (vote.voterPubKey == sessionManager.currentPubKey) {
                         pollRepository.markVoted(vote.pollId, vote.optionId)
                     }
                 }
                 CivicEventKind.IMPORTANCE_VOTE -> {
-                    // Logic to update local poll importance from mesh
                     val content = event.content.split(":")
                     if (content.size == 2) {
                         val pollId = content[0]
                         val delta = content[1].toIntOrNull() ?: 0
+                        println("📥 MESH RECEIVE: Rank Update for Poll [$pollId] by $delta")
                         pollRepository.voteImportance(pollId, delta, event.pubKey)
                     }
                 }
