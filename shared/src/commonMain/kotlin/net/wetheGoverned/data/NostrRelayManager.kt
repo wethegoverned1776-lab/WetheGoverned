@@ -147,17 +147,33 @@ class NostrRelayManager(
         return score.coerceAtLeast(0)
     }
 
-    private fun refreshPools() {
+    /**
+     * Requirement: Dynamic Failover and Relay Discovery.
+     * This mechanism checks for working relays and rotates if one is failing.
+     */
+    private suspend fun refreshPools() {
         val highQuality = relayMetrics.value.values
             .filter { it.isOnline && !it.isPaid && it.score > 30 }
             .sortedByDescending { it.score }
 
-        // Core Requirement: Always maintain connections to the shared "Governance Pool"
+        // Core Requirement: maintain connections to the top 12 available relays
         val topActive = (initialRelayUrls + highQuality.map { it.url }).distinct().take(12)
         
-        // Next 15-50 for broad broadcast
         broadcastPool.clear()
         broadcastPool.addAll((initialRelayUrls + highQuality.map { it.url }).distinct().take(50))
+
+        println("🌐 Relay Pool Refreshed: ${activeSessions.size} connected, ${topActive.size} targets.")
+
+        // Prune dead sessions
+        activeSessions.keys.toList().forEach { url ->
+            if (!topActive.contains(url)) {
+                // Keep it if it's a seed relay, otherwise close to save resources
+                if (!initialRelayUrls.contains(url)) {
+                    activeSessions[url]?.let { scope.launch { it.close() } }
+                    activeSessions.remove(url)
+                }
+            }
+        }
 
         // Connect to new high quality relays if not already
         topActive.forEach { url ->
@@ -170,25 +186,27 @@ class NostrRelayManager(
     private suspend fun maintainConnection(url: String) {
         if (_relayStatuses.value[url] == RelayStatus.CONNECTED) return
         
-        _relayStatuses.update { it + (url to RelayStatus.CONNECTING) }
+        var failureCount = 0
         while (scope.isActive) {
+            _relayStatuses.update { it + (url to RelayStatus.CONNECTING) }
             try {
                 client.webSocket(url) {
                     try {
+                        failureCount = 0
                         _relayStatuses.update { it + (url to RelayStatus.CONNECTED) }
                         activeSessions[url] = this
                         retryDelays[url] = 1000L
                         
+                        // Re-apply all active subscriptions to this new relay
                         activeSubscriptions.forEach { (id, filters) ->
                             sendSubscriptionRequest(this, id, filters)
                         }
 
-                        println("✅ CONNECTED TO RELAY: $url")
+                        println("✅ CONNECTED TO MESH NODE: $url")
                         
                         for (frame in incoming) {
                             if (frame is Frame.Text) {
-                                val text = frame.readText()
-                                handleMessage(text, url)
+                                handleMessage(frame.readText(), url)
                             }
                         }
                     } finally {
@@ -197,14 +215,19 @@ class NostrRelayManager(
                     }
                 }
             } catch (e: Exception) {
+                failureCount++
                 _relayStatuses.update { it + (url to RelayStatus.ERROR) }
                 activeSessions.remove(url)
+                
+                // Rotation logic: if it fails 3 times, we check if it's still in the high quality list
+                if (failureCount >= 3 && !initialRelayUrls.contains(url)) {
+                    println("🔄 Relay $url is consistently failing. Dropping from active rotation.")
+                    return
+                }
+
                 val currentDelay = retryDelays.getOrPut(url) { 1000L }
                 delay(currentDelay)
                 retryDelays[url] = (currentDelay * 2).coerceAtMost(60000L)
-                
-                // If it's a broadcast-only relay and it's failing, don't retry forever
-                if (!initialRelayUrls.contains(url) && !broadcastPool.contains(url)) return
             }
         }
     }
@@ -217,7 +240,9 @@ class NostrRelayManager(
             when (type) {
                 "EVENT" -> {
                     try {
-                        val eventElement = array[2]
+                        // REQ response: ["EVENT", "sub_id", {event}]
+                        // EVENT broadcast: ["EVENT", {event}] - less common but happens
+                        val eventElement = if (array.size == 3) array[2] else array[1]
                         val civicEvent = json.decodeFromJsonElement<CivicEvent>(eventElement)
                         
                         // NIP-65/66 aggregation
@@ -228,11 +253,17 @@ class NostrRelayManager(
                         _events.emit(civicEvent)
                     } catch (e: Exception) {
                         println("❌ Failed to decode Nostr event from $originUrl: ${e.message}")
-                        println("Raw event: ${array[2]}")
                     }
                 }
                 "OK" -> {
-                    println("✅ Event published successfully to $originUrl: ${array[1].jsonPrimitive.content}")
+                    val eventId = array[1].jsonPrimitive.content
+                    val success = array[2].jsonPrimitive.boolean
+                    val message = if (array.size > 3) array[3].jsonPrimitive.content else ""
+                    if (success) {
+                        println("✅ Relay $originUrl accepted event $eventId")
+                    } else {
+                        println("❌ Relay $originUrl REJECTED event $eventId: $message")
+                    }
                 }
                 "NOTICE" -> {
                     println("🔔 NOTICE from $originUrl: ${array[1].jsonPrimitive.content}")
@@ -293,39 +324,53 @@ class NostrRelayManager(
             add(json.encodeToJsonElement(event))
         }.toString()
         
-        // 1. Concurrent broadcast to active sessions to prevent hanging on a single slow relay
-        activeSessions.values.forEach { session ->
+        val activeCount = activeSessions.size
+        println("📡 Attempting to publish event ${event.id} to $activeCount active relays...")
+
+        if (activeCount == 0) {
+            println("⚠️ No active relay connections! Reconnecting...")
+            connect()
+        }
+        
+        // 1. Concurrent broadcast to active sessions
+        activeSessions.forEach { (url, session) ->
             scope.launch {
                 try {
-                    withTimeout(5000) {
+                    withTimeout(10000) {
                         session.send(Frame.Text(request))
                     }
+                    // Relays often send an OK message immediately after EVENT
                 } catch (e: Exception) {
-                    println("⚠️ Failed to publish to active relay: ${e.message}")
+                    println("⚠️ Failed to publish to $url: ${e.message}")
                 }
             }
         }
         
-        // 2. Broad broadcast to the rest of the pool (Rotating subset)
+        // 2. Broad broadcast to additional relays (Exploratory)
         val targets = if (preferredRelays != null) {
             preferredRelays.filter { !activeSessions.containsKey(it) }
         } else {
-            broadcastPool.filter { !activeSessions.containsKey(it) }.shuffled().take(15)
+            broadcastPool.filter { !activeSessions.containsKey(it) }.shuffled().take(5)
         }
 
         targets.forEach { url ->
             scope.launch {
                 try {
-                    withTimeout(10000) {
+                    withTimeout(15000) {
                         client.webSocket(url) {
                             send(Frame.Text(request))
-                            // Wait briefly for OK response
+                            // Wait for OK response
                             for (frame in incoming) {
-                                if (frame is Frame.Text && frame.readText().contains("OK")) break
+                                if (frame is Frame.Text) {
+                                    handleMessage(frame.readText(), url)
+                                    if (frame.readText().contains("OK")) break
+                                }
                             }
                         }
                     }
-                } catch (ignore: Exception) {}
+                } catch (e: Exception) {
+                    println("⚠️ Exploratory publish to $url failed: ${e.message}")
+                }
             }
         }
     }
