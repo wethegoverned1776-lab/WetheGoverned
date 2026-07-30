@@ -73,10 +73,10 @@ class P2PSyncEngine(
         // Subscribe to relevant events
         sessionManager.session
             .onEach { session ->
-                val myDistrictId = session?.districtId ?: "us"
+                val myDistrictId = (session?.districtId ?: "us").lowercase()
                 val myPubKey = session?.pubKey
                 
-                // We use multiple filters to ensure an OR operation at the relay level
+                // 1. Geographical Filter (standardized as lowercase)
                 val districtFilterG = buildJsonObject {
                     put("kinds", buildJsonArray { 
                         add(JsonPrimitive(CivicEventKind.FEDERAL_POLL))
@@ -90,6 +90,7 @@ class P2PSyncEngine(
                     })
                 }
 
+                // 2. Topic/Hashtag Filter (Redundant sync net)
                 val districtFilterT = buildJsonObject {
                     put("kinds", buildJsonArray { 
                         add(JsonPrimitive(CivicEventKind.FEDERAL_POLL))
