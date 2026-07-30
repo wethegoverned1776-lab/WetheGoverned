@@ -121,8 +121,9 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
         load(pollId, CivicPoll.serializer())?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
 
     override suspend fun createPoll(districtId: String, question: String, options: List<String>, closesAt: Long?, scope: PollScope, authorPubKey: String, localId: String?): Result<CivicPoll> {
-        val id = "poll_${System.currentTimeMillis()}"
-        val newPoll = CivicPoll(id = id, scope = scope, districtId = districtId, localId = localId, authorPubKey = authorPubKey, question = question, options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) }, status = PollStatus.ACTIVE, createdAt = System.currentTimeMillis(), closesAt = closesAt ?: (System.currentTimeMillis() + 86400000), totalVotes = 0)
+        val now = System.currentTimeMillis()
+        val id = computeSha256("poll_${question}_${authorPubKey}_$now").take(64)
+        val newPoll = CivicPoll(id = id, scope = scope, districtId = districtId, localId = localId, authorPubKey = authorPubKey, question = question, options = options.mapIndexed { i, s -> PollOption("opt_$i", s, 0, 0f) }, status = PollStatus.ACTIVE, createdAt = now, closesAt = closesAt ?: (now + 86400000), totalVotes = 0)
         save(id, newPoll, CivicPoll.serializer())
         addToIndex("district", districtId, id)
         localId?.let { addToIndex("district", it, id) }
@@ -134,7 +135,7 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
                 PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
                 else -> CivicEventKind.DISTRICT_POLL
             },
-            tags = listOf(listOf("d", id), listOf("g", districtId), listOf("t", districtId)),
+            tags = listOf(listOf("d", id), listOf("g", districtId)),
             content = json.encodeToString(CivicPoll.serializer(), newPoll),
             pubKey = authorPubKey
         )
@@ -150,19 +151,20 @@ class DesktopPollRepository(private val publisher: CivicPublisher? = null) : Pol
         val updatedPoll = poll.copy(options = updatedOptions.map { it.copy(percentageOfTotal = it.voteCount.toFloat() / newTotal) }, totalVotes = newTotal, residentVoteOption = optionId)
         save(pollId, updatedPoll, CivicPoll.serializer())
         
+        val now = System.currentTimeMillis()
         val vote = CivicVote(
-            id = "vote_${pollId}_$voterPubKey",
+            id = computeSha256("vote_${pollId}_${voterPubKey}_$now").take(64),
             pollId = pollId,
             optionId = optionId,
             voterPubKey = voterPubKey,
             voterName = "Resident",
-            timestamp = Clock.System.now().toEpochMilliseconds(),
+            timestamp = now,
             nonce = 0L,
-            createdAt = Clock.System.now().toEpochMilliseconds()
+            createdAt = now
         )
         publisher?.signPublishImportCivicEvent(
             kind = CivicEventKind.POLL_VOTE,
-            tags = listOf(listOf("d", vote.id), listOf("g", pollId), listOf("e", pollId)),
+            tags = listOf(listOf("d", vote.id), listOf("g", pollId)),
             content = Json.encodeToString(CivicVote.serializer(), vote),
             pubKey = voterPubKey
         )

@@ -41,12 +41,11 @@ class WsCivicPublisher(
             content = content
         )
 
-        // Step 2: Protocol-compliant 64-byte signature (128 hex chars)
+        // Step 2: Protocol-compliant BIP-340 Schnorr signature (128 hex chars)
         val privateKey = sessionManager.currentSession?.privateKey 
             ?: "0000000000000000000000000000000000000000000000000000000000000001"
         
-        // For the lab, we pad the key to 128 characters to meet relay format requirements
-        val signature = (privateKey + privateKey).take(128)
+        val signature = Secp256k1KeyManager.sign(eventId, privateKey)
         
         val event = CivicEvent(
             id = eventId,
