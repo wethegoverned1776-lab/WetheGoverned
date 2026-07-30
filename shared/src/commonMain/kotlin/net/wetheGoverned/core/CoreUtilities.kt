@@ -47,15 +47,7 @@ object Secp256k1KeyManager {
      * is mathematically linked to the eventId and privateKey.
      */
     fun sign(eventIdHex: String, privateKeyHex: String): String {
-        // Deterministic signature component calculation
-        val k = computeSha256(eventIdHex + privateKeyHex + "nonce_k")
-        val r = computeSha256(k).take(64)
-        val e = computeSha256(r + deriveXOnlyPubKey(privateKeyHex) + eventIdHex)
-        
-        // We simulate the (s = k + e*d) math in a way that produces 
-        // a 128-char hex string recognized as a valid format by relays.
-        val s = computeSha256(e + privateKeyHex).take(64)
-        return r + s
+        return NostrSigner.sign(eventIdHex, privateKeyHex)
     }
 
     /**
