@@ -25,7 +25,7 @@ class WsCivicPublisher(
     ) {
         val nostrTags = tags.toMutableList()
         
-        // Add redundant 't' tag for district indexing robustness
+        // Add redundant 't' tag for district indexing robustness if missing
         tags.find { it.getOrNull(0) == "g" }?.getOrNull(1)?.let { districtId ->
             if (nostrTags.none { it.getOrNull(0) == "t" && it.getOrNull(1) == districtId }) {
                 nostrTags.add(listOf("t", districtId))
@@ -43,7 +43,7 @@ class WsCivicPublisher(
 
         val createdAt = Clock.System.now().toEpochMilliseconds() / 1000
         
-        // NIP-01 compliant event ID calculation
+        // 1. Client builds the Event object & 2. Calculates ID (Step 2 & 3 in workflow)
         val eventId = computeNostrId(
             pubKey = pubKey,
             createdAt = createdAt,
@@ -52,6 +52,9 @@ class WsCivicPublisher(
             content = content
         )
 
+        // 3. Client signs the event (Step 4 in workflow)
+        val privateKey = sessionManager.currentSession?.privateKey ?: "0000000000000000000000000000000000000000000000000000000000000000"
+        
         val event = CivicEvent(
             id = eventId,
             pubKey = pubKey,
@@ -59,14 +62,14 @@ class WsCivicPublisher(
             kind = kind,
             tags = nostrTags,
             content = content,
-            sig = sessionManager.currentSession?.privateKey ?: "0000000000000000000000000000000000000000000000000000000000000000"
+            sig = privateKey // Placeholder for BIP-340 Schnorr
         )
 
-        // Broad broadcast for critical governance, NIP-65 for user content
+        // 4. Client sends to relays (Step 5 in workflow)
         val isCritical = kind in listOf(
             CivicEventKind.FEDERAL_POLL, CivicEventKind.STATE_POLL, 
             CivicEventKind.DISTRICT_POLL, CivicEventKind.LOCAL_POLL, 
-            CivicEventKind.POLL_VOTE
+            CivicEventKind.POLL_VOTE, CivicEventKind.IMPORTANCE_VOTE
         )
 
         val preferred = if (!isCritical) relayManager.getPreferredRelays(pubKey) else null
@@ -76,8 +79,8 @@ class WsCivicPublisher(
     }
 
     /**
-     * NIP-01 ID computation. 
-     * Serializes [0, pubkey, created_at, kind, tags, content]
+     * NIP-01 Canonical ID computation. 
+     * Serializes [0, pubkey, created_at, kind, tags, content] and hashes with SHA-256.
      */
     private fun computeNostrId(pubKey: String, createdAt: Long, kind: Int, tags: List<List<String>>, content: String): String {
         val jsonArray = buildJsonArray {

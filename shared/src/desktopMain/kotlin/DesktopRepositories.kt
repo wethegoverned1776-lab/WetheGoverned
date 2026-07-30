@@ -343,7 +343,7 @@ class DesktopDistrictRepository : DistrictRepository {
     override suspend fun refreshMetrics(districtId: String): Result<List<DistrictMetric>> = Result.success(emptyList())
 }
 
-class DesktopCommunityRepository(private val publisher: CivicPublisher? = null) : CommunityRepository {
+class DesktopCommunityRepository(private val publisher: CivicPublisher? = null) : CommunityRepository, FileBasedRepository("community") {
     private val _posts = MutableStateFlow<List<CommunityPost>>(emptyList())
     override fun observePosts(districtId: String, kind: CommunityPostKind?): Flow<List<CommunityPost>> = _posts.map { list -> list.filter { it.districtId == districtId && (kind == null || it.kind == kind) } }
     override suspend fun getPost(postId: String): Result<CommunityPost> = _posts.value.find { it.id == postId }?.let { Result.success(it) } ?: Result.failure(Exception("Not found"))
@@ -364,7 +364,7 @@ class DesktopCommunityRepository(private val publisher: CivicPublisher? = null) 
         publisher?.signPublishImportCivicEvent(
             kind = CivicEventKind.COMMUNITY_POST,
             tags = listOf(listOf("d", post.id), listOf("g", districtId)),
-            content = Json.encodeToString(CommunityPost.serializer(), post),
+            content = json.encodeToString(CommunityPost.serializer(), post),
             pubKey = authorPubKey
         )
         return Result.success(post)
