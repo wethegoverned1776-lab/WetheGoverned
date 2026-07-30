@@ -96,6 +96,18 @@ open class AuthViewModel(
                         tier = VerificationTier.VERIFIED,
                         displayName = username.ifBlank { "Nostr User" }
                     )
+                    
+                    // Create/Sync the resident profile for this nsec login to ensure UI knows we are verified
+                    residentRepository.createProfile(
+                        net.wetheGoverned.model.ResidentProfile(
+                            pubKey = pubKeyHex,
+                            displayName = username.ifBlank { "Nostr User" },
+                            federalHouseId = "us-fl-06",
+                            tier = VerificationTier.VERIFIED,
+                            joinedAt = Clock.System.now().toEpochMilliseconds(),
+                            isVerified = true
+                        )
+                    )
                     _uiState.update { it.copy(isLoading = false, isAuthenticated = true) }
                     return@launch
                 } catch (e: Exception) {
