@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
+    // V2-SYNC-ACTIVE-12-RELAYS
+    println("Initializing WeTheGoverned Web Core...")
     ComposeViewport(document.getElementById("compose-target")!!) {
         val sessionStorage = remember { WebSessionStorage() }
         val sessionManager = remember { SessionManager(sessionStorage) }
@@ -42,9 +44,7 @@ fun main() {
             "wss://nostr.mom",
             "wss://atlas.nostr.land",
             "wss://bitcoiner.social",
-            "wss://relay.nostr.band",
             "wss://purplepag.es",
-            "wss://relay.nostr.bg",
             "wss://no.str.cr"
         )
         val relayManager = remember { NostrRelayManager(relayUrls) }

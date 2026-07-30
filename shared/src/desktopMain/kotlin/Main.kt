@@ -51,7 +51,6 @@ fun main() {
             "wss://bitcoiner.social",
             "wss://relay.nostr.band",
             "wss://purplepag.es",
-            "wss://relay.nostr.bg",
             "wss://no.str.cr"
         )
         val relayManager = remember { NostrRelayManager(relayUrls) }

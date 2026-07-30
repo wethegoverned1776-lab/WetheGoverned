@@ -10,6 +10,7 @@ val CivicJson = Json {
     ignoreUnknownKeys = true
     encodeDefaults = true
     coerceInputValues = true
+    prettyPrint = false
 }
 
 @Serializable
