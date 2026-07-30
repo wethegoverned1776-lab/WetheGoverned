@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.*
+import net.wetheGoverned.core.*
 import net.wetheGoverned.model.*
 import net.wetheGoverned.repository.*
 import net.wetheGoverned.session.SessionManager
@@ -156,20 +157,24 @@ class P2PSyncEngine(
             )
         }
 
-        // 2. Sync Polls authored by user or local seed polls
+        // 2. Sync Polls authored by user (Filtered for protocol compliance)
         pollRepository.getAllPolls().forEach { poll ->
             if (poll.authorPubKey == session.pubKey || poll.authorPubKey == "admin") {
-                publisher.signPublishImportCivicEvent(
-                    kind = when(poll.scope) {
-                        PollScope.FEDERAL -> CivicEventKind.FEDERAL_POLL
-                        PollScope.STATE -> CivicEventKind.STATE_POLL
-                        PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
-                        else -> CivicEventKind.DISTRICT_POLL
-                    },
-                    tags = listOf(listOf("d", poll.id), listOf("g", poll.districtId)),
-                    content = json.encodeToString(CivicPoll.serializer(), poll),
-                    pubKey = poll.authorPubKey
-                )
+                // Protocol Guard: Only sync polls that have a valid 64-char hex ID
+                // This ignores old 'poll_123' style legacy data that relays reject
+                if (Secp256k1KeyManager.isValidNostrHex(poll.id)) {
+                    publisher.signPublishImportCivicEvent(
+                        kind = when(poll.scope) {
+                            PollScope.FEDERAL -> CivicEventKind.FEDERAL_POLL
+                            PollScope.STATE -> CivicEventKind.STATE_POLL
+                            PollScope.LOCAL -> CivicEventKind.LOCAL_POLL
+                            else -> CivicEventKind.DISTRICT_POLL
+                        },
+                        tags = listOf(listOf("d", poll.id), listOf("g", poll.districtId)),
+                        content = json.encodeToString(CivicPoll.serializer(), poll),
+                        pubKey = poll.authorPubKey
+                    )
+                }
             }
         }
     }
