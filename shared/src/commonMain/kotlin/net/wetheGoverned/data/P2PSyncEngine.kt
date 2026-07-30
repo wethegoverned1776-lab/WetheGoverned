@@ -125,6 +125,7 @@ class P2PSyncEngine(
                     scope.launch { 
                         delay(5000) // Wait for initial connections to stabilize
                         pushLocalDataToRelays(session) 
+                        publishWorkingRelayList(session)
                     }
                 }
             }
@@ -137,7 +138,34 @@ class P2PSyncEngine(
             }
             .launchIn(scope)
             
+        // Periodic mesh maintenance
+        scope.launch {
+            while (isActive) {
+                delay(3600 * 1000L) // Every hour
+                sessionManager.currentSession?.let { publishWorkingRelayList(it) }
+            }
+        }
+            
         println("📡 Global Nostr Sync Engine Active (Scaled with Parallel Processing).")
+    }
+
+    /**
+     * Requirement: Shared Master List of working relays.
+     * Publishes our local list of healthy relays so other clients can find them.
+     */
+    private suspend fun publishWorkingRelayList(session: UserSession) {
+        val working = relayManager.getWorkingRelayUrls()
+        if (working.isEmpty()) return
+
+        println("📤 Sharing master relay list with the mesh (${working.size} nodes)...")
+        val tags = working.map { listOf("r", it, "read", "write") }
+        
+        publisher.signPublishImportCivicEvent(
+            kind = 10002, // NIP-65 Relay List Metadata
+            tags = tags,
+            content = "Governance Mesh Healthy Nodes",
+            pubKey = session.pubKey
+        )
     }
 
     /**
